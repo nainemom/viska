@@ -1,12 +1,5 @@
 <template>
-<div id="root">
-  Server Stat: {{ this.$root.connecionState }} <br />
-  SID: {{ this.$root.sid }} <br />
-  PID: {{ this.$root.pid }} <br />
-  <router-link to="/chats">Chats</router-link>
-  <hr />
-  <router-view></router-view>
-</div>
+<router-view></router-view>
 </template>
 
 <script>
@@ -28,6 +21,15 @@ export default {
       sid: undefined,
       pid: undefined,
       chats: [],
+      theme: {
+        shadeColor: '#fff',
+        backgroundColor: '#1e1e1e',
+        fillColor: '#fff',
+        backgroundColor2: '#252525',
+        borderColor: 'rgba(0, 0, 0, 0.7)',
+        shadowColor: 'rgba(0, 0, 0, 0.6)',
+        primaryColor: '#0c9029',
+      }
     }
   },
   methods: {
@@ -97,6 +99,25 @@ export default {
     this.server.on('disconnect', this.onConnectionStateChange.bind(this, false));
     this.server.on('reconnecting', this.onConnectionStateChange.bind(this, null));
     this.server.on('newMessage', this.onNewMessage);
+  },
+  style({ custom }) {
+    return [
+      custom('*', {
+        padding: 0,
+        margin: 0,
+      '-webkit-overflow-scrolling': 'touch',
+      'touchAction': 'pan-y',
+      '-webkit-tap-highlight-color': 'rgba(0, 0, 0, 0)',
+      'box-sizing': 'border-box',
+      }),
+      custom('html, body, #root', {
+        height: '100%',
+        maxHeight: '100%',
+        minHeight: '100%',
+        background: this.theme.shadeColor,
+        color: this.theme.fillColor,
+      }),
+    ];
   },
 }
 </script>

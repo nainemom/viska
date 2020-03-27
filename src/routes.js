@@ -1,9 +1,7 @@
+import Welcome from './pages/Welcome.vue';
 import Home from './pages/Home.vue';
-import Chats from './pages/Chats.vue';
-import Chat from './pages/Chat.vue';
-
 export default [
-  { path: '/', component: Home },
-  { path: '/chats', component: Chats },
-  { path: '/chats/:type/:id', component: Chat },
+  { path: '/', component: Welcome },
+  { path: '/chats', component: Home },
+  { path: '/chats/:type/:id', component: Home },
 ];

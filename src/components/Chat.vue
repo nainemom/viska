@@ -1,7 +1,7 @@
 <template>
-<div>
-  {{ state }}
-  <ul>
+<div :class="$style.container">
+  <ul :class="$style.conversation">
+    {{ state }}
     <li v-for="(message, index) in messages" :key="index">
       <div>
         {{ message.from }}:
@@ -9,15 +9,17 @@
       </div>
     </li>
   </ul>
-  <form @submit.prevent="sendMessage">
-    <input v-model="inputText" required :disabled="state === false"/>
-  </form>
+  <MessageForm :class="$style.messageForm" @submit="sendMessage" v-model="inputText" :disabled="state === false" />
 </div>
 </template>
 
 <script>
+import MessageForm from './MessageForm.vue';
 
 export default {
+  components: {
+    MessageForm,
+  },
   data() {
     return {
       inputText: '',
@@ -29,12 +31,6 @@ export default {
     }
   },
   computed: {
-    type() {
-      return this.$route.params.type;
-    },
-    id() {
-      return this.$route.params.id;
-    },
     messages() {
       return this.chat ? this.chat.messages : [];
     }
@@ -65,17 +61,23 @@ export default {
       this.pid && this.$root.server.on(`pid:${this.pid}:connect`, this.onUserConnect);
       this.sid && this.$root.server.on(`sid:${this.sid}:connect`, this.onUserConnect);
     },
+    finish() {
+      this.sid && this.$root.server.off(`${this.sid}:disconnect`, this.onUserDisconnect);
+      this.pid && this.$root.server.off(`pid:${this.pid}:connect`, this.onUserConnect);
+      this.sid && this.$root.server.off(`sid:${this.sid}:connect`, this.onUserConnect);
+    },
 
-
-    init() {
+    start(type, id) {
       this.state = false;
-      this.sid = this.type === 'sid' ? this.id : undefined;
-      this.pid = this.type === 'pid' ? this.id : undefined;
+      this.sid = type === 'sid' ? id : undefined;
+      this.pid = type === 'pid' ? id : undefined;
       this.chat = this.$root.upsertChat(this.sid, this.pid);
+      console.log('starting')
       this.$root.server.emit('getUser', {
         sid: this.sid,
         pid: this.pid,
       }, (error, newSid) => {
+        console.log(newSid);
         if (error) {
           return this.onUserDisconnect();
         }
@@ -83,8 +85,26 @@ export default {
       });
     }
   },
-  created() {
-    this.init();
+  beforeDestroy() {
+    this.finish();
   },
+  style({ className, mediaQuery }) {
+    return [
+      className('container', {
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }),
+      className('conversation', {
+        flexGrow: 1,
+        overflowY: 'scroll',
+      }),
+      className('messageForm', {
+        padding: '15px',
+        backgroundColor: this.$root.theme.backgroundColor2,
+        borderTop: `solid 1px ${this.$root.theme.borderColor}`,
+      }),
+    ];
+  }
 }
 </script>
