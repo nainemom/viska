@@ -9,14 +9,24 @@ module.exports = (io) => (socket) => {
     pid: undefined, // public_id
   };
   users.push(user);
-  console.log('connected', user.sid)
+  io.emit(`sid:${user.sid}:connect`, user.sid);
 
-  socket.on('auth', (passprase, callback) => {
+  socket.on('auth', ({ passprase, salt }, callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
+    if (!passprase || !salt) {
+      return this.callback(true, '');
+    }
     user.pid = auth.generateKey(passprase, salt);
-    callback(false, user.pid);
+    io.emit(`pid:${user.pid}:connect`, user.sid);
+    return callback(false, user.pid);
   });
 
   socket.on('pickRandomUser', (callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
     if (users.length < 2) {
       return callback(true, undefined);
     }
@@ -27,19 +37,62 @@ module.exports = (io) => (socket) => {
     return callback(false, theUser.sid);
   });
 
+  socket.on('getUser', (data, callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
+    const { pid, sid } = data;
+    if (pid) {
+      const theUser = users.find(_user => _user.pid === pid);
+      if (!theUser) {
+        return callback(true, undefined);
+      }
+      return callback(false, theUser.sid);
+    } else if (sid) {
+      const theUser = users.find(_user => _user.sid === sid);
+      if (!theUser) {
+        return callback(true, undefined);
+      }
+      return callback(false, theUser.sid);
+    } else {
+      return callback(true, undefined);
+    }
+
+  });
+  socket.on('validateSid', (data, callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
+    const { sid } = data;
+    if (!sid) {
+      return callback(true, undefined);
+    }
+    const theUser = users.find(_user => _user.sid === sid);
+    if (!theUser) {
+      return callback(true, undefined);
+    }
+    return callback(false, theUser.sid);
+  });
+
   socket.on('getUserState', (data, callback) => {
-    const { sid } = data; // idType is one of ['sid', 'pid']
+    if (typeof callback !== 'function') {
+      return;
+    }
+    const { sid } = data;
     if (!sid) {
       return callback(true, false);
     }
     const theUser = users.find(_user => _user.sid === sid);
     if (!theUser) {
-      return callback(true, false);
+      return callback(false, false);
     }
-    return callback(false, true)
+    return callback(false, true);
   });
 
   socket.on('sendMessage', (data, callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
     const { sid, message } = data; // idType is one of ['sid', 'pid']
     if (!sid || !message) {
       return callback(true, undefined);
@@ -48,10 +101,11 @@ module.exports = (io) => (socket) => {
     if (!receiverUser) {
       return callback(true, undefined);
     }
-    receiverUser.socket.emit('newMessage', {
+    const messageObject = {
       sid: user.sid,
       message
-    });
+    };
+    receiverUser.socket.emit('newMessage', messageObject);
     return callback(false, undefined);
   });
 
@@ -60,6 +114,7 @@ module.exports = (io) => (socket) => {
   socket.on('disconnect', () => {
     // remove this user from users list
     users.splice(users.findIndex(_user => _user.sid === user.sid), 1);
+    io.emit(`${user.sid}:disconnect`);
   });
   
 }

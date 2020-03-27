@@ -1,5 +1,6 @@
 <template>
 <div>
+  {{ state }}
   <ul>
     <li v-for="(message, index) in messages" :key="index">
       <div>
@@ -9,7 +10,7 @@
     </li>
   </ul>
   <form @submit.prevent="sendMessage">
-    <input v-model="inputText" required/>
+    <input v-model="inputText" required :disabled="state === false"/>
   </form>
 </div>
 </template>
@@ -20,6 +21,11 @@ export default {
   data() {
     return {
       inputText: '',
+      state: false,
+      chat: undefined,
+      sid: undefined,
+      pid: undefined,
+
     }
   },
   computed: {
@@ -29,46 +35,56 @@ export default {
     id() {
       return this.$route.params.id;
     },
-    chat() {
-      return this.$root.chats.find((user) => user[this.type] === this.id);
-    },
     messages() {
       return this.chat ? this.chat.messages : [];
     }
   },
   methods: {
     sendMessage() {
-      if (!this.chat) {
-        return;
-      }
-      const message = this.inputText;
-      this.$root.server.emit('sendMessage', {
-        sid: this.chat.sid,
-        message,
-      }, (error) => {
-        if (!error) {
-          this.messages.push({
-            from: 'me',
-            message,
-          });
-          this.inputText = '';
-        }
-      })
+      this.$root.sendMessage(this.sid, this.pid, this.inputText).then(() => {
+        this.inputText = '';
+      });
     },
-    onNewMessage(sid, message) {
-      if (!this.chat) {
-        return;
-      }
-      if (sid === this.chat.id) {
-        this.messages.push({
-          from: 'its',
-          message,
-        });
-      }
+    onUserDisconnect() {
+      this.state = false;
+      this.unbindEvents();
+    },
+    onUserConnect(sid) {
+      this.state = true;
+      this.sid = sid;
+      this.bindEvents();
+    },
+
+    bindEvents() {
+      this.sid && this.$root.server.on(`${this.sid}:disconnect`, this.onUserDisconnect);
+      this.pid && this.$root.server.off(`pid:${this.pid}:connect`, this.onUserConnect);
+      this.sid && this.$root.server.off(`sid:${this.sid}:connect`, this.onUserConnect);
+    },
+    unbindEvents() {
+      this.sid && this.$root.server.off(`${this.sid}:disconnect`, this.onUserDisconnect);
+      this.pid && this.$root.server.on(`pid:${this.pid}:connect`, this.onUserConnect);
+      this.sid && this.$root.server.on(`sid:${this.sid}:connect`, this.onUserConnect);
+    },
+
+
+    init() {
+      this.state = false;
+      this.sid = this.type === 'sid' ? this.id : undefined;
+      this.pid = this.type === 'pid' ? this.id : undefined;
+      this.chat = this.$root.upsertChat(this.sid, this.pid);
+      this.$root.server.emit('getUser', {
+        sid: this.sid,
+        pid: this.pid,
+      }, (error, newSid) => {
+        if (error) {
+          return this.onUserDisconnect();
+        }
+        this.onUserConnect(newSid);
+      });
     }
   },
   created() {
-    this.$root.server.on('newMessage', this.onNewMessage);
-  }
+    this.init();
+  },
 }
 </script>
