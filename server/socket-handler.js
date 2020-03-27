@@ -16,7 +16,7 @@ module.exports = (io) => (socket) => {
       return;
     }
     if (!passprase || !salt) {
-      return this.callback(true, '');
+      return callback(true, '');
     }
     user.pid = auth.generateKey(passprase, salt);
     io.emit(`pid:${user.pid}:connect`, user.sid);
