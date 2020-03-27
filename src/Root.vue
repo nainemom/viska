@@ -24,13 +24,16 @@ export default {
     this.server.on('connect', () => {
       this.isConnected = true;
       this.sid = this.server.id;
+      this.$emit('connectionStateChange', this.isConnected);
     });
     this.server.on('disconnect', () => {
       this.isConnected = false;
       this.sid = undefined;
+      this.$emit('connectionStateChange', this.isConnected);
     });
     this.server.on('reconnecting', () => {
       this.isConnected = null;
+      this.$emit('connectionStateChange', this.isConnected);
     });
   }
 }
