@@ -23,16 +23,16 @@ module.exports = (io) => (socket) => {
     let theUser;
     do {
       theUser = users[Math.floor(Math.random() * users.length)];
-    } while (theUser.sid !== user.sid)
+    } while (theUser.sid === user.sid)
     return callback(false, theUser.sid);
   });
 
   socket.on('getUserState', (data, callback) => {
-    const { userId, idType } = data; // idType is one of ['sid', 'pid']
-    if (!userId || !['sid', 'pid'].includes(idType)) {
+    const { sid } = data; // idType is one of ['sid', 'pid']
+    if (!sid) {
       return callback(true, false);
     }
-    const theUser = users.find(_user => _user[idType] === userId);
+    const theUser = users.find(_user => _user.sid === sid);
     if (!theUser) {
       return callback(true, false);
     }
@@ -40,18 +40,19 @@ module.exports = (io) => (socket) => {
   });
 
   socket.on('sendMessage', (data, callback) => {
-    const { receiverId, idType, message } = data; // idType is one of ['sid', 'pid']
-    if (!receiverId || !message || !['sid', 'pid'].includes(idType)) {
+    const { sid, message } = data; // idType is one of ['sid', 'pid']
+    if (!sid || !message) {
       return callback(true, undefined);
     }
-    const receiverUser = users.find(_user => _user[idType] === receiverId);
+    const receiverUser = users.find(_user => _user.sid === sid);
     if (!receiverUser) {
       return callback(true, undefined);
     }
     receiverUser.socket.emit('newMessage', {
-      senderSid: user.sid,
+      sid: user.sid,
       message
     });
+    return callback(false, undefined);
   });
 
 
