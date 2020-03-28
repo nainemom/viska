@@ -63,7 +63,7 @@ export default {
         flexDirection: 'column',
       }),
       className('header', {
-        background: this.$root.theme.primaryColorDeep,
+        background: this.$root.theme.backgroundColor,
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
         // color: '#fff',
         // height: '48px',

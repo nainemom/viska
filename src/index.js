@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm';
+import Vue from 'vue';
 import VueComponentStyle from 'vue-component-style';
 import VueRouter from 'vue-router';
 import Root from './Root.vue';

@@ -1,12 +1,17 @@
 <template>
-<router-view></router-view>
+<div :class="$style.container">
+  <router-view></router-view>
+  <AuthPopup ref="authPopup"/>
+</div>
 </template>
 
 <script>
+import Vue from 'vue';
 import VueRouter from 'vue-router';
 import SocketIo from 'socket.io-client';
 import Root from './Root.vue';
 import routes from './routes.js';
+import AuthPopup from './components/AuthPopup.vue';
 import { forEachSync } from '../utils/handy.js';
 
 const router = new VueRouter({
@@ -15,6 +20,9 @@ const router = new VueRouter({
 
 export default {
   router,
+  components: {
+    AuthPopup,
+  },
   data() {
     return {
       server: undefined,
@@ -29,7 +37,7 @@ export default {
         backgroundColor2: '#f1f1f1',
         backgroundColor3: '#f2f2f2',
         highlightColor: '#fdfdfd',
-        borderColor: 'rgba(0, 0, 0, 0.08)',
+        borderColor: 'rgba(0, 0, 0, 0.1)',
         shadowColor: 'rgba(0, 0, 0, 0.1)',
         primaryColor: 'linear-gradient(45deg, #3661ff, #3916c7)',
         primaryColorDeep: 'linear-gradient(45deg, #d1dbff, #cec3f8)',
@@ -112,6 +120,8 @@ export default {
     onConnectionStateChange(state) {
       if (state === true) {
         this.sid = this.server.id;
+        console.log(this.$refs.authPopup);
+        this.$refs.authPopup.open();
       } else {
         this.sid = undefined;
       }
@@ -157,6 +167,7 @@ export default {
     this.server.on('reconnecting', this.onConnectionStateChange.bind(this, null));
     this.server.on('newMessage', this.onNewMessage);
 
+    // this.$authPopup = new (Vue.extend(AuthPopup))();
     // const chatsBackup = null // localStorage.getItem('chats');
     // if (chatsBackup) {
     //   forEachSync(JSON.parse(chatsBackup).reverse(), (chat) => {
@@ -177,7 +188,16 @@ export default {
     });
   },
   
-  style({ custom }) {
+  style({ custom, className }) {
+    const containerStyle = {
+      height: '100%',
+      maxHeight: '100%',
+      minHeight: '100%',
+      background: this.theme.shadeColor,
+      color: this.theme.fillColor,
+      fontSize: '16px',
+      lineHeight: 1.5,
+    };
     return [
       custom('*', {
         padding: 0,
@@ -187,15 +207,10 @@ export default {
         userSelect: 'none',
         '-webkit-overflow-scrolling': 'touch',
         '-webkit-tap-highlight-color': 'rgba(0, 0, 0, 0)',
+        fontFamily: '"Ubuntu Mono", monospace',
       }),
-      custom('html, body, #root', {
-        height: '100%',
-        maxHeight: '100%',
-        minHeight: '100%',
-        fontFamily: 'monospace',
-        background: this.theme.shadeColor,
-        color: this.theme.fillColor,
-      }),
+      custom('html, body, #root', containerStyle),
+      className('container', containerStyle),
     ];
   },
 }
