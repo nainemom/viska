@@ -2,17 +2,16 @@
 <div :class="$style.container">
   <div :class="$style.header">
     <ChatListItem class="name" :chat="chat" />
-    <button class="close-button" v-if="chat" @click="closeChat">
-      <i class="material-icons">clear</i>
-    </button>
+    <button class="close-button" v-if="chat" @click="closeChat"> X </button>
   </div>
-  <div :class="$style.conversation">
-    <div v-for="(message, index) in messages" :key="index" :class="[$style.messageItem, message.from]">
-      <div class="inside">
+  <ul :class="$style.conversation">
+    <li v-for="(message, index) in messages" :key="index">
+      <div>
+        {{ message.from }}:
         {{ message.message }}
       </div>
-    </div>
-  </div>
+    </li>
+  </ul>
   <MessageForm :class="$style.messageForm" @submit="sendMessage" v-model="inputText" :disabled="!chat || !chat.isOnline" />
 </div>
 </template>
@@ -38,7 +37,6 @@ export default {
   },
   computed: {
     messages() {
-      // return [{"from":"me","message":"salam"},{"from":"its","message":"salam duste khubam"},{"from":"its","message":"chetori?"},{"from":"me","message":"mamnun"},{"from":"me","message":"bebin barname ro paye hasti?"}];
       return this.chat ? this.chat.messages : [];
     }
   },
@@ -63,9 +61,8 @@ export default {
         flexDirection: 'column',
       }),
       className('header', {
-        // background: this.$root.theme.primaryColor,
+        // backgroundColor: this.$root.theme.backgroundColor2,
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
-        // color: '#fff',
         height: '48px',
         display: 'flex',
         flexDirection: 'row',
@@ -88,42 +85,11 @@ export default {
       className('conversation', {
         flexGrow: 1,
         overflowY: 'scroll',
-        overflowX: 'hidden',
-        background: this.$root.theme.backgroundColor,
-      }),
-      className('messageItem', {
-        marginTop: '15px',
-        fontWeight: 'bold',
-        width: '100%',
-        '& > .inside': {
-          padding: '15px',
-          maxWidth: '70%',
-          display: 'inline-block',
-          overflow: 'hidden',
-        },
-        '&.its': {
-          textAlign: 'left',
-          '& > .inside': {
-            background: this.$root.theme.shadowColor,
-            color: '#111',
-            borderTopRightRadius: '24px',
-            borderBottomRightRadius: '24px',
-          }
-        },
-        '&.me': {
-          textAlign: 'right',
-          '& > .inside': {
-            background: this.$root.theme.primaryColor,
-            color: '#fff',
-            borderTopLeftRadius: '24px',
-            borderBottomLeftRadius: '24px',
-          }
-        },
-
       }),
       className('messageForm', {
         padding: '15px',
-        // borderTop: `solid 1px ${this.$root.theme.borderColor}`,
+        // backgroundColor: this.$root.theme.backgroundColor2,
+        borderTop: `solid 1px ${this.$root.theme.borderColor}`,
       }),
     ];
   }

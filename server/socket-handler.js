@@ -1,5 +1,4 @@
 const auth = require('./auth.js');
-
 const users = [];
 
 module.exports = (io) => (socket) => {
@@ -9,7 +8,7 @@ module.exports = (io) => (socket) => {
     pid: undefined, // public_id
   };
   users.push(user);
-  io.emit(`sid:${user.sid}:connect`, user.sid);
+  // io.emit(`sid:${user.sid}:connect`, user.sid);
 
   socket.on('auth', ({ passprase, salt }, callback) => {
     if (typeof callback !== 'function') {
@@ -19,7 +18,7 @@ module.exports = (io) => (socket) => {
       return callback(true, '');
     }
     user.pid = auth.generateKey(passprase, salt);
-    io.emit(`pid:${user.pid}:connect`, user.sid);
+    // io.emit(`pid:${user.pid}:connect`, user.sid);
     return callback(false, user.pid);
   });
 
@@ -114,7 +113,7 @@ module.exports = (io) => (socket) => {
   socket.on('disconnect', () => {
     // remove this user from users list
     users.splice(users.findIndex(_user => _user.sid === user.sid), 1);
-    io.emit(`${user.sid}:disconnect`);
+    io.emit(`sid:${user.sid}:disconnect`);
   });
   
 }

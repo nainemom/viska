@@ -1,7 +1,7 @@
 <template>
 <form @submit.prevent="submit" :class="$style.container">
   <input :class="$style.messageInput" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event.target.value)" required :disabled="disabled"/>
-  <button :class="$style.submitButton" type="submit" :disabled="disabled"> Send </button>
+  <button :class="$style.submitButton" type="submit" :disabled="disabled"> <i class="material-icons">send</i> </button>
 </form>
 </template>
 
@@ -26,6 +26,7 @@ export default {
       className('container', {
         display: 'flex',
         flexDirection: 'row',
+        background: this.$root.theme.primaryColorDeep,
       }),
       className('messageInput', {
         flexGrow: 1,
@@ -35,21 +36,20 @@ export default {
         padding: '8px',
         height: '48px',
         '&[disabled]': {
-          opacity: 0.6,
+          background: '#fff',
           cursor: 'not-allowed',
         },
       }),
       className('submitButton', {
-        borderRadius: '8px',
-        backgroundColor: this.$root.theme.primaryColor,
-        color: this.$root.theme.fillColor,
-        padding: '8px',
+        borderRadius: '24px',
+        background: this.$root.theme.primaryColor,
+        color: '#fff',
         fontWeight: 'bold',
-        border: `solid 1px ${this.$root.theme.borderColor}`,
+        border: 'none',
         cursor: 'pointer',
+        width: '48px',
         height: '48px',
         '&[disabled]': {
-          opacity: 0.6,
           cursor: 'not-allowed',
         },
       }),

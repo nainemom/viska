@@ -1,37 +1,32 @@
 <template>
 <div :class="$style.container">
-
-
-  <ul :class="$style.chatList">
-    <li @click="auth">
-      Auth
-    </li>
-    <li @click="pickRandomUserForChat">
-      Find Random User for Chat
-    </li>
-    <li :class="$style.chatItem" v-for="chat in chats" :key="chat.sid" @click="goToChat(chat.sid)">
-      <div class="name">{{ minifyText(chat.pid || chat.sid) }}</div>
-      <div class="message">{{chat.messages.length ? chat.messages[chat.messages.length - 1].message : ''}}</div>
-    </li>
-  </ul>
+  <div :class="$style.chatList">
+    <ChatListItem @click.native="auth" :class="$style.topButtons" v-if="!$root.pid">
+      <i class="icon material-icons">verified_user</i>
+      <div class="name">Click to Auth</div>
+    </ChatListItem>
+    <ChatListItem @click.native="pickRandomUserForChat" :class="$style.topButtons">
+      <i class="icon material-icons">search</i>
+      <div class="name">Find Random User to Chat</div>
+    </ChatListItem>
+    <ChatListItem v-for="chat in chats" :key="chat.pid || chat.sid" :chat="chat" @click.native="goToChat(chat)" :class="$style.chatItem" />
+  </div>
 </div>
 </template>
 
 <script>
+import ChatListItem from './ChatListItem.vue';
 
 export default {
+  components: {
+    ChatListItem
+  },
   computed: {
     chats() {
       return this.$root.chats;
     },
   },
   methods: {
-    minifyText(str) {
-      if (str.length < 9) {
-        return str;
-      }
-      return `${str.substr(0, 4)}${str.substr(str.length - 4)}`
-    },
     auth() {
       const passprase = prompt('enter passprase')
       const salt = prompt('enter salt (for example your email)');
@@ -45,16 +40,16 @@ export default {
       });
     },
     pickRandomUserForChat() {
-      this.$root.server.emit('pickRandomUser', (err, sid) => {
-        if (err) {
-          alert('not available right now!')
-        } else {
-          confirm('go to chat?') && this.goToChat(sid);
-        }
-      });
+      this.$root.upsertRandomChat().then((chat) => {
+        this.goToChat(chat);
+      })
     },
-    goToChat(sid) {
-      this.$router.push(`/chats/sid/${sid}`)
+    goToChat(chat) {
+      this.$root.activeChat(chat);
+      const path = `/chats/${chat.pid ? 'pid' : 'sid'}/${chat.pid || chat.sid}`;
+      if (this.$route.path !== path) {
+        this.$router.push(path);
+      }
     },
   },
   style({ className, mediaQuery }) {
@@ -63,30 +58,30 @@ export default {
         height: '100%',
       }),
       className('chatList', {
-        listStyle: 'none',
         margin: 0,
         padding: 0,
       }),
       className('chatItem', {
-        display: 'flex',
-        flexDirection: 'row',
-        padding: '16px 8px',
-        height: '48px',
-        overflow: 'hidden',
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
-        '& > .name': {
+        cursor: 'pointer',
+        '&.actived': {
+          // borderLeft: `solid 6px ${this.$root.theme.primaryColor}`,
+          // textDecoration: 'underline',
+          background: this.$root.theme.primaryColor,
+          color: '#fff',
           fontWeight: 'bold',
-          fontSize: '16px',
+          cursor: 'default',
         },
-        '& > .message': {
-          flexGrow: 1,
-          opacity: 0.8,
-          marginLeft: '8px',
-          textOverflow: 'ellipsis',
-          overflow: 'hidden',
-          whiteSpace: 'pre',
-          textAlign: 'right',
-        },
+      }),
+      className('topButtons', {
+        display: 'block',
+        padding: '16px 8px',
+        height: '56px',
+        width: '100%',
+        overflow: 'hidden',
+        backgroundColor: 'transparent',
+        border: 'none',
+        borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
       }),
     ];
   }

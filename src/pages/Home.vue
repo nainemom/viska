@@ -1,8 +1,8 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.app">
-    <Chats :class="$style.chats" />
-    <Chat :class="$style.chat" ref="chat"/>
+    <Chats :class="[$style.chats, chat && 'hidden-on-mobile']" />
+    <Chat :class="[$style.chat, !chat && 'hidden-on-mobile']" :chat="chat"/>
   </div>
 </div>
 </template>
@@ -16,30 +16,41 @@ export default {
     Chats,
     Chat,
   },
+  data() {
+    return {
+      chat: undefined
+    }
+  },
   computed: {
-    selectedChatType() {
-      return this.$route.params.type;
-    },
-    selectedChatId() {
-      return this.$route.params.id;
+    selectedChatFromUrl() {
+      return this.$route.params.type ? {
+        pid: this.$route.params.type === 'pid' ? this.$route.params.id : undefined,
+        sid: this.$route.params.type === 'sid' ? this.$route.params.id : undefined,
+      } : undefined;
     },
   },
-  methods: {},
-  created() {
-    if (this.selectedChatType === 'sid') {
-      return this.$router.push('/chats');
-    }
-    this.$nextTick(() => {
-      if (this.selectedChatId) {
-        this.$refs.chat.start(this.selectedChatType, this.selectedChatId);
+  methods: {
+    reloadChatIfNeeded() {
+      if (this.selectedChatFromUrl) {
+        this.chat = this.$root.upsertChat(this.selectedChatFromUrl.sid, this.selectedChatFromUrl.pid);
+        this.$root.activeChat(this.chat);
+        this.$root.refreshChat(this.chat);
+      } else {
+        this.chat = undefined;
       }
+    }
+  },
+  created() {
+    // if (!this.chatFromUrl.pid && this.this.chatFromUrl.sid) {
+    //   return this.$router.push('/chats');
+    // }
+    this.$nextTick(() => {
+      this.reloadChatIfNeeded();
     });
   },
   watch: {
-    selectedChatId() {
-      // this.$refs.chat.finish();
-      this.$refs.chat.start(this.selectedChatType, this.selectedChatId);
-      console.log('force updaed')
+    selectedChatFromUrl() {
+      this.reloadChatIfNeeded();
     }
   },
   style({ className, mediaQuery }) {
@@ -51,8 +62,6 @@ export default {
         display: 'flex',
         flexDirection: 'row',
         height: '100%',
-        maxWidth: '1024px',
-        margin: '0 auto',
         overflow: 'hidden',
         background: this.$root.theme.backgroundColor,
       }),
@@ -67,21 +76,17 @@ export default {
       }),
       mediaQuery({ maxWidth: '960px' }, [
         className('chats', {
-          display: this.selectedChatId ? 'none' : 'block',
+          display: 'block',
           backgroundColor: this.$root.theme.backgroundColor,
           width: '100%',
+          '&.hidden-on-mobile': {
+            display: 'none',
+          }
         }),
         className('chat', {
-          display: this.selectedChatId ? 'block' : 'none',
-        }),
-      ]),
-      mediaQuery({ minWidth: '961px' }, [
-        className('container', {
-          padding: '15px 0',
-        }),
-        className('app', {
-          boxShadow: `0 0 30px ${this.$root.theme.shadowColor}`,
-          border: `solid 1px ${this.$root.theme.borderColor}`,
+          '&.hidden-on-mobile': {
+            display: 'none',
+          }
         }),
       ]),
     ];
