@@ -1,13 +1,38 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.chatList">
+    <Cell>
+      <div class="item">
+        <i class="icon fa fa-key" />
+      </div>
+      <div class="item grow">Click to Auth</div>
+    </Cell>
+
+    <Cell>
+      <div class="item">
+        <UserTitle :showName="false" playMode/>
+      </div>
+      <div class="item grow">Chat with Random User</div>
+    </Cell>
+
     <ChatListItem @click.native="auth" :class="$style.topButtons" v-if="!$root.pid">
-      <i class="icon material-icons">verified_user</i>
+      <i class="icon fa fa-key" />
       <div class="name">Click to Auth</div>
     </ChatListItem>
+    <ChatListItem @click.native="auth" :class="$style.topButtons" v-if="$root.pid">
+      <i class="icon fa fa-key" />
+      <div class="name">PID: {{$root.pid}}</div>
+      <div>
+        <button :class="$style.copyButton"> <i class="icon fa fa-copy" /> Copy Link </button>
+      </div>
+    </ChatListItem>
     <ChatListItem @click.native="pickRandomUserForChat" :class="$style.topButtons">
-      <i class="icon material-icons">search</i>
-      <div class="name">Find Random User to Chat</div>
+      <div class="name">
+        <UserTitle :showName="false"/>
+      </div>
+      <div class="name">
+        Find Random User
+      </div>
     </ChatListItem>
     <ChatListItem v-for="chat in chats" :key="chat.pid || chat.sid" :chat="chat" @click.native="goToChat(chat)" :class="$style.chatItem" />
   </div>
@@ -16,10 +41,14 @@
 
 <script>
 import ChatListItem from './ChatListItem.vue';
+import UserTitle from './UserTitle.vue';
+import Cell from './Cell.vue';
 
 export default {
   components: {
-    ChatListItem
+    ChatListItem,
+    UserTitle,
+    Cell,
   },
   computed: {
     chats() {
@@ -82,6 +111,17 @@ export default {
         backgroundColor: 'transparent',
         border: 'none',
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
+      }),
+      className('copyButton', {
+        display: 'inline-block',
+        padding: '0 16px',
+        height: '32px',
+        borderRadius: '32px',
+        background: this.$root.theme.backgroundColor,
+        cursor: 'pointer',
+        overflow: 'hidden',
+        border: 'none',
+        border: `solid 1px ${this.$root.theme.borderColor}`,
       }),
     ];
   }

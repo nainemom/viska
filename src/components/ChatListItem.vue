@@ -1,7 +1,8 @@
 <template>
 <div :class="[$style.chatItem, chat && chat.isActive ? 'actived' : 'deactived']">
-  <i v-if="chat" class="material-icons icon">{{ chat.pid ? 'person' : 'chat' }}</i>
-  <div v-if="chat"  class="name"> {{ minifyStr(chat.pid || chat.sid || '') }} </div>
+  <div v-if="chat"  class="name">
+    <UserTitle :sid="this.chat.sid" :pid="this.chat.pd" :avatarSize="40" />
+  </div>
   <div v-if="chat" :class="['state', chat.isOnline ? 'online' : 'offline']" />
   <div v-if="chat && !chat.isActive" class="message">{{chat.messages.length ? chat.messages[chat.messages.length - 1].message : ''}}</div>
   <slot />
@@ -9,7 +10,7 @@
 </template>
 
 <script>
-import { minifyStr } from '../../utils/handy.js';
+import UserTitle from './UserTitle.vue';
 
 export default {
   props: {
@@ -17,8 +18,10 @@ export default {
       type: Object,
     },
   },
+  components: {
+    UserTitle,
+  },
   methods: {
-    minifyStr,
     goToChat(sid, pid) {
       this.$root.goToChat(sid, pid);
     },
@@ -32,14 +35,9 @@ export default {
         padding: '16px 8px',
         height: '56px',
         overflow: 'hidden',
+        cursor: 'pointer',
         '& > .icon': {
-          marginRight: '8px',
-          width: '32px',
-          height: '32px',
-          overflow: 'hidden',
-          textAlign: 'center',
-          // fontWeight: 'bold',
-          // textDecoration: 'underline',
+          margin: '0 8px',
         },
         '& > .state': {
           marginRight: '8px',
@@ -55,6 +53,10 @@ export default {
         },
         '& > .name': {
           marginRight: '8px',
+          flexGrow: 1,
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
         },
         '& > .message': {
           flexGrow: 1,
