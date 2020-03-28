@@ -1,13 +1,17 @@
 <template>
 <form @submit.prevent="submit" :class="$style.container">
-  <input :class="$style.messageInput" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event.target.value)" required :disabled="disabled"/>
+  <Input :class="$style.messageInput" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event.target.value)" required :disabled="disabled"/>
   <button :class="$style.submitButton" type="submit" :disabled="disabled"> <i class="fa fa-paper-plane" /> </button>
 </form>
 </template>
 
 <script>
+import Input from './Input.vue';
 
 export default {
+  components: {
+    Input,
+  },
   props: {
     value: {
       type: String,
@@ -31,13 +35,6 @@ export default {
         flexGrow: 1,
         marginRight: '8px',
         borderRadius: '8px',
-        border: `solid 1px ${this.$root.theme.borderColor}`,
-        padding: '8px',
-        height: '48px',
-        '&[disabled]': {
-          background: '#fff',
-          cursor: 'not-allowed',
-        },
       }),
       className('submitButton', {
         borderRadius: '24px',
