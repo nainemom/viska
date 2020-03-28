@@ -77,10 +77,11 @@ export default {
     const avatarSize = `${this.avatarSize}px`;
     return [
       className('container', {
-        display: 'flex',
+        display: 'inline-flex',
         flexDirection: 'row',
         alignItems: 'center',
         overflow: 'hidden',
+        verticalAlign: 'middle',
 
         '& > .name': {
           marginRight: '8px',
