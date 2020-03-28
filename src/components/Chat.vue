@@ -63,7 +63,7 @@ export default {
         flexDirection: 'column',
       }),
       className('header', {
-        // background: this.$root.theme.primaryColor,
+        background: this.$root.theme.primaryColorDeep,
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
         // color: '#fff',
         height: '48px',
@@ -123,7 +123,8 @@ export default {
       }),
       className('messageForm', {
         padding: '15px',
-        // borderTop: `solid 1px ${this.$root.theme.borderColor}`,
+        background: this.$root.theme.backgroundColor2,
+        borderTop: `solid 1px ${this.$root.theme.borderColor}`,
       }),
     ];
   }

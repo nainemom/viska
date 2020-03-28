@@ -26,7 +26,6 @@ export default {
       className('container', {
         display: 'flex',
         flexDirection: 'row',
-        background: this.$root.theme.primaryColorDeep,
       }),
       className('messageInput', {
         flexGrow: 1,
