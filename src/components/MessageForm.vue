@@ -1,7 +1,7 @@
 <template>
 <form @submit.prevent="submit" :class="$style.container">
   <input :class="$style.messageInput" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event.target.value)" required :disabled="disabled"/>
-  <button :class="$style.submitButton" type="submit" :disabled="disabled"> <i class="material-icons">send</i> </button>
+  <button :class="$style.submitButton" type="submit" :disabled="disabled"> <i class="fa fa-paper-plane" /> </button>
 </form>
 </template>
 
