@@ -35,6 +35,7 @@ export default {
         primaryColorDeep: 'linear-gradient(45deg, #d1dbff, #cec3f8)',
         grayColor: '#c7c7c7',
         onlineColor: '#08c353',
+        avatarBackgroundColor: '#b893ff',
       }
     }
   },
@@ -181,10 +182,11 @@ export default {
       custom('*', {
         padding: 0,
         margin: 0,
-      '-webkit-overflow-scrolling': 'touch',
-      'touchAction': 'pan-y',
-      '-webkit-tap-highlight-color': 'rgba(0, 0, 0, 0)',
-      'box-sizing': 'border-box',
+        touchAction: 'pan-y',
+        boxSizing: 'border-box',
+        userSelect: 'none',
+        '-webkit-overflow-scrolling': 'touch',
+        '-webkit-tap-highlight-color': 'rgba(0, 0, 0, 0)',
       }),
       custom('html, body, #root', {
         height: '100%',
