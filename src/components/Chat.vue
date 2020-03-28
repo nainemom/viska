@@ -3,10 +3,10 @@
   <div :class="$style.header">
     <ChatListItem class="name" :chat="chat" />
     <button class="close-button" v-if="chat" @click="closeChat">
-      <i class="material-icons">clear</i>
+      <i class="fa fa-times" /> 
     </button>
   </div>
-  <div :class="$style.conversation">
+  <div :class="$style.conversation" ref="conversation">
     <div v-for="(message, index) in messages" :key="index" :class="[$style.messageItem, message.from]">
       <div class="inside">
         {{ message.message }}
@@ -66,7 +66,7 @@ export default {
         background: this.$root.theme.primaryColorDeep,
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
         // color: '#fff',
-        height: '48px',
+        // height: '48px',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
@@ -79,9 +79,8 @@ export default {
           height: '48px',
           // borderRadius: '8px',
           border: 'none',
-          borderLeft: `solid 1px ${this.$root.theme.borderColor}`,
-          backgroundColor: this.$root.theme.backgroundColor2,
-          color: this.$root.theme.fillColor,
+          backgroundColor: 'transparent',
+          color: 'inherit',
           cursor: 'pointer',
         }
       }),
@@ -90,6 +89,7 @@ export default {
         overflowY: 'scroll',
         overflowX: 'hidden',
         background: this.$root.theme.backgroundColor,
+        paddingBottom: '15px',
       }),
       className('messageItem', {
         marginTop: '15px',
@@ -127,6 +127,13 @@ export default {
         borderTop: `solid 1px ${this.$root.theme.borderColor}`,
       }),
     ];
+  },
+  watch: {
+    'messages.length'() {
+      this.$nextTick(() => {
+        this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
+      });
+    }
   }
 }
 </script>
