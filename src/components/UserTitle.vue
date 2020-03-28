@@ -24,17 +24,54 @@ export default {
     avatarSize: {
       type: Number,
       default: 40
+    },
+    playMode: {
+      type: Boolean,
+      default: false
+    },
+    unknownMode: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      localSid: undefined,
+      timer: undefined,
     }
   },
   computed: {
     name() {
-      return ((this.pid ? 'PID-' : 'SID-') + minifyStr(this.pid || this.sid || ''));
+      return ((this.pid ? 'PID-' : 'SID-') + minifyStr(this.localPid || this.localSid || this.pid || this.sid || ''));
     },
     avatar() {
-      const avatarIndex = numberHash(this.name, 80);
+      const avatarIndex = numberHash(this.name, 80) + 1;
 
       return `/avatars/${avatarIndex}.svg`;
     }
+  },
+  methods: {
+    randomize() {
+      let str = (Date.now() * 35413).toString();
+      if (Math.random() > 0.5) {
+        str = str.split('').reverse().join('');
+      }
+      this.localSid = str;
+    },
+  },
+  created() {
+    if (this.playMode) {
+      const runTimer = () => {
+        this.randomize();
+        this.timer = setTimeout(() => {
+          runTimer();
+        }, 500);
+      }
+      runTimer();
+    }
+  },
+  beforeDestroy() {
+    clearTimeout(this.timer);
   },
   style({ className }) {
     const avatarSize = `${this.avatarSize}px`;
@@ -63,6 +100,6 @@ export default {
         },
       }),
     ];
-  }
+  },
 }
 </script>
