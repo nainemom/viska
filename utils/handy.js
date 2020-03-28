@@ -24,3 +24,13 @@ module.exports.minifyStr = function minifyStr(str) {
   }
   return `${str.substr(0, 8)}${str.substr(str.length - 8)}`
 }
+
+
+module.exports.numberHash = function stringToNumber(str, limit) {
+  let sum = 1;
+  for(let i = 0; i < str.length; i++) {
+    sum = Math.imul(sum, str.charCodeAt(i));
+  }
+  const sin = (Math.cos(sum) + 1) / 2; // here is number between 0 to 1
+  return Math.floor(sin * limit);
+}
