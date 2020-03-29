@@ -49,9 +49,9 @@ export default {
       return ((this.pid ? 'PID-' : 'SID-') + minifyStr(this.localPid || this.localSid || this.pid || this.sid || ''));
     },
     avatar() {
-      const avatarIndex = numberHash(this.name, 80) + 1;
+      const avatarIndex = numberHash(this.name, 50) + 1;
 
-      return this.$root.getStaticLink(`/avatars/${avatarIndex}.svg`);
+      return this.$root.getStaticLink(`/avatars/${avatarIndex}.png`);
     }
   },
   methods: {
