@@ -7,7 +7,7 @@ module.exports = (config) => {
   const output = {};
   const plugins = [
     new VueLoaderPlugin(),
-    // new FriendlyErrorsWebpackPlugin(),
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'SERVER_URL']),
   ];
 
 
