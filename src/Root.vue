@@ -166,7 +166,6 @@ export default {
     },
     getStaticLink(link) {
       return `${process.env.STATIC_URL_PREFIX || ''}${link}`
-
     },
   },
   created() {
