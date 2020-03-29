@@ -184,11 +184,12 @@ export default {
     }
     reloadLoop();
 
-    window.addEventListener('beforeunload', () => {
+    window.onbeforeunload = () => {
       if (this.pid) {
         localStorage.setItem(`${this.pid}:chats`, JSON.stringify(this.chats));
       }
-    });
+      return false;
+    };
   },
   
   style({ custom, className }) {
