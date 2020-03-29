@@ -9,4 +9,4 @@ Vue.use(VueComponentStyle);
 Vue.use(VueRouter);
 
 
-new Vue(Root).$mount('#root');
+window.$app = new Vue(Root).$mount('#root');
