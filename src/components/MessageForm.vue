@@ -5,7 +5,7 @@
   </div>
   <Cell class="padding-x-sm">
     <div class="padding-x-sm grow">
-      <Input class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
+      <Input ref="input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
     </div>
     <div class="padding-x-sm">
       <Button class="padding-x-lg size-md" color="primary" :disabled="disabled"> <i class="fa fa-paper-plane" /> </Button>
@@ -35,6 +35,7 @@ export default {
   },
   methods: {
     submit() {
+      this.$refs.input.$el.focus();
       this.$emit('submit', this.value);
     },
   }
