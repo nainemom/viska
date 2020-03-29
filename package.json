@@ -10,7 +10,12 @@
     "start:server": "node server/index.js",
     "build:client": "node build --production",
     "dev:client": "node build --watch",
-    "build": "npm run clean && n-m run build:client"
+    "build": "npm run clean && npm run build:client",
+    "start": "npm run start:client"
+  },
+  "engines": {
+    "node": ">=11.0.0",
+    "npm": ">=6.0.0"
   },
   "repository": {
     "type": "git",
