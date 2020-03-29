@@ -12,7 +12,7 @@ import SocketIo from 'socket.io-client';
 import Root from './Root.vue';
 import routes from './routes.js';
 import AuthPopup from './components/AuthPopup.vue';
-import { forEachSync } from '../utils/handy.js';
+import { forEachSync, minifyStr, numberHash } from '../utils/handy.js';
 
 const router = new VueRouter({
   routes,
@@ -130,11 +130,15 @@ export default {
     },
     onNewMessage({ sid, message }) {
       const chat = this.upsertChat(sid, undefined);
-      chat.messages.push({
+      const messageObj = {
         from: 'its',
         message,
-      });
+      };
+      chat.messages.push(messageObj);
       chat.lastUpdate = Date.now();
+      if (!chat.isActive) {
+        this.notify(`${chat.pid ? 'PID-' : 'SID-'}${this.pid || this.sid}`, messageObj.message, ``)
+      }
     },
     forgotAnything() {
       localStorage.removeItem('salt');
@@ -169,7 +173,7 @@ export default {
     getStaticLink(link) {
       return `${process.env.STATIC_URL_PREFIX || ''}${link}`
     },
-    notify(title, text, icon) {
+    notify(title, text, icon, onclick) {
       const show = () => {
         const notification = new Notification('', {
           renotify: true,
@@ -177,9 +181,7 @@ export default {
           icon: icon,
           tag: 'msg'
         });
-        notification.onclick = () => {
-          // move route
-        }
+        notification.onclick = onclick;
       }
       if (!('Notification' in window)) {
         return
@@ -197,6 +199,13 @@ export default {
         });
       }
 
+    },
+    calculateName(sid, pid) {
+      return ((pid ? 'PID-' : 'SID-') + minifyStr(pid || sid || ''));
+    },
+    generateAvatar(str) {
+      const avatarIndex = numberHash(str, 50) + 1;
+      return this.getStaticLink(`/avatars/${avatarIndex}.png`);
     }
   },
   created() {

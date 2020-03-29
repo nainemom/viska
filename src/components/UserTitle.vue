@@ -46,12 +46,10 @@ export default {
   },
   computed: {
     name() {
-      return ((this.pid ? 'PID-' : 'SID-') + minifyStr(this.localPid || this.localSid || this.pid || this.sid || ''));
+      return this.$root.calculateName(this.localSid || this.sid, this.localSid ? undefined : this.pid);
     },
     avatar() {
-      const avatarIndex = numberHash(this.name, 50) + 1;
-
-      return this.$root.getStaticLink(`/avatars/${avatarIndex}.png`);
+      return this.$root.generateAvatar(this.name);
     }
   },
   methods: {
