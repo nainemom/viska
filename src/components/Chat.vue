@@ -1,6 +1,6 @@
 <template>
 <div :class="$style.container">
-  <Cell :class="$style.header" v-if="chat">
+  <Cell :class="$style.header" class="size-xl" v-if="chat">
     <Cell class="padding-x-sm size-lg grow" @click.native="goToChat(chat)">
       <div class="padding-x-sm">
         <UserTitle :sid="chat.sid" :pid="chat.pid"/>
@@ -77,7 +77,7 @@ export default {
         background: this.$root.theme.backgroundColor,
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
         // color: '#fff',
-        // height: '48px',
+        minHeight: '81px', // flex problem
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',

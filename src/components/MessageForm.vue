@@ -1,8 +1,8 @@
 <template>
 <form @submit.prevent="submit">
-  <div v-if="$root.pid" class="padding-x-md padding-bottom-md">
+  <!-- <div v-if="$root.pid" class="padding-x-md padding-bottom-md">
     <small> <i class="fa fa-info-circle" /> Your PID will not send to the recipient. </small>
-  </div>
+  </div> TODO: append it when flex issue resolves -->
   <Cell class="padding-x-sm">
     <div class="padding-x-sm grow">
       <Input ref="input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
