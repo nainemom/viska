@@ -1,37 +1,52 @@
 <template>
   <div :class="$style.container" v-if="visible">
-    <div :class="$style.box" v-if="!authBox">
-      <div role="button" :class="$style.button" class="primary" @click="startAuth">
-        <div> <b> <i class="fa fa-key" />  Enter by PID </b> </div>
-        <p> And Get Your Unique Direct Link </p>
+    <div :class="$style.box" class="padding-lg" v-if="!authBox">
+      <div class="padding-bottom-lg">
+        <Button class="size-xxl" color="primary" fullWidth @click.native="startAuth">
+          <div> <b> <i class="fa fa-key" />  Enter by PID </b> </div>
+          <p> And Get Your Unique Direct Link </p>
+        </Button>
       </div>
-      <div role="button" :class="$style.button" @click="skip">
-        <div> <b> <i class="fa fa-arrow-right" /> Continue as </b> </div>
-        <p> <UserTitle :sid="this.$root.sid" :avatarSize="32" /> </p>
+      <div>
+        <Button class="size-xxl" color="default" fullWidth @click.native="skip">
+          <div> <b> <i class="fa fa-arrow-right" /> Continue as </b> </div>
+          <p> <UserTitle :sid="this.$root.sid" :avatarSize="32" /> </p>
+        </Button>
       </div>
     </div>
-    <div :class="$style.box" v-else>
-      <div>
-        <div>
-          <label> Enter Passprase </label>
-        </div>
-        <div>
-          <Input placeholder="Enter your Passprase."/>
-        </div>
-        <p> Choose a big and unique string as your Passprase to keep your generated POD safe. </p>
+    <div :class="$style.box" class="padding-lg" v-else>
+      <div class="padding-bottom-xl">
+        <a role="button" @click="open"> <b> <i class="fa fa-chevron-left" />  Back </b> </a>
       </div>
-      <div>
-        <div>
-          <label> Salt </label>
+      <form @submit.prevent="auth">
+        <div class="padding-bottom-lg">
+          <div class="padding-bottom-md">
+            <b> <i class="fa fa-fingerprint" /> Passprase </b>
+          </div>
+          <div class="padding-bottom-md">
+            <Input placeholder="Enter your Passprase." required v-model="passprase"/>
+          </div>
+          <div>
+            <small> <i class="fa fa-info-circle" /> Choose a big and unique string as Passprase will helps you to keep your generated PID safe. </small>
+          </div>
+        </div>
+        <div class="padding-bottom-xl">
+          <div class="padding-bottom-md">
+            <b> <i class="fa fa-key" /> Salt </b>
+          </div>
+          <div class="padding-bottom-md">
+            <Input placeholder="Enter your Email or Phone for example." required v-model="salt"/>
+          </div>
+          <div>
+            <small> <i class="fa fa-info-circle" /> To generate a unguessable PID, It's better that appending a Salt to it. So why not? </small>
+          </div>
         </div>
         <div>
-          <Input placeholder="Enter your Email or Phone for example."/>
+          <Button class="size-md" color="primary" fullWidth @click.native="startAuth" :disabled="loading" :loading="loading">
+            <b> <i class="fa fa-check" />  Generate a PID and Enter </b>
+          </Button>
         </div>
-        <p> To generating a unguessable PID, It's better to append a Salt string to it. So why not? </p>
-      </div>
-      <div role="button" :class="$style.button" class="primary" @click="startAuth">
-        <b> <i class="fa fa-check" />  Generate a PID and Enter </b>
-      </div>
+      </form>
     </div>
   </div>
 </template>
@@ -39,16 +54,23 @@
 <script>
 import UserTitle from './UserTitle.vue';
 import Input from './Input.vue';
+import Button from './Button.vue';
+import Cell from './Cell.vue';
 
 export default {
   components: {
     UserTitle,
     Input,
+    Button,
+    Cell,
   },
   data() {
     return {
+      loading: false,
       visible: false,
       authBox: false,
+      passprase: '',
+      salt: '',
     }
   },
   methods: {
@@ -61,6 +83,21 @@ export default {
     },
     startAuth() {
       this.authBox = true;
+    },
+    auth() {
+      this.loading = true;
+      this.$root.server.emit('auth', {
+        passprase: this.passprase,
+        salt: this.salt,
+      }, (err, pid) => {
+        this.loading = false;
+        if (err) {
+          alert('not available right now!');
+        } else {
+          this.$root.pid = pid;
+          this.visible = false;
+        }
+      });
     }
   },
   style({ className }) {
