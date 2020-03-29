@@ -189,6 +189,28 @@ export default {
   },
   
   style({ custom, className }) {
+
+    const helperClasses = [];
+    const baseSize = 8;
+    const sizeValues = [0.5, 1, 2, 3];
+    ['margin', 'padding'].forEach((propName) => {
+      ['sm', 'md', 'lg', 'xl'].forEach((sizeText, sizeIndex) => {
+        const value = `${sizeValues[sizeIndex] * baseSize}px`;
+        ['', '-left', '-right', '-top', '-bottom'].forEach((direction) => {
+          helperClasses.push(custom(`.${propName}${direction}-${sizeText}`, {
+            [`${propName}${direction}`]: `${sizeValues[sizeIndex] * baseSize}px`,
+          }));
+        });
+      });
+    });
+
+    const heightValues = [4, 5, 6, 7, 8, 9];
+    ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'].forEach((sizeText, sizeIndex) => {
+      helperClasses.push(custom(`.size-${sizeText}`, {
+        'height': `${heightValues[sizeIndex] * baseSize}px`,
+      }));
+    });
+
     const containerStyle = {
       height: '100%',
       maxHeight: '100%',
@@ -196,7 +218,6 @@ export default {
       background: this.theme.shadeColor,
       color: this.theme.fillColor,
       fontSize: '16px',
-      lineHeight: 1.5,
     };
     return [
       custom('*', {
@@ -211,6 +232,7 @@ export default {
       }),
       custom('html, body, #root', containerStyle),
       className('container', containerStyle),
+      ...helperClasses,
     ];
   },
 }
