@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf ./dist",
     "dev:server": "nodemon server/index.js",
-    "dev:client": "node build --watch",
-    "build:client": "node build --production",
+    "dev:client": "cross-env NODE_ENV=development SERVER_URL=':3002' node build --watch",
+    "build:client": "cross-env NODE_ENV=production SERVER_URL='https://hazy-chat.herokuapp.com' node build --production",
     "build": "echo \"Server code does'nt need to build\"",
     "start": "node server/index.js"
   },
@@ -39,6 +39,7 @@
     "@babel/preset-env": "^7.9.0",
     "babel-loader": "^8.1.0",
     "copy-webpack-plugin": "^5.1.1",
+    "cross-env": "^7.0.2",
     "file-loader": "^6.0.0",
     "html-loader": "^1.0.0",
     "html-webpack-plugin": "^4.0.2",
