@@ -137,7 +137,9 @@ export default {
       chat.lastUpdate = Date.now();
     },
     forgotAnything() {
-      localStorage.clear();
+      localStorage.removeItem('salt');
+      localStorage.removeItem('passprase');
+      localStorage.removeItem(`${this.pid}:chats`);
       location.reload();
     },
     sendMessage(sid, pid, message) {
@@ -167,6 +169,35 @@ export default {
     getStaticLink(link) {
       return `${process.env.STATIC_URL_PREFIX || ''}${link}`
     },
+    notify(title, text, icon) {
+      const show = () => {
+        const notification = new Notification('', {
+          renotify: true,
+          body: `${title}\n ${text}`,
+          icon: icon,
+          tag: 'msg'
+        });
+        notification.onclick = () => {
+          // move route
+        }
+      }
+      if (!('Notification' in window)) {
+        return
+      } else if (Notification.permission === 'granted') {
+        show();
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission(function (permission) {
+          // Whatever the user answers, we make sure we store the information
+          if(!('permission' in Notification)) {
+            Notification.permission = permission;
+          }
+          if (permission === "granted") {
+            show();
+          }
+        });
+      }
+
+    }
   },
   created() {
     this.server = SocketIo.connect(process.env.SERVER_URL);
@@ -187,7 +218,12 @@ export default {
       if (this.pid) {
         localStorage.setItem(`${this.pid}:chats`, JSON.stringify(this.chats));
       }
-      return false;
+      if (process.env.NODE_ENV === 'production') {
+        return true;
+      } else {
+        // do not open are sure window before close
+        return null;
+      }
     };
   },
   
