@@ -1,29 +1,40 @@
 <template>
 <div :class="$style.container">
-  <div :class="$style.header">
-    <ChatListItem class="name" :chat="chat" />
-    <button class="close-button" v-if="chat" @click="closeChat">
+  <Cell :class="$style.header" v-if="chat">
+    <Cell class="padding-x-sm size-lg grow" @click.native="goToChat(chat)">
+      <div class="padding-x-sm">
+        <UserTitle :sid="chat.sid" :pid="chat.pid"/>
+      </div>
+      <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
+    </Cell>
+    <Button class="size-lg padding-lg" color="transparent" @click.native="closeChat">
       <i class="fa fa-times" /> 
-    </button>
-  </div>
-  <div :class="$style.conversation" ref="conversation">
+    </Button>
+  </Cell>
+  <div :class="$style.conversation" class="padding-y-lg" ref="conversation">
     <div v-for="(message, index) in messages" :key="index" :class="[$style.messageItem, message.from]">
-      <div class="inside">
+      <div class="inside padding-lg margin-y-sm">
         {{ message.message }}
       </div>
     </div>
   </div>
-  <MessageForm :class="$style.messageForm" @submit="sendMessage" v-model="inputText" :disabled="!chat || !chat.isOnline" />
+  <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" v-model="inputText" :disabled="!chat || !chat.isOnline" />
 </div>
 </template>
 
 <script>
-import ChatListItem from './ChatListItem.vue';
+import Cell from './Cell.vue';
+import Button from './Button.vue';
+import UserTitle from './UserTitle.vue';
+import StatusIcon from './StatusIcon.vue';
 import MessageForm from './MessageForm.vue';
 
 export default {
   components: {
-    ChatListItem,
+    Cell,
+    Button,
+    UserTitle,
+    StatusIcon,
     MessageForm,
   },
   props: {
@@ -89,14 +100,16 @@ export default {
         overflowY: 'scroll',
         overflowX: 'hidden',
         background: this.$root.theme.backgroundColor,
-        paddingBottom: '15px',
+        // paddingBottom: '15px',
+        overflowWrap: 'break-word',
+        lineHeight: 1.5,
       }),
       className('messageItem', {
-        marginTop: '15px',
+        // marginTop: '15px',
         fontWeight: 'bold',
         width: '100%',
         '& > .inside': {
-          padding: '15px',
+          // padding: '15px',
           maxWidth: '70%',
           display: 'inline-block',
           overflow: 'hidden',
@@ -122,7 +135,7 @@ export default {
 
       }),
       className('messageForm', {
-        padding: '15px',
+        // padding: '15px',
         background: this.$root.theme.backgroundColor2,
         borderTop: `solid 1px ${this.$root.theme.borderColor}`,
       }),

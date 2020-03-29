@@ -37,9 +37,9 @@ export default {
         border: `solid 1px ${this.$root.theme.borderColor}`,
         textAlign: 'center',
         cursor: 'pointer',
-        padding: '0 16px',
-        lineHeight: 1.6,
-        fontSize: '16px',
+        // padding: '0 16px',
+        // lineHeight: 1.6,
+        // fontSize: '16px',
         width: 'auto',
         '&.full-width': {
           width: '100%',
@@ -48,9 +48,10 @@ export default {
           background: this.$root.theme.primaryColor,
           color: '#fff',
         },
-        '&.default': {
+        '&.transparent': {
           background: 'transparent',
           color: 'inherit',
+          border: 'none',
         },
         '&.default': {
           background: this.$root.theme.backgroundColor,
@@ -58,6 +59,7 @@ export default {
         },
         '&[disabled]': {
           cursor: 'not-allowed',
+          opacity: 0.6,
         },
       }),
     ];

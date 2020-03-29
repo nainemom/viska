@@ -1,6 +1,6 @@
 <template>
-<div :class="$style.container">
-  <div class="avatar"> <img :src="avatar" width="100%"/> </div>
+<div :class="[$style.container, multiLine && 'multi-line', unknownMode && 'unknown-mode']">
+  <div class="avatar"> <img :src="avatar" width="100%"/> <i v-if="unknownMode" class="fa fa-question" /> </div>
   <div class="name" v-if="showName"> {{ name }} </div>
   <slot />
 </div>
@@ -20,6 +20,10 @@ export default {
     showName: {
       type: Boolean,
       default: true,
+    },
+    multiLine: {
+      type: Boolean,
+      default: false
     },
     avatarSize: {
       type: Number,
@@ -58,20 +62,46 @@ export default {
       }
       this.localSid = str;
     },
-  },
-  created() {
-    if (this.playMode) {
+    clearLocalSidIFNeeded() {
+      if (this.sid) {
+        this.localSid = undefined;
+      }
+    },
+    handlePlayMode() {
       const runTimer = () => {
         this.randomize();
         this.timer = setTimeout(() => {
-          runTimer();
-        }, 500);
+          if (this.playMode) {
+            runTimer();
+          } else {
+            this.clearLocalSidIFNeeded();
+          }
+        }, 300);
       }
       runTimer();
     }
   },
-  beforeDestroy() {
-    clearTimeout(this.timer);
+  created() {
+    if (this.playMode) {
+      this.handlePlayMode();
+    }
+    if (this.unknownMode) {
+      this.randomize()
+    }
+  },
+  watch: {
+    playMode(v) {
+      if (v) {
+        this.handlePlayMode();
+      } else {
+        this.clearLocalSidIFNeeded();
+      }
+    },
+    unknownMode(v) {
+      if (!v) {
+        this.clearLocalSidIFNeeded();
+      }
+    },
   },
   style({ className }) {
     const avatarSize = `${this.avatarSize}px`;
@@ -82,7 +112,12 @@ export default {
         alignItems: 'center',
         overflow: 'hidden',
         verticalAlign: 'middle',
-
+        '&.multi-line': {
+          flexDirection: 'column',
+          '& > .name': {
+            marginTop: '8px',
+          }
+        },
         '& > .name': {
           marginRight: '8px',
           flexGrow: 1,
@@ -91,6 +126,7 @@ export default {
           textOverflow: 'ellipsis',
         },
         '& > .avatar': {
+          position: 'relative',
           marginRight: this.showName ? '8px' : 0,
           borderRadius: avatarSize,
           padding: '4px 0 0 0',
@@ -98,6 +134,17 @@ export default {
           height: avatarSize,
           overflow: 'hidden',
           background: this.$root.theme.avatarBackgroundColor,
+          '& > i': {
+            position: 'absolute',
+            left: '0',
+            top: '0',
+            width: '100%',
+            height: '100%',
+            textAlign: 'center',
+            lineHeight: avatarSize,
+            background: 'rgba(0, 0, 0, 0.5)',
+            color: '#fff',
+          }
         },
       }),
     ];

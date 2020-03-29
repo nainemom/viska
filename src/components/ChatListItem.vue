@@ -1,16 +1,17 @@
 <template>
-<div :class="[$style.chatItem, chat && chat.isActive ? 'actived' : 'deactived']">
-  <div v-if="chat"  class="name">
-    <UserTitle :sid="this.chat.sid" :pid="this.chat.pd" :avatarSize="40" />
+<Cell :class="[$style.chatItem, chat && chat.isActive ? 'actived' : 'deactived']">
+  <div class="">
+    <UserTitle :sid="chat ? chat.sid : undefined" :pid="chat ? chat.pd : undefined" :avatarSize="40" />
   </div>
-  <div v-if="chat" :class="['state', chat.isOnline ? 'online' : 'offline']" />
-  <div v-if="chat && !chat.isActive" class="message">{{chat.messages.length ? chat.messages[chat.messages.length - 1].message : ''}}</div>
+  <div v-if="chat && !chat.isActive" class="message">{{chat && chat.messages.length ? chat.messages[chat.messages.length - 1].message : ''}}</div>
+  <div :class="['state', chat && chat.isOnline ? 'online' : 'offline']" />
   <slot />
-</div>
+</Cell>
 </template>
 
 <script>
 import UserTitle from './UserTitle.vue';
+import Cell from './Cell.vue';
 
 export default {
   props: {
@@ -20,6 +21,7 @@ export default {
   },
   components: {
     UserTitle,
+    Cell,
   },
   methods: {
     goToChat(sid, pid) {
