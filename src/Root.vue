@@ -137,7 +137,13 @@ export default {
       chat.messages.push(messageObj);
       chat.lastUpdate = Date.now();
       if (!chat.isActive) {
-        this.notify(`${chat.pid ? 'PID-' : 'SID-'}${this.pid || this.sid}`, messageObj.message, ``)
+        const name = this.calculateName(chat.sid, chat.pid);
+        const icon = this.generateAvatar(name);
+        const url = `/chats/${chat.pid ? 'pid' : 'sid'}/${chat.pid || chat.sid}`;
+        this.notify(name, messageObj.message, icon, (x) => {
+          this.$router.push(url);
+          window.focus();
+        })
       }
     },
     forgotAnything() {
@@ -177,7 +183,7 @@ export default {
       const show = () => {
         const notification = new Notification('', {
           renotify: true,
-          body: `${title}\n ${text}`,
+          body: `${title}:\n${text}`,
           icon: icon,
           tag: 'msg'
         });
