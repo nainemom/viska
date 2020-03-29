@@ -32,6 +32,10 @@ module.exports.numberHash = (str, limit) => {
     sum = Math.imul(sum, str.charCodeAt(i));
   }
   const sin = (Math.cos(sum) + 1) / 2; // here is number between 0 to 1
+  let ret = Math.floor(sin * limit) - 1;
+  if (ret < 0) {
+    ret++;
+  };
   return Math.floor(sin * limit);
 }
 
