@@ -8,7 +8,7 @@ module.exports = (config) => {
   const output = {};
   const plugins = [
     new VueLoaderPlugin(),
-    new webpack.EnvironmentPlugin(['NODE_ENV', 'SERVER_URL']),
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'SERVER_URL', 'STATIC_URL_PREFIX']),
   ];
 
 

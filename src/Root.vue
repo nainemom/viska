@@ -164,6 +164,10 @@ export default {
       });
 
     },
+    getStaticLink(link) {
+      return `${process.env.STATIC_URL_PREFIX || ''}${link}`
+
+    },
   },
   created() {
     this.server = SocketIo.connect(process.env.SERVER_URL);

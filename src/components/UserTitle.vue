@@ -51,7 +51,7 @@ export default {
     avatar() {
       const avatarIndex = numberHash(this.name, 80) + 1;
 
-      return `/avatars/${avatarIndex}.svg`;
+      return this.$root.getStaticLink(`/avatars/${avatarIndex}.svg`);
     }
   },
   methods: {

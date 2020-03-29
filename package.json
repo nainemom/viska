@@ -8,7 +8,7 @@
     "clean": "rimraf ./dist",
     "dev:server": "nodemon server/index.js",
     "dev:client": "cross-env NODE_ENV=development SERVER_URL=':3002' node build --watch",
-    "build:client": "cross-env NODE_ENV=production SERVER_URL='https://hazy-chat.herokuapp.com' node build --production",
+    "build:client": "cross-env NODE_ENV=production SERVER_URL='https://hazy-chat.herokuapp.com' STATIC_URL_PREFIX='/hazy-chat' node build --production",
     "build": "echo \"Server code does'nt need to build. To building client use build:client command.\"",
     "start": "node server/index.js"
   },
