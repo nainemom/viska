@@ -7,11 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf ./dist",
     "dev:server": "nodemon server/index.js",
-    "start:server": "node server/index.js",
-    "build:client": "node build --production",
     "dev:client": "node build --watch",
-    "build": "npm run clean && npm run build:client",
-    "start": "npm run start:client"
+    "build:client": "node build --production",
+    "build": "echo \"Server code does'nt need to build\"",
+    "start": "node server/index.js"
   },
   "engines": {
     "node": ">=11.0.0",

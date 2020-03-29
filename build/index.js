@@ -33,7 +33,7 @@ if (watch) {
   cli.write(`Building...`);
   compiler.run((e,d) => {
     // console.log(e);
-    console.log(d);
+    // console.log(d);
     cli.write('Done!');
   });
 }
