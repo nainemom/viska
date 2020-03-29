@@ -1,3 +1,4 @@
+const PORT = parseInt(process.env.PORT || 3002);
 const express = require('express');
 const http = require('http');
 const app = express();
@@ -12,4 +13,4 @@ app.get('/ping', (req, res) => res.send('pong'));
 
 io.on('connection', socketHandler(io));
 
-server.listen(3002, () => console.log(`App started on port ${3002}!`));
+server.listen(PORT, () => console.log(`App started on port ${PORT}!`));
