@@ -22,17 +22,15 @@ module.exports = (io) => (socket) => {
     return callback(false, user.pid);
   });
 
-  socket.on('pickRandomUser', (callback) => {
-    if (typeof callback !== 'function') {
-      return;
-    }
-    if (users.length < 2) {
+  socket.on('findRandomSid', (ignoreList, callback) => {
+    if (typeof callback !== 'function' || typeof ignoreList !== 'object' || !(ignoreList instanceof Array) ) {
       return callback(true, undefined);
     }
-    let theUser;
-    do {
-      theUser = users[Math.floor(Math.random() * users.length)];
-    } while (theUser.sid === user.sid)
+    const availableUsers = users.filter((_user) => _user.sid !== user.sid && !ignoreList.includes(_user.sid));
+    if (availableUsers.length === 0) {
+      return callback(true, undefined);
+    }
+    const theUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
     return callback(false, theUser.sid);
   });
 
