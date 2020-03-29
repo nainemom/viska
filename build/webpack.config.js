@@ -11,13 +11,13 @@ module.exports = (config) => {
   ];
 
 
-  output.path = path.resolve(__dirname, '../dist');
+  output.path = path.resolve(__dirname, '../docs');
   output.filename = 'bundle.js';
   // output.publicPath = path.resolve(__dirname, '../public');
   plugins.push(
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html'),
-      filename: path.resolve(__dirname, '../dist/index.html'),
+      filename: path.resolve(__dirname, '../docs/index.html'),
     }),
     new CopyWebpackPlugin([
       {
