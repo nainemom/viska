@@ -77,9 +77,11 @@ export default {
     },
     upsertRandomChat() {
       return new Promise((resolve, reject) => {
-        this.$root.server.emit('pickRandomUser', (err, sid) => {
-          if (!err) {
+        this.$root.server.emit('findRandomSid', this.$root.chats.map((chat) => chat.sid), (err, sid) => {
+          if (!err && sid) {
             resolve(this.upsertChat(sid, undefined));
+          } else {
+            reject();
           }
         });
       });
@@ -100,7 +102,7 @@ export default {
         return this.refreshChat(chat);
       });
     },
-    upsertChat(sid, pid, calculateRest = false) {
+    upsertChat(sid, pid, messages = []) {
       const searchBy = pid ? 'pid' : 'sid';
       const searchValue = pid || sid;
       let chat = this.chats.find((user) => user[searchBy] === searchValue);
@@ -110,7 +112,7 @@ export default {
           pid,
           isOnline: null,
           isActive: false,
-          messages: [],
+          messages,
           lastUpdate: Date.now(),
         };
         this.chats.unshift(chat);
@@ -120,7 +122,6 @@ export default {
     onConnectionStateChange(state) {
       if (state === true) {
         this.sid = this.server.id;
-        console.log(this.$refs.authPopup);
         this.$refs.authPopup.open();
       } else {
         this.sid = undefined;
@@ -134,6 +135,10 @@ export default {
         message,
       });
       chat.lastUpdate = Date.now();
+    },
+    forgotAnything() {
+      localStorage.clear();
+      location.reload();
     },
     sendMessage(sid, pid, message) {
       if (!sid) {
@@ -167,13 +172,6 @@ export default {
     this.server.on('reconnecting', this.onConnectionStateChange.bind(this, null));
     this.server.on('newMessage', this.onNewMessage);
 
-    // this.$authPopup = new (Vue.extend(AuthPopup))();
-    // const chatsBackup = null // localStorage.getItem('chats');
-    // if (chatsBackup) {
-    //   forEachSync(JSON.parse(chatsBackup).reverse(), (chat) => {
-    //     return this.upsertChat(chat.sid, chat.pid, true);
-    //   });
-    // }
     // as this components will create once and there is no destroy event before browser close, so who care about clearInterval:)
     const reloadLoop = () => {
       this.refreshChats().then(() => {
@@ -183,8 +181,9 @@ export default {
     reloadLoop();
 
     window.addEventListener('beforeunload', () => {
-      // localStorage.setItem('chats', JSON.stringify(this.chats.filter((chat) => !!chat.pid)));
-      // return true;
+      if (this.pid) {
+        localStorage.setItem(`${this.pid}:chats`, JSON.stringify(this.chats));
+      }
     });
   },
   
@@ -196,18 +195,33 @@ export default {
     ['margin', 'padding'].forEach((propName) => {
       ['sm', 'md', 'lg', 'xl'].forEach((sizeText, sizeIndex) => {
         const value = `${sizeValues[sizeIndex] * baseSize}px`;
-        ['', '-left', '-right', '-top', '-bottom'].forEach((direction) => {
-          helperClasses.push(custom(`.${propName}${direction}-${sizeText}`, {
-            [`${propName}${direction}`]: `${sizeValues[sizeIndex] * baseSize}px`,
-          }));
+        ['', '-left', '-right', '-top', '-bottom', '-x', '-y'].forEach((direction) => {
+          const name = `.${propName}${direction}-${sizeText}`;
+          if (direction === '-x') {
+            helperClasses.push(custom(name, {
+              [`${propName}-left`]: value,
+              [`${propName}-right`]: value,
+            }));
+          } else if (direction === '-y') {
+            helperClasses.push(custom(name, {
+              [`${propName}-top`]: value,
+              [`${propName}-bottom`]: value,
+            }));
+          } else {
+            helperClasses.push(custom(name, {
+              [`${propName}${direction}`]: value,
+            }));
+          }
         });
       });
     });
 
     const heightValues = [4, 5, 6, 7, 8, 9];
+    const fontSizeValues = [0.8, 0.9, 1, 1.05, 1.1, 1.15];
     ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'].forEach((sizeText, sizeIndex) => {
       helperClasses.push(custom(`.size-${sizeText}`, {
-        'height': `${heightValues[sizeIndex] * baseSize}px`,
+        minHeight: `${heightValues[sizeIndex] * baseSize}px`,
+        fontSize: `${fontSizeValues[sizeIndex]}rem`,
       }));
     });
 
@@ -217,7 +231,7 @@ export default {
       minHeight: '100%',
       background: this.theme.shadeColor,
       color: this.theme.fillColor,
-      fontSize: '16px',
+      fontSize: '15px',
     };
     return [
       custom('*', {
