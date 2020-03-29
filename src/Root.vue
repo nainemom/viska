@@ -166,7 +166,7 @@ export default {
     },
   },
   created() {
-    this.server = SocketIo.connect(':3002');
+    this.server = SocketIo.connect(process.env.SERVER_URL);
     this.server.on('connect', this.onConnectionStateChange.bind(this, true));
     this.server.on('disconnect', this.onConnectionStateChange.bind(this, false));
     this.server.on('reconnecting', this.onConnectionStateChange.bind(this, null));
