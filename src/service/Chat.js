@@ -29,6 +29,7 @@ const ChatService = {
       this.server.on('connect', this._onConnectionStateChange.bind(this, true));
       this.server.on('disconnect', this._onConnectionStateChange.bind(this, false));
       this.server.on('newMessage', this._onNewMessage);
+      this.server.on('isTypingFlag', this._onIsTypingFlag);
     },
     // will connect to server...
     login(type, data) {
@@ -45,7 +46,6 @@ const ChatService = {
             } else {
               this.sid = this.server.id;
               this.user = User(type, xid);
-              console.log(this.user);
               this._loadChats();
               this.$emit('login', this.auth);
               resolve();
@@ -98,6 +98,27 @@ const ChatService = {
           }
         });
       });
+    },
+    // send is_typing flag
+    sendIsTypingFlag(chat) {
+      return new Promise((resolve, reject) => {
+        this.server.emit('sendIsTypingFlag', {
+          user: {
+            type: chat.user.type,
+            xid: chat.user.xid,
+          }
+        }, (err) => {
+          if (err) {
+            reject();
+          } else {
+            resolve();
+          }
+        });
+      });
+    },
+    // on is_typing flag
+    _onIsTypingFlag(chat) {
+      this.$emit('isTypingFlag', chat);
     },
     // get single chat
     getChat({ type, xid }) {

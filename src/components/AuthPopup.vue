@@ -129,9 +129,7 @@ export default {
     auth(type) {
       this.loading = true;
       const sendRequest = (data) => {
-        console.log('senging req')
         this.$chatService.login(type, data).then(() => {
-          console.log('sened req')
           if (type === 'pid' && this.form.remember) {
             localStorage.setItem('passprase', this.form.passprase);
             localStorage.setItem('salt', this.form.salt);

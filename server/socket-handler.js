@@ -105,7 +105,21 @@ module.exports = (io) => (socket) => {
     }
   });
 
-
+  socket.on('sendIsTypingFlag', (data, callback) => {
+    if (typeof callback !== 'function' || !user.type) {
+      return;
+    }
+    try {
+      const { user: { type, xid } } = data;
+      const receiverUser = users.find(_user => _user.type === type && _user.xid === xid);
+      receiverUser.socket.emit('isTypingFlag', { type: user.type, xid: user.xid });
+      return callback(false, true);
+    } catch (e) {
+      console.error(e);
+      return callback(true, false);
+    }
+    
+  });
 
   socket.on('disconnect', () => {
     // remove this user from users list

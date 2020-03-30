@@ -18,7 +18,8 @@
       </div>
     </div>
   </div>
-  <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" v-model="inputText" :disabled="!chat || !chat.isOnline" />
+  <div :class="$style.isTyping" class="padding-md" v-show="itIsTyping"> {{ chat.user.name }} is typing... </div>
+  <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat || !chat.isOnline" />
 </div>
 </template>
 
@@ -45,6 +46,9 @@ export default {
   data() {
     return {
       inputText: '',
+      lastIsTypingFlagSent: 0,
+      itIsTyping: false,
+      isTypingTimer: undefined,
     }
   },
   computed: {
@@ -64,6 +68,13 @@ export default {
         });
       }
     },
+    onInput(newValue) {
+      this.inputText = newValue;
+      if (Date.now() > this.lastIsTypingFlagSent + 1000) {
+        this.lastIsTypingFlagSent = Date.now();
+        this.$chatService.sendIsTypingFlag(this.chat);
+      }
+    },
     closeChat() {
       this.$emit('close');
     },
@@ -79,14 +90,26 @@ export default {
       }
     }
     reloadLoop();
+    this.$chatService.$on('isTypingFlag', (user) => {
+      if (this.chat && this.chat.user.xid === user.xid && this.chat.user.type === user.type) {
+        this.itIsTyping = true;
+        clearTimeout(this.isTypingTimer);
+        this.isTypingTimer = setTimeout(() => {
+          this.itIsTyping = false;
+        }, 5000);
+      }
+    });
   },
   watch: {
     chat() {
       if (this.chat) {
         this.$chatService.refreshChat(this.chat);
       }
+      this.ItIsTyping = false;
+      clearTimeout(this.isTypingTimer);
     },
     'messages.length'() {
+      this.itIsTyping = false;
       this.$nextTick(() => {
         this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
       });
@@ -130,6 +153,7 @@ export default {
         overflowWrap: 'break-word',
         lineHeight: 1.5,
       }),
+      className('isTyping', {}),
       className('messageItem', {
         // marginTop: '15px',
         fontWeight: 'bold',
