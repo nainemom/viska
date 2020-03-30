@@ -41,11 +41,19 @@ export default {
         // lineHeight: 1.6,
         // fontSize: '16px',
         width: 'auto',
+        '&:focus': {
+          outline: 'none',
+          textDecoration: 'underline',
+        },
         '&.full-width': {
           width: '100%',
         },
         '&.primary': {
           background: this.$root.theme.primaryColor,
+          color: '#fff',
+        },
+        '&.danger': {
+          background: this.$root.theme.dangerColor,
           color: '#fff',
         },
         '&.transparent': {

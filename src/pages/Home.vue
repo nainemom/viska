@@ -1,23 +1,23 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.app">
-    <div :class="[$style.chats, chat && 'hidden-on-mobile']">
+    <div :class="[$style.chats, activeChat && 'hidden-on-mobile']">
       <div class="profile padding-bottom-xl padding-top-xl">
         <div class="padding-bottom-lg">
-          <UserTitle :sid="$root.sid" :pid="$root.pid" multiLine :avatarSize="64"/>
+          <UserTitle :user="$chatService.user" multiLine :avatarSize="64"/>
         </div>
         <div>
-          <Button class="size-sm padding-left-lg padding-right-lg" color="default" :disabled="!$root.pid" title="Only Available for PID Users" @click.native="copyLink">
-            <b> <i class="fa fa-copy" />  {{ copyToClipboardText }} </b>
+          <Button class="size-sm padding-left-lg padding-right-lg" color="default" :disabled="$chatService.user.type !== 'pid'" title="Only Available for PID Users" @click.native="copyLink">
+            <b> <i class="fa fa-share" />  {{ copyToClipboardText }} </b>
           </Button>
-          <Button class="size-sm padding-left-lg padding-right-lg" color="default" v-if="$root.pid" @click.native="logout">
+          <Button class="size-sm padding-left-lg padding-right-lg" color="default" v-if="$chatService.user.type" @click.native="logout">
             <b> <i class="fa fa-sign-out-alt" />  Exit </b>
           </Button>
         </div>
       </div>
-      <Chats />
+      <Chats :activeChat="activeChat" @select="goToChat($event.user.type, $event.user.xid)"/>
     </div>
-    <Chat :class="[$style.chat, !chat && 'hidden-on-mobile']" :chat="chat"/>
+    <Chat :class="[$style.chat, !activeChat && 'hidden-on-mobile']" :chat="activeChat" @close="goToChat(undefined, undefined)"/>
   </div>
 </div>
 </template>
@@ -39,52 +39,50 @@ export default {
   data() {
     return {
       copyToClipboardText: 'Share My Direct Link',
-      chat: undefined
     }
   },
   computed: {
-    selectedChatFromUrl() {
-      return this.$route.params.type ? {
-        pid: this.$route.params.type === 'pid' ? this.$route.params.id : undefined,
-        sid: this.$route.params.type === 'sid' ? this.$route.params.id : undefined,
-      } : undefined;
+    activeChat() {
+      if (this.$route.params.type) {
+        return this.$chatService.getChat({
+          type: this.$route.params.type,
+          xid: this.$route.params.xid,
+        });
+      }
+      return undefined;
     },
   },
   methods: {
-    reloadChatIfNeeded() {
-      if (this.selectedChatFromUrl) {
-        this.chat = this.$root.upsertChat(this.selectedChatFromUrl.sid, this.selectedChatFromUrl.pid);
-        this.$root.activeChat(this.chat);
-        this.$root.refreshChat(this.chat);
-      } else {
-        this.chat = undefined;
+    goToChat(type, xid) {
+      const url = type ? `/chats/${type}/${xid}` : '/chats';
+      if (this.$route.path !== url) {
+        this.$nextTick(() => {
+          this.$router.push(url);
+        });
       }
     },
     copyLink() {
-      copyToClipboard('salam' + Math.random());
+      copyToClipboard(`${location.protocol}//${location.host}/#/chats/${this.$chatService.user.type}/${this.$chatService.user.xid}`);
       const oldText = this.copyToClipboardText;
       this.copyToClipboardText = 'Copied!';
       setTimeout(() => {
         this.copyToClipboardText = oldText;
-      }, 500);
+      }, 750);
     },
     logout() {
-      this.$root.forgotAnything();
-      alert('ok')
-    }
+      // TODO use better way
+      this.$root.$refs.authPopup.openLogout();
+    },
   },
   created() {
-    // if (!this.chatFromUrl.pid && this.this.chatFromUrl.sid) {
-    //   return this.$router.push('/chats');
-    // }
-    this.$nextTick(() => {
-      this.reloadChatIfNeeded();
+    this.$chatService.$on('newMessage', ({user, body}) => {
+      if (!this.activeChat || (this.activeChat.user.type !== user.type && this.activeChat.user.xid !== user.xid)) {
+        this.$notify(user.name, body, user.avatar, 'message', () => {
+          window.focus();
+          this.goToChat(user.type, user.xid);
+        });
+      }
     });
-  },
-  watch: {
-    selectedChatFromUrl() {
-      this.reloadChatIfNeeded();
-    }
   },
   style({ className, mediaQuery }) {
     return [
@@ -100,10 +98,11 @@ export default {
       }),
       className('chats', {
         height: '100%',
-        width: '320px',
-        minWidth: '320px',
+        width: '340px',
+        minWidth: '340px',
         backgroundColor: this.$root.theme.backgroundColor2,
         borderRight: `solid 1px ${this.$root.theme.borderColor}`,
+        boxShadow: `inset -4px 0 9px ${this.$root.theme.shadowColor}`,
         '& > .profile': {
           textAlign: 'center',
           borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
@@ -114,10 +113,11 @@ export default {
         width: '100%',
         overflow: 'hidden',
       }),
-      mediaQuery({ maxWidth: '800px' }, [
+      mediaQuery({ maxWidth: '960px' }, [
         className('chats', {
           display: 'block',
           backgroundColor: this.$root.theme.backgroundColor,
+          boxShadow: 'none',
           width: '100%',
           '&.hidden-on-mobile': {
             display: 'none',

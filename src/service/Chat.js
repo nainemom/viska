@@ -2,8 +2,8 @@ import { minifyStr, strToNumber } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
 
 const User = (type, xid) => {
-  const name = !type ? 'unknown' : `${type.toUpperCase()}-${minifyStr(xid, 8)}`;
-  const avatar = `${process.env.STATIC_URL_PREFIX || ''}/avatars/${strToNumber(xid || '', 50)}.png`;  
+  const name = !type ? 'unknown' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
+  const avatar = `${process.env.STATIC_URL_PREFIX || ''}/avatars/${strToNumber(name, 50)}.png`;  
   return {
     type,
     xid,
@@ -33,28 +33,25 @@ const ChatService = {
     // will connect to server...
     login(type, data) {
       return new Promise((resolve, reject) => {
-        const action = () => {
+        this.server.open();
+        this.$once('connect', () => {
           this.server.emit('login', {
             type,
             data,
           }, (err, xid) => {
             if (err) {
+              this.server.close();
               reject();
             } else {
               this.sid = this.server.id;
               this.user = User(type, xid);
+              console.log(this.user);
               this._loadChats();
-              resolve();
               this.$emit('login', this.auth);
+              resolve();
             }
           });
-        };
-        if (this.server.disconnected) {
-          this.server.open();
-          this.$once('connect', action);
-        } else {
-          action();
-        }
+        });
       });
     },
     // will disconnect from server
@@ -130,10 +127,7 @@ const ChatService = {
       });
       this._saveChats();
       this.$emit('newMessage', {
-        user: {
-          type,
-          xid,
-        },
+        user: User(type, xid),
         body,
       });
     },
@@ -149,7 +143,6 @@ const ChatService = {
     },
     // load current user chats from localStorage
     _loadChats() {
-      return;
       const cachedChats = localStorage.getItem(`${JSON.stringify(this.user)}:chats`);
       if (cachedChats) {
         this.chats = JSON.parse(cachedChats);
@@ -167,16 +160,8 @@ const ChatService = {
       } else {
         this.sid = undefined;
         this.$emit('disconnect');
-        location.reload(); // TODO do something better
       }
     },
-    // calculateName(sid, pid) {
-    //   return ((pid ? 'PID-' : 'SID-') + minifyStr(pid || sid || ''));
-    // },
-    // generateAvatar(str) {
-    //   const avatarIndex = strToNumber(str, 50) + 1;
-    //   return this.getStaticLink(`/avatars/${avatarIndex}.png`);
-    // }
     _upsertChat(type, xid) {
       let chat = this.chats.find((chat) => chat.user.type === type && chat.user.xid === xid);
       if (!chat) {

@@ -1,33 +1,20 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.chatList">
-    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="pickRandomUserForChat">
+    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="addRandomChat">
       <div class="padding-x-sm">
-        <UserTitle :showName="false" :unknownMode="!loadingRandomUser" :playMode="loadingRandomUser"/>
+        <UserTitle :showName="false" />
       </div>
       <div class="padding-x-sm grow">Talk to a Random User </div>
-      <div class="padding-x-sm"><StatusIcon v-if="loadingRandomUser" :value="null" /></div>
+      <div class="padding-x-sm"><StatusIcon v-if="loadingRandomChat" :value="null" /></div>
     </Cell>
 
-    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem, chat.isActive && 'actived']" v-for="chat in chats" :key="chat.pid || chat.sid" @click.native="goToChat(chat)">
+    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem, isActive(chat) && 'actived']" v-for="(chat, index) in chats" :key="index" @click.native="goToChat(chat)">
       <div class="padding-x-sm grow">
-        <UserTitle :sid="chat.sid" :pid="chat.pid"/>
+        <UserTitle :user="chat.user"/>
       </div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
-
-
-<!-- <Cell :class="[$style.chatItem, chat && chat.isActive ? 'actived' : 'deactived']">
-  <div class="">
-    <UserTitle :sid="chat ? chat.sid : undefined" :pid="chat ? chat.pd : undefined" :avatarSize="40" />
-  </div>
-  <div v-if="chat && !chat.isActive" class="message">{{chat && chat.messages.length ? chat.messages[chat.messages.length - 1].message : ''}}</div>
-  <div :class="['state', chat && chat.isOnline ? 'online' : 'offline']" />
-  <slot />
-</Cell>
-
-
-    <ChatListItem v-for="chat in chats" :key="chat.pid || chat.sid" :chat="chat" @click.native="goToChat(chat)" :class="$style.chatItem" /> -->
   </div>
 </div>
 </template>
@@ -45,35 +32,43 @@ export default {
     Cell,
     StatusIcon,
   },
+  props: {
+    activeChat: {
+      type: Object,
+    },
+  },
   data() {
     return {
-      loadingRandomUser: false,
+      loadingRandomChat: false,
     }
   },
   computed: {
     chats() {
-      return this.$root.chats;
+      return this.$chatService.chats;
     },
   },
   methods: {
-    pickRandomUserForChat() {
-      this.loadingRandomUser = true;
+    addRandomChat() {
+      this.loadingRandomChat = true;
       setTimeout(() => {
-        this.$root.upsertRandomChat().then((chat) => {
-          this.loadingRandomUser = false;
+        this.$chatService.addRandomChat().then((chat) => {
+          this.loadingRandomChat = false;
           this.goToChat(chat);
         }).catch(() => {
-          this.loadingRandomUser = false;
+          this.loadingRandomChat = false;
           alert('It seems there is no one wants to chat with you :(');
         });
-      }, 1000);
+      }, 500);
+    },
+    isActive(chat) {
+      return this.activeChat && chat.user.xid === this.activeChat.user.xid && chat.user.type === this.activeChat.user.type;
     },
     goToChat(chat) {
-      this.$root.activeChat(chat);
-      const path = `/chats/${chat.pid ? 'pid' : 'sid'}/${chat.pid || chat.sid}`;
-      if (this.$route.path !== path) {
-        this.$router.push(path);
-      }
+      this.$emit('select', chat);
+      // const path = `/chats/${chat.user.type}/${chat.user.xid}`;
+      // if (this.$route.path !== path) {
+      //   this.$router.push(path);
+      // }
     },
   },
   style({ className, mediaQuery }) {

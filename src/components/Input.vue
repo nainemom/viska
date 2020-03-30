@@ -24,6 +24,10 @@ export default {
           background: '#fff',
           cursor: 'not-allowed',
         },
+        '&:focus': {
+          outline: 'none',
+          borderColor: this.$root.theme.primaryColorSimple,
+        },
       }),
     ];
   }

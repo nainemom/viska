@@ -4,114 +4,114 @@ const users = [];
 module.exports = (io) => (socket) => {
   const user = {
     socket,
-    sid: socket.id, // socket_id
-    pid: undefined, // public_id
+    sid: socket.id,
+    type: undefined,
+    xid: undefined,
   };
-  users.push(user);
-  // io.emit(`sid:${user.sid}:connect`, user.sid);
 
-  socket.on('auth', ({ passprase, salt }, callback) => {
+  socket.on('login', ({ type, data }, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
-    if (!passprase || !salt) {
-      return callback(true, '');
-    }
-    user.pid = auth.generateKey(passprase, salt);
-    // io.emit(`pid:${user.pid}:connect`, user.sid);
-    return callback(false, user.pid);
-  });
-
-  socket.on('findRandomSid', (ignoreList, callback) => {
-    if (typeof callback !== 'function' || typeof ignoreList !== 'object' || !(ignoreList instanceof Array) ) {
-      return callback(true, undefined);
-    }
-    const availableUsers = users.filter((_user) => _user.sid !== user.sid && !ignoreList.includes(_user.sid));
-    if (availableUsers.length === 0) {
-      return callback(true, undefined);
-    }
-    const theUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
-    return callback(false, theUser.sid);
-  });
-
-  socket.on('getUser', (data, callback) => {
-    if (typeof callback !== 'function') {
-      return;
-    }
-    const { pid, sid } = data;
-    if (pid) {
-      const theUser = users.find(_user => _user.pid === pid);
-      if (!theUser) {
-        return callback(true, undefined);
+    try {
+      if (user.type) {
+        return callback(true, false);
       }
-      return callback(false, theUser.sid);
-    } else if (sid) {
-      const theUser = users.find(_user => _user.sid === sid);
-      if (!theUser) {
-        return callback(true, undefined);
+      let xid = undefined;
+      if (type === 'did') {
+        xid = auth.generateKey(JSON.stringify(data), '');
+      } else if (type === 'pid') {
+        if (!data.passprase || !data.salt) {
+          return callback(true, false);
+        }
+        xid = auth.generateKey(data.passprase, data.salt);
       }
-      return callback(false, theUser.sid);
-    } else {
-      return callback(true, undefined);
-    }
-
-  });
-  socket.on('validateSid', (data, callback) => {
-    if (typeof callback !== 'function') {
-      return;
-    }
-    const { sid } = data;
-    if (!sid) {
-      return callback(true, undefined);
-    }
-    const theUser = users.find(_user => _user.sid === sid);
-    if (!theUser) {
-      return callback(true, undefined);
-    }
-    return callback(false, theUser.sid);
-  });
-
-  socket.on('getUserState', (data, callback) => {
-    if (typeof callback !== 'function') {
-      return;
-    }
-    const { sid } = data;
-    if (!sid) {
+      const hasAnotherInstance = users.findIndex((_user) => _user.type === type && _user.xid === xid) > -1;
+      if (hasAnotherInstance) {
+        return callback(true, false);
+      }
+      user.xid = xid;
+      user.type = type;
+      users.push(user);
+      return callback(false, user.xid);
+    } catch (e) {
+      console.error(e);
       return callback(true, false);
     }
-    const theUser = users.find(_user => _user.sid === sid);
-    if (!theUser) {
-      return callback(false, false);
+  });
+
+  socket.on('findRandomUser', (ignoreList, callback) => {
+    if (typeof callback !== 'function') {
+      return;
     }
-    return callback(false, true);
+    try {
+      const availableUsers = users.filter((_user) => {
+        return (
+          ignoreList
+            .findIndex((_ignore) => _ignore.xid !== _user.xid && _ignore.type !== _user.type) === -1 &&
+          !(_user.xid === user.xid && _user.type === user.type)
+        );
+      });
+      if (availableUsers.length === 0) {
+        return callback(false, undefined);
+      }
+      const theUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
+      return callback(false, {
+        type: theUser.type,
+        xid: theUser.xid
+      });
+    } catch (e) {
+      console.error(e);
+      return callback(true, false);
+    }
+  });
+
+
+  socket.on('getUserStatus', ( { type, xid }, callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
+    try {
+      const theUser = users.find(_user => _user.type === type && _user.xid === xid);
+      if (!theUser) {
+        return callback(false, false);
+      }
+      return callback(false, theUser.sid && true);
+    } catch(e) {
+      console.error(e);
+      return callback(true, false);
+    }
   });
 
   socket.on('sendMessage', (data, callback) => {
-    if (typeof callback !== 'function') {
+    if (typeof callback !== 'function' || !user.type) {
       return;
     }
-    const { sid, message } = data; // idType is one of ['sid', 'pid']
-    if (!sid || !message) {
-      return callback(true, undefined);
+    try {
+      const { user: { type, xid }, body } = data;
+      const receiverUser = users.find(_user => _user.type === type && _user.xid === xid);
+      const messageObject = {
+        user: {
+          type: user.type,
+          xid: user.xid,
+        },
+        body,
+      };
+      receiverUser.socket.emit('newMessage', messageObject);
+      return callback(false, messageObject);
+    } catch (e) {
+      console.error(e);
+      return callback(true, false);
     }
-    const receiverUser = users.find(_user => _user.sid === sid);
-    if (!receiverUser) {
-      return callback(true, undefined);
-    }
-    const messageObject = {
-      sid: user.sid,
-      message
-    };
-    receiverUser.socket.emit('newMessage', messageObject);
-    return callback(false, undefined);
   });
 
 
 
   socket.on('disconnect', () => {
     // remove this user from users list
-    users.splice(users.findIndex(_user => _user.sid === user.sid), 1);
-    io.emit(`sid:${user.sid}:disconnect`);
+    if (user.xid) {
+      users.splice(users.findIndex(_user => _user.xid === user.xid && _user.type === user.type), 1);
+    }
   });
   
 }

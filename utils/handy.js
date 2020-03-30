@@ -18,15 +18,15 @@ module.exports.forEachSync = (arr, handler) => {
   });
 }
 
-module.exports.minifyStr = (str) => {
-  if (str.length < 17) {
+module.exports.minifyStr = (str, length) => {
+  if (str.length <= length) {
     return str;
   }
-  return `${str.substr(0, 8)}${str.substr(str.length - 8)}`
+  return `${str.substr(0, Math.ceil(length/2))}${str.substr(str.length - Math.floor(length/2))}`
 }
 
 
-module.exports.numberHash = (str, limit) => {
+module.exports.strToNumber = (str, limit) => {
   let sum = 1;
   for(let i = 0; i < str.length; i++) {
     sum = Math.imul(sum, str.charCodeAt(i));

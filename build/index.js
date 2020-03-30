@@ -32,8 +32,8 @@ if (watch) {
 } else {
   cli.write(`Building...`);
   compiler.run((e,d) => {
-    // console.log(e);
-    // console.log(d);
+    console.log(e);
+    console.log(d);
     cli.write('Done!');
   });
 }

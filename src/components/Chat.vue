@@ -1,20 +1,20 @@
 <template>
 <div :class="$style.container">
   <Cell :class="$style.header" class="size-xl" v-if="chat">
-    <Cell class="padding-x-sm size-lg grow" @click.native="goToChat(chat)">
+    <Cell class="padding-x-sm size-lg grow">
       <div class="padding-x-sm">
-        <UserTitle :sid="chat.sid" :pid="chat.pid"/>
+        <UserTitle :user="chat.user" />
       </div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
-    <Button class="size-lg padding-lg" color="transparent" @click.native="closeChat">
+    <Button class="size-lg padding-lg padding-x-xl" color="transparent" @click.native="closeChat">
       <i class="fa fa-times" /> 
     </Button>
   </Cell>
   <div :class="$style.conversation" class="padding-y-lg" ref="conversation">
     <div v-for="(message, index) in messages" :key="index" :class="[$style.messageItem, message.from]">
       <div class="inside padding-lg margin-y-sm">
-        {{ message.message }}
+        {{ message.body }}
       </div>
     </div>
   </div>
@@ -51,19 +51,45 @@ export default {
     messages() {
       // return [{"from":"me","message":"salam"},{"from":"its","message":"salam duste khubam"},{"from":"its","message":"chetori?"},{"from":"me","message":"mamnun"},{"from":"me","message":"bebin barname ro paye hasti?"}];
       return this.chat ? this.chat.messages : [];
+    },
+    its() {
+      return this.chat ? this.chat.user : undefined;
     }
   },
   methods: {
     sendMessage() {
       if (this.chat) {
-        this.$root.sendMessage(this.chat.sid, this.chat.pid, this.inputText).then(() => {
+        this.$chatService.sendMessage(this.chat, this.inputText).then(() => {
           this.inputText = '';
         });
       }
     },
     closeChat() {
-      this.$router.push('/chats');
-      this.$root.activeChat(null);
+      this.$emit('close');
+    },
+  },
+  mounted() {
+    const reloadLoop = () => {
+      if (this.chat) {
+        this.$chatService.refreshChat(this.chat).then(() => {
+          setTimeout(reloadLoop, 5000);
+        });
+      } else {
+        setTimeout(reloadLoop, 5000);
+      }
+    }
+    reloadLoop();
+  },
+  watch: {
+    chat() {
+      if (this.chat) {
+        this.$chatService.refreshChat(this.chat);
+      }
+    },
+    'messages.length'() {
+      this.$nextTick(() => {
+        this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
+      });
     }
   },
   style({ className, mediaQuery }) {
@@ -141,12 +167,5 @@ export default {
       }),
     ];
   },
-  watch: {
-    'messages.length'() {
-      this.$nextTick(() => {
-        this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
-      });
-    }
-  }
 }
 </script>

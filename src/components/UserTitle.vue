@@ -1,7 +1,7 @@
 <template>
-<div :class="[$style.container, multiLine && 'multi-line', unknownMode && 'unknown-mode']">
-  <div class="avatar"> <img :src="avatar" width="100%"/> <i v-if="unknownMode" class="fa fa-question" /> </div>
-  <div class="name" v-if="showName"> {{ name }} </div>
+<div :class="[$style.container, multiLine && 'multi-line', !user || !user.type && 'unknown-mode']">
+  <div class="avatar"> <img v-if="user" :src="user.avatar" width="100%"/> <i v-if="!user || !user.type" class="fa fa-question" /> </div>
+  <div class="name" v-if="showName && user"> {{ user.name }} </div>
   <slot />
 </div>
 </template>
@@ -11,11 +11,8 @@ import { minifyStr, numberHash } from '../../utils/handy.js';
 
 export default {
   props: {
-    sid: {
-      type: String,
-    },
-    pid: {
-      type: String,
+    user: {
+      type: Object,
     },
     showName: {
       type: Boolean,
@@ -28,77 +25,6 @@ export default {
     avatarSize: {
       type: Number,
       default: 40
-    },
-    playMode: {
-      type: Boolean,
-      default: false
-    },
-    unknownMode: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data() {
-    return {
-      localSid: undefined,
-      timer: undefined,
-    }
-  },
-  computed: {
-    name() {
-      return this.$root.calculateName(this.localSid || this.sid, this.localSid ? undefined : this.pid);
-    },
-    avatar() {
-      return this.$root.generateAvatar(this.name);
-    }
-  },
-  methods: {
-    randomize() {
-      let str = (Date.now() * 35413).toString();
-      if (Math.random() > 0.5) {
-        str = str.split('').reverse().join('');
-      }
-      this.localSid = str;
-    },
-    clearLocalSidIFNeeded() {
-      if (this.sid) {
-        this.localSid = undefined;
-      }
-    },
-    handlePlayMode() {
-      const runTimer = () => {
-        this.randomize();
-        this.timer = setTimeout(() => {
-          if (this.playMode) {
-            runTimer();
-          } else {
-            this.clearLocalSidIFNeeded();
-          }
-        }, 300);
-      }
-      runTimer();
-    }
-  },
-  created() {
-    if (this.playMode) {
-      this.handlePlayMode();
-    }
-    if (this.unknownMode) {
-      this.randomize()
-    }
-  },
-  watch: {
-    playMode(v) {
-      if (v) {
-        this.handlePlayMode();
-      } else {
-        this.clearLocalSidIFNeeded();
-      }
-    },
-    unknownMode(v) {
-      if (!v) {
-        this.clearLocalSidIFNeeded();
-      }
     },
   },
   style({ className }) {
