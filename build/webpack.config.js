@@ -14,7 +14,8 @@ module.exports = (config) => {
 
   output.path = path.resolve(__dirname, '../docs');
   output.filename = 'bundle.js';
-  // output.publicPath = path.resolve(__dirname, '../public');
+  output.chunkFilename = '[name].bundle.js';
+
   plugins.push(
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../public/index.html'),
