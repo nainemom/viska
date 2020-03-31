@@ -11,7 +11,7 @@
         <h3> Logout. </h3>
       </div>
       <div class="padding-bottom-xl">
-        <p> Are you sure you want to exit from app? by doing this all of your chat data and saved credentials will be lost. </p>
+        <p> Are you sure you want to exit from app? By doing this all of your chats data, saved credentials, and pending messages will be lost. </p>
       </div>
       <Cell>
         <div class="padding-right-md grow">

@@ -12,14 +12,19 @@
     </Button>
   </Cell>
   <div :class="$style.conversation" class="padding-y-lg" ref="conversation">
-    <div v-for="(message, index) in messages" :key="index" :class="[$style.messageItem, message.from]">
+    <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from]">
       <div class="inside padding-lg margin-y-sm">
+        {{ message.body }}
+      </div>
+    </div>
+    <div v-for="(message, index) in pendingMessages" :key="'p' + index" :class="[$style.messageItem, message.from]">
+      <div class="inside padding-lg margin-y-sm pending" title="This message will automaticly resend when both of you go online.">
         {{ message.body }}
       </div>
     </div>
   </div>
   <div :class="$style.isTyping" class="padding-md" v-show="itIsTyping"> {{ chat.user.name }} is typing... </div>
-  <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat || !chat.isOnline" />
+  <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
 </div>
 </template>
 
@@ -56,6 +61,10 @@ export default {
       // return [{"from":"me","message":"salam"},{"from":"its","message":"salam duste khubam"},{"from":"its","message":"chetori?"},{"from":"me","message":"mamnun"},{"from":"me","message":"bebin barname ro paye hasti?"}];
       return this.chat ? this.chat.messages : [];
     },
+    pendingMessages() {
+      // return [{"from":"me","message":"salam"},{"from":"its","message":"salam duste khubam"},{"from":"its","message":"chetori?"},{"from":"me","message":"mamnun"},{"from":"me","message":"bebin barname ro paye hasti?"}];
+      return this.chat ? this.chat.pendingMessages : [];
+    },
     its() {
       return this.chat ? this.chat.user : undefined;
     }
@@ -70,7 +79,7 @@ export default {
     },
     onInput(newValue) {
       this.inputText = newValue;
-      if (Date.now() > this.lastIsTypingFlagSent + 1000) {
+      if (Date.now() > this.lastIsTypingFlagSent + 1000 && this.chat.isOnline) {
         this.lastIsTypingFlagSent = Date.now();
         this.$chatService.sendIsTypingFlag(this.chat);
       }
@@ -110,6 +119,11 @@ export default {
     },
     'messages.length'() {
       this.itIsTyping = false;
+      this.$nextTick(() => {
+        this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
+      });
+    },
+    'pendingMessages.length'() {
       this.$nextTick(() => {
         this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
       });
@@ -163,6 +177,9 @@ export default {
           maxWidth: '70%',
           display: 'inline-block',
           overflow: 'hidden',
+          '&.pending': {
+            opacity: 0.5,
+          }
         },
         '&.its': {
           textAlign: 'left',
