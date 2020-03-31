@@ -24,6 +24,8 @@ if (watch) {
     clientLogLevel: 'none',
     liveReload: true,
     quiet: false,
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    disableHostCheck: true,
     watchOptions: {
       poll: true,
     },
