@@ -23,7 +23,7 @@
       </div>
     </div>
   </div>
-  <div :class="$style.isTyping" class="padding-md" v-show="itIsTyping"> {{ chat.user.name }} is typing... </div>
+  <div :class="$style.isTyping" class="padding-md" v-if="itIsTyping"> {{ chat.user.name }} is typing... </div>
   <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
 </div>
 </template>
