@@ -1,4 +1,4 @@
-import { minifyStr, strToNumber } from '../../utils/handy.js';
+import { minifyStr, strToNumber, forEachSync } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
 
 const User = (type, xid) => {
@@ -86,16 +86,45 @@ const ChatService = {
           user: chat.user,
           body,
         }, (err) => {
-          if (err) {
-            reject();
+          const messageObject = {
+            from: 'me',
+            body,
+          };
+          if (err === 'receiver-is-offline') {
+            chat.pendingMessages.push(messageObject);
+            this._saveChats();
+            resolve();
+          } else if (err) {
+            reject(err);
           } else {
-            chat.messages.push({
-              from: 'me',
-              body,
-            });
+            chat.messages.push(messageObject);
             this._saveChats();
             resolve();
           }
+        });
+      });
+    },
+    // resend pending messages
+    resendPendingMessages(chat) {
+      let spliceOffset = 0;
+      return forEachSync(chat.pendingMessages.slice(0), (pendingMessage, index) => {
+        return new Promise((resolve) => {
+          this.server.emit('sendMessage', {
+            user: chat.user,
+            body: pendingMessage.body,
+          }, (err) => {
+            const messageObject = {
+              from: 'me',
+              body: pendingMessage.body,
+            };
+            if (!err) {
+              chat.pendingMessages.splice(index + spliceOffset, 1);
+              spliceOffset--;
+              chat.messages.push(messageObject);
+              this._saveChats();
+              resolve();
+            }
+          });
         });
       });
     },
@@ -133,6 +162,9 @@ const ChatService = {
             reject();
           } else {
             chat.isOnline = status;
+            if (status) {
+              this.resendPendingMessages(chat);
+            }
             resolve(status);
           }
         });
@@ -159,14 +191,20 @@ const ChatService = {
           ...chat,
           isOnline: null
         }
-      })
+      });
       localStorage.setItem(`${JSON.stringify(this.user)}:chats`, JSON.stringify(chats));
     },
     // load current user chats from localStorage
     _loadChats() {
       const cachedChats = localStorage.getItem(`${JSON.stringify(this.user)}:chats`);
       if (cachedChats) {
-        this.chats = JSON.parse(cachedChats);
+        this.chats = JSON.parse(cachedChats).map((chat) => {
+          // this is for backward compatibility
+          if (!chat.pendingMessages) {
+            chat.pendingMessages = [];
+          }
+          return chat;
+        });
       }
     },
     // delete current user chats
@@ -190,6 +228,7 @@ const ChatService = {
           user: User(type, xid),
           isOnline: null,
           messages: [],
+          pendingMessages: [],
         };
         this.chats.unshift(chat);
       }

@@ -90,15 +90,21 @@ module.exports = (io) => (socket) => {
     try {
       const { user: { type, xid }, body } = data;
       const receiverUser = users.find(_user => _user.type === type && _user.xid === xid);
-      const messageObject = {
-        user: {
-          type: user.type,
-          xid: user.xid,
-        },
-        body,
-      };
-      receiverUser.socket.emit('newMessage', messageObject);
-      return callback(false, messageObject);
+      if (receiverUser) {
+        const messageObject = {
+          user: {
+            type: user.type,
+            xid: user.xid,
+          },
+          body,
+        };
+        receiverUser.socket.emit('newMessage', messageObject);
+        return callback(false, true);
+      } else {
+        // receiver user is offline. so tell the user try again later
+        return callback('receiver-is-offline', true);
+      }
+
     } catch (e) {
       console.error(e);
       return callback(true, false);
