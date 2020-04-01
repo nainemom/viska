@@ -36,6 +36,9 @@ module.exports.strToNumber = (str, limit) => {
   if (ret < 0) {
     ret++;
   };
+  if (ret >= limit) {
+    ret = limit - 1;
+  };
   return Math.floor(sin * limit);
 }
 

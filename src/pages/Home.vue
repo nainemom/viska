@@ -4,7 +4,7 @@
     <div :class="[$style.chats, activeChat && 'hidden-on-mobile']">
       <div class="profile padding-bottom-xl padding-top-xl">
         <div class="padding-bottom-lg">
-          <UserTitle :user="$chatService.user" multiLine :avatarSize="64"/>
+          <UserTitle :user="$chatService.user" multiLine :avatarSize="128"/>
         </div>
         <div>
           <Button class="size-sm padding-left-lg padding-right-lg" color="default" :disabled="$chatService.user.type !== 'pid'" title="Only Available for PID Users" @click.native="copyLink">

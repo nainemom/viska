@@ -1,9 +1,9 @@
 <template>
 <div :class="$style.container">
-  <Cell :class="$style.header" class="size-xl" v-if="chat">
+  <Cell :class="$style.header" v-if="chat">
     <Cell class="padding-x-sm size-lg grow">
       <div class="padding-x-sm">
-        <UserTitle :user="chat.user" />
+        <UserTitle :user="chat.user" :avatarSize="65"/>
       </div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
@@ -140,7 +140,7 @@ export default {
         background: this.$root.theme.backgroundColor,
         borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
         // color: '#fff',
-        minHeight: '81px', // flex problem
+        // minHeight: '81px', // flex problem
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',

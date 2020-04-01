@@ -2,7 +2,7 @@ import { minifyStr, strToNumber, forEachSync } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
 
 const User = (type, xid) => {
-  const name = !type ? 'unknown' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
+  const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
   const avatar = `${process.env.STATIC_URL_PREFIX || ''}/avatars/${strToNumber(name, 50)}.png`;  
   return {
     type,
@@ -57,8 +57,8 @@ const ChatService = {
     },
     // will disconnect from server
     logout() {
-      this.user = User();
       this._clearChats();
+      this.user = User();
       this.server.close();
       this.$emit('logout');
     },
@@ -78,7 +78,6 @@ const ChatService = {
     },
     // when new random user comes
     _onConnetedToRandomUser({ type, xid }) {
-      console.error(type, xid);
       const chat = this._upsertChat(type, xid);
       this._saveChats();
       this.$emit('connetedToRandomUser', chat);
@@ -196,12 +195,11 @@ const ChatService = {
           isOnline: null
         }
       });
-      localStorage.setItem(`${JSON.stringify(this.user)}:chats`, JSON.stringify(chats));
+      localStorage.setItem(`${this.user.type}:${this.user.xid}:chats`, JSON.stringify(chats));
     },
     // load current user chats from localStorage
     _loadChats() {
-      return;
-      const cachedChats = localStorage.getItem(`${JSON.stringify(this.user)}:chats`);
+      const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.xid}:chats`);
       if (cachedChats) {
         this.chats = JSON.parse(cachedChats).map((chat) => {
           // this is for backward compatibility
@@ -214,7 +212,7 @@ const ChatService = {
     },
     // delete current user chats
     _clearChats() {
-      localStorage.removeItem(`${JSON.stringify(this.user)}:chats`);
+      localStorage.removeItem(`${this.user.type}:${this.user.xid}:chats`);
       this.chats = [];
     },
     _onConnectionStateChange(newState) {
