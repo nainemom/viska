@@ -3,12 +3,10 @@ import SocketIo from 'socket.io-client';
 
 const User = (type, xid) => {
   const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
-  const avatar = `${process.env.STATIC_URL_PREFIX || ''}/avatars/${strToNumber(name, 50)}.png`;  
   return {
     type,
     xid,
     name,
-    avatar,
   }
 }
 

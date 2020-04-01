@@ -1,9 +1,8 @@
-export default (title, body, icon, tag, onclick) => {
+export default (title, body, tag, onclick) => {
   const show = () => {
     const notification = new Notification(title, {
       // renotify: true,
       body,
-      icon,
       tag,
     });
     notification.onclick = onclick;
