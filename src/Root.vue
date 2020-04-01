@@ -38,7 +38,6 @@ export default {
         dangerColor: 'linear-gradient(45deg, #870c12, #e62222)',
         grayColor: '#c7c7c7',
         onlineColor: '#08c353',
-        avatarBackgroundColor: '#3661ff',
       }
     }
   },
@@ -81,10 +80,6 @@ export default {
     calculateName(sid, pid) {
       return ((pid ? 'PID-' : 'SID-') + minifyStr(pid || sid || ''));
     },
-    generateAvatar(str) {
-      const avatarIndex = numberHash(str, 50) + 1;
-      return this.getStaticLink(`/avatars/${avatarIndex}.png`);
-    }
   },
   created() {
     this.$chatService.init(process.env.SERVER_URL);

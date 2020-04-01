@@ -3,9 +3,10 @@
   <div :class="$style.chatList">
     <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="connetToRandomUser">
       <div class="padding-x-sm">
-        <UserTitle :showName="false" />
+        <UserTitle :showName="false" :playMode="loadingRandomChat" />
       </div>
-      <div class="padding-x-sm grow">Talk to a Random User </div>
+      <div class="padding-x-sm grow" v-if="!loadingRandomChat"> Talk to a Random User </div>
+      <div class="padding-x-sm grow" v-else> Finding a Random User... </div>
       <div class="padding-x-sm"><StatusIcon v-if="loadingRandomChat" :value="null" /></div>
     </Cell>
 
@@ -54,14 +55,12 @@ export default {
       }
       this.loadingRandomChat = true;
       const done = (chat) => {
-        console.log(chat);
         this.loadingRandomChat = false;
         this.goToChat(chat);
       }
       setTimeout(() => {
         this.$chatService.connetToRandomUser().then(done).catch((e) => {
           if (e === 'promise') {
-            alert('We will inform you just when somebody likes to chat with you :)');
             this.$chatService.$once('connetedToRandomUser', done)
           } else {
             this.loadingRandomChat = false;

@@ -4,7 +4,7 @@
     <div :class="[$style.chats, activeChat && 'hidden-on-mobile']">
       <div class="profile padding-bottom-xl padding-top-xl">
         <div class="padding-bottom-lg">
-          <UserTitle :user="$chatService.user" multiLine :avatarSize="64"/>
+          <UserTitle :user="$chatService.user" multiLine :avatarSize="128"/>
         </div>
         <div>
           <Button class="size-sm padding-left-lg padding-right-lg" color="default" :disabled="$chatService.user.type !== 'pid'" title="Only Available for PID Users" @click.native="copyLink">
@@ -77,7 +77,7 @@ export default {
   created() {
     this.$chatService.$on('newMessage', ({user, body}) => {
       if (!this.activeChat || (this.activeChat.user.type !== user.type && this.activeChat.user.xid !== user.xid)) {
-        this.$notify(user.name, body, user.avatar, 'message', () => {
+        this.$notify(user.name, body, 'message', () => {
           window.focus();
           this.goToChat(user.type, user.xid);
         });

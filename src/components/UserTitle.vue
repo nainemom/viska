@@ -1,6 +1,8 @@
 <template>
 <div :class="[$style.container, multiLine && 'multi-line', !user || !user.type && 'unknown-mode']">
-  <div class="avatar"> <img v-if="user" :src="user.avatar" width="100%"/> <i v-if="!user || !user.type" class="fa fa-question" /> </div>
+  <div class="avatar">
+    <Avatar :name="playModeName || (user ? user.name : '')" :size="avatarSize"/>
+  </div>
   <div class="name" v-if="showName && user"> {{ user.name }} </div>
   <slot />
 </div>
@@ -8,8 +10,12 @@
 
 <script>
 import { minifyStr, numberHash } from '../../utils/handy.js';
+import Avatar from '../components/Avatar.vue';
 
 export default {
+  components: {
+    Avatar,
+  },
   props: {
     user: {
       type: Object,
@@ -24,7 +30,39 @@ export default {
     },
     avatarSize: {
       type: Number,
-      default: 40
+      default: 64
+    },
+    playMode: {
+      type: Boolean,
+      default: false,
+    }
+  },
+  data() {
+    return {
+      playModeName: '',
+    }
+  },
+  methods: {
+    randomizeLoop() {
+      if (this.playMode) {
+        this.playModeName = (Math.random() * 3000).toString();
+        setTimeout(() => {
+          this.randomizeLoop();
+        }, 800);
+      } else {
+        this.playModeName = '';
+      }
+    }
+  },
+  created() {
+    this.randomizeLoop();
+  },
+  watch: {
+    playMode() {
+      this.randomizeLoop();
+    },
+    user() {
+      this.randomizeLoop();
     },
   },
   style({ className }) {
@@ -52,23 +90,11 @@ export default {
         '& > .avatar': {
           position: 'relative',
           marginRight: this.showName ? '8px' : 0,
-          borderRadius: avatarSize,
+          // borderRadius: avatarSize,
           padding: '4px 0 0 0',
           width: avatarSize,
           height: avatarSize,
           overflow: 'hidden',
-          background: this.$root.theme.avatarBackgroundColor,
-          '& > i': {
-            position: 'absolute',
-            left: '0',
-            top: '0',
-            width: '100%',
-            height: '100%',
-            textAlign: 'center',
-            lineHeight: avatarSize,
-            background: 'rgba(0, 0, 0, 0.5)',
-            color: '#fff',
-          }
         },
       }),
     ];

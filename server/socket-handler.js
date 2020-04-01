@@ -141,7 +141,7 @@ module.exports = (io) => (socket) => {
       const usersIndex = users.indexOf(user);
       const readyToChatUsersIndex = readyToChatUsers.indexOf(user);
       usersIndex !== -1 && users.splice(usersIndex, 1);
-      readyToChatUsersIndex !== -1 && users.splice(readyToChatUsersIndex, 1);
+      readyToChatUsersIndex !== -1 && readyToChatUsers.splice(readyToChatUsersIndex, 1);
     }
   });
   
