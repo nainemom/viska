@@ -139,13 +139,13 @@ export default {
       svg.style.height = this.size + 'px';
 
       if (!this.name) {
-        head.style.transform = false;
-        leap.style.transform = false;
-        lefteye.style.transform = false;
-        righteye.style.transform = false;
-        head.style.transform = false;
-        lefteyecircle.style.fill = false;
-        righteyecircle.style.fill = false;
+        head.style.transform = null;
+        leap.style.transform = null;
+        lefteye.style.transform = null;
+        righteye.style.transform = null;
+        head.style.transform = null;
+        lefteyecircle.style.fill = null;
+        righteyecircle.style.fill = null;
         return;
       }
       
