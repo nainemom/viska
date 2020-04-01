@@ -1,7 +1,7 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.chatList">
-    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="addRandomChat">
+    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="connetToRandomUser">
       <div class="padding-x-sm">
         <UserTitle :showName="false" />
       </div>
@@ -48,15 +48,25 @@ export default {
     },
   },
   methods: {
-    addRandomChat() {
+    connetToRandomUser() {
+      if (this.loadingRandomChat) {
+        return;
+      }
       this.loadingRandomChat = true;
+      const done = (chat) => {
+        console.log(chat);
+        this.loadingRandomChat = false;
+        this.goToChat(chat);
+      }
       setTimeout(() => {
-        this.$chatService.addRandomChat().then((chat) => {
-          this.loadingRandomChat = false;
-          this.goToChat(chat);
-        }).catch(() => {
-          this.loadingRandomChat = false;
-          alert('It seems there is no one wants to chat with you :(');
+        this.$chatService.connetToRandomUser().then(done).catch((e) => {
+          if (e === 'promise') {
+            alert('We will inform you just when somebody likes to chat with you :)');
+            this.$chatService.$once('connetedToRandomUser', done)
+          } else {
+            this.loadingRandomChat = false;
+            alert('It seems there is no one wants to chat with you :(');
+          }
         });
       }, 500);
     },

@@ -1,5 +1,6 @@
 const auth = require('./auth.js');
 const users = [];
+const readyToChatUsers = [];
 
 module.exports = (io) => (socket) => {
   const user = {
@@ -7,6 +8,7 @@ module.exports = (io) => (socket) => {
     sid: socket.id,
     type: undefined,
     xid: undefined,
+    readyToChat: false,
   };
 
   socket.on('login', ({ type, data }, callback) => {
@@ -40,26 +42,32 @@ module.exports = (io) => (socket) => {
     }
   });
 
-  socket.on('findRandomUser', (ignoreList, callback) => {
-    if (typeof callback !== 'function') {
+  socket.on('connetToRandomUser', (callback) => {
+    if (typeof callback !== 'function' || !user.xid) {
       return;
     }
     try {
-      const availableUsers = users.filter((_user) => {
-        return (
-          ignoreList
-            .findIndex((_ignore) => _ignore.xid !== _user.xid && _ignore.type !== _user.type) === -1 &&
-          !(_user.xid === user.xid && _user.type === user.type)
-        );
-      });
-      if (availableUsers.length === 0) {
-        return callback(false, undefined);
+      if (readyToChatUsers.includes(user)) {
+        return callback('duplicate', false);
       }
-      const theUser = availableUsers[Math.floor(Math.random() * availableUsers.length)];
-      return callback(false, {
-        type: theUser.type,
-        xid: theUser.xid
-      });
+      for (let i = 0; i < readyToChatUsers.length; i++) {
+        const _user = users[i];
+        if (_user !== user) {
+          _user.socket.emit('connetedToRandomUser',{
+            type: user.type,
+            xid: user.xid,
+          });
+          // remove _user from readyToChatUsers
+          readyToChatUsers.splice(i, 1);
+          return callback(false, {
+            type: _user.type,
+            xid: _user.xid
+          });
+        }
+      };
+      // move current user to readyToChatUsers
+      readyToChatUsers.push(user);
+      return callback('promise', false);
     } catch (e) {
       console.error(e);
       return callback(true, false);
@@ -68,7 +76,7 @@ module.exports = (io) => (socket) => {
 
 
   socket.on('getUserStatus', ( { type, xid }, callback) => {
-    if (typeof callback !== 'function') {
+    if (typeof callback !== 'function' || !user.xid) {
       return;
     }
     try {
@@ -84,7 +92,7 @@ module.exports = (io) => (socket) => {
   });
 
   socket.on('sendMessage', (data, callback) => {
-    if (typeof callback !== 'function' || !user.type) {
+    if (typeof callback !== 'function' || !user.xid) {
       return;
     }
     try {
@@ -112,7 +120,7 @@ module.exports = (io) => (socket) => {
   });
 
   socket.on('sendIsTypingFlag', (data, callback) => {
-    if (typeof callback !== 'function' || !user.type) {
+    if (typeof callback !== 'function' || !user.xid) {
       return;
     }
     try {
@@ -128,9 +136,12 @@ module.exports = (io) => (socket) => {
   });
 
   socket.on('disconnect', () => {
-    // remove this user from users list
     if (user.xid) {
-      users.splice(users.findIndex(_user => _user.xid === user.xid && _user.type === user.type), 1);
+      // remove this user from users list
+      const usersIndex = users.indexOf(user);
+      const readyToChatUsersIndex = readyToChatUsers.indexOf(user);
+      usersIndex !== -1 && users.splice(usersIndex, 1);
+      readyToChatUsersIndex !== -1 && users.splice(readyToChatUsersIndex, 1);
     }
   });
   
