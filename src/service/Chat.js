@@ -30,6 +30,7 @@ const ChatService = {
       this.server.on('disconnect', this._onConnectionStateChange.bind(this, false));
       this.server.on('newMessage', this._onNewMessage);
       this.server.on('isTypingFlag', this._onIsTypingFlag);
+      this.server.on('connetedToRandomUser', this._onConnetedToRandomUser);
     },
     // will connect to server...
     login(type, data) {
@@ -62,15 +63,11 @@ const ChatService = {
       this.$emit('logout');
     },
     // find random user
-    addRandomChat() {
+    connetToRandomUser() {
       return new Promise((resolve, reject) => {
-        const ignoreList = this.chats.map((chat) => ({
-          xid: chat.user.xid,
-          type: chat.user.type,
-        }))
-        this.server.emit('findRandomUser', ignoreList, (err, user) => {
+        this.server.emit('connetToRandomUser', (err, user) => {
           if (err || !user) {
-            reject();
+            reject(err);
           } else {
             const chat = this._upsertChat(user.type, user.xid);
             this._saveChats();
@@ -78,6 +75,13 @@ const ChatService = {
           }
         });
       });
+    },
+    // when new random user comes
+    _onConnetedToRandomUser({ type, xid }) {
+      console.error(type, xid);
+      const chat = this._upsertChat(type, xid);
+      this._saveChats();
+      this.$emit('connetedToRandomUser', chat);
     },
     // send a message
     sendMessage(chat, body) {
@@ -196,6 +200,7 @@ const ChatService = {
     },
     // load current user chats from localStorage
     _loadChats() {
+      return;
       const cachedChats = localStorage.getItem(`${JSON.stringify(this.user)}:chats`);
       if (cachedChats) {
         this.chats = JSON.parse(cachedChats).map((chat) => {
