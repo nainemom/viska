@@ -1,115 +1,118 @@
 <template>
-  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" :class="$style.avatar" viewBox="0 0 1024 1024" enable-background="new 0 0 1024 1024" xml:space="preserve">
-    <g id="neck">
-      <g>
-        <g id="center_7_">
-          <path fill="#777777" d="M546,928c0,11-9,20-20,20h-28c-11,0-20-9-20-20V682c0-11,9-20,20-20h28c11,0,20,9,20,20V928z"/>
-        </g>
-        <g id="top_7_">
-          <path fill="#B9B9B9" d="M583.124,796.245C581.406,807.11,571,816,560,816h-96c-11,0-21.406-8.89-23.124-19.755l-14.152-89.491
-            C425.006,695.89,432.6,687,443.6,687h136.8c11,0,18.594,8.89,16.876,19.755L583.124,796.245z"/>
-        </g>
-        <g id="bottom_7_">
-          <path fill="#B9B9B9" d="M580,1061c0,11-9,20-20,20h-96c-11,0-20-9-20-20V925c0-11,9-20,20-20h96c11,0,20,9,20,20V1061z"/>
-        </g>
-      </g>
-    </g>
-    <g id="head" ref="head">
-      <g id="antens">
-        <g id="left_2_">
-          <path fill="#777777" d="M412.688,346.771c1.881,5.168-0.808,10.936-5.977,12.817l-6.578,2.394
-            c-5.168,1.881-10.936-0.808-12.817-5.977l-92.003-252.777c-1.881-5.168,0.808-10.936,5.977-12.817l6.578-2.394
-            c5.168-1.881,10.936,0.808,12.817,5.977L412.688,346.771z"/>
-        </g>
-        <g id="left_1_">
-          <path fill="#777777" d="M611.312,346.771c-1.881,5.168,0.808,10.936,5.977,12.817l6.578,2.394
-            c5.168,1.881,10.936-0.808,12.817-5.977l92.003-252.777c1.881-5.168-0.808-10.936-5.977-12.817l-6.578-2.394
-            c-5.168-1.881-10.936,0.808-12.817,5.977L611.312,346.771z"/>
-        </g>
-      </g>
-      <g id="face">
-        <g id="main_3_">
-          <g opacity="0.1">
-            <path d="M807,651c0,49.706-40.294,90-90,90H304c-49.706,0-90-40.294-90-90V411c0-49.706,40.294-90,90-90h413
-              c49.706,0,90,40.294,90,90V651z"/>
-          </g>
-          <g>
-            <path fill="#B9B9B9" d="M807,631c0,49.706-40.294,90-90,90H304c-49.706,0-90-40.294-90-90V391c0-49.706,40.294-90,90-90h413
-              c49.706,0,90,40.294,90,90V631z"/>
-          </g>
-        </g>
-        <g id="lines_1_">
-          <g id="_x31_">
-            <g opacity="0.1">
-              <path d="M325,613c0,8.25-6.075,15-13.5,15s-13.5-6.75-13.5-15V370c0-8.25,6.075-15,13.5-15s13.5,6.75,13.5,15V613z"/>
-            </g>
-            <g>
-              <path fill="#777777" d="M325,603c0,8.25-6.075,15-13.5,15s-13.5-6.75-13.5-15V360c0-8.25,6.075-15,13.5-15s13.5,6.75,13.5,15
-                V603z"/>
-            </g>
-          </g>
-          <g id="_x32_">
-            <g opacity="0.1">
-              <path d="M525,657c0,8.25-6.075,15-13.5,15s-13.5-6.75-13.5-15V506.5c0-8.25,6.075-15,13.5-15s13.5,6.75,13.5,15V657z"/>
-            </g>
-            <g>
-              <path fill="#777777" d="M525,647c0,8.25-6.075,15-13.5,15s-13.5-6.75-13.5-15V496.5c0-8.25,6.075-15,13.5-15s13.5,6.75,13.5,15
-                V647z"/>
-            </g>
-          </g>
-          <g id="_x33_">
-            <g opacity="0.1">
-              <path d="M725,613c0,8.25-6.075,15-13.5,15s-13.5-6.75-13.5-15V370c0-8.25,6.075-15,13.5-15s13.5,6.75,13.5,15V613z"/>
-            </g>
-            <g>
-              <path fill="#777777" d="M725,603c0,8.25-6.075,15-13.5,15s-13.5-6.75-13.5-15V360c0-8.25,6.075-15,13.5-15s13.5,6.75,13.5,15
-                V603z"/>
-            </g>
-          </g>
-        </g>
-      </g>
-      <g id="leap_1_" ref="leap">
-        <g id="main_1_">
-          <g opacity="0.1">
-            <path d="M582,629c0,11.046-8.954,20-20,20h-99c-11.046,0-20-8.954-20-20v-24c0-11.046,8.954-20,20-20h99
-              c11.046,0,20,8.954,20,20V629z"/>
-          </g>
-          <g>
-            <path fill="#E9E9E9" d="M582,619c0,11.046-8.954,20-20,20h-99c-11.046,0-20-8.954-20-20v-24c0-11.046,8.954-20,20-20h99
-              c11.046,0,20,8.954,20,20V619z"/>
-          </g>
-        </g>
-      </g>
-      <g id="eyes">
-        <g id="left" ref="lefteye">
-          <g id="main">
-            <g opacity="0.1">
-              <path d="M432,529c0,16.569-13.431,30-30,30H197c-16.569,0-30-13.431-30-30v-89c0-16.569,13.431-30,30-30h205
-                c16.569,0,30,13.431,30,30V529z"/>
-            </g>
-            <g>
-              <path fill="#E9E9E9" d="M432,509c0,16.569-13.431,30-30,30H197c-16.569,0-30-13.431-30-30v-89c0-16.569,13.431-30,30-30h205
-                c16.569,0,30,13.431,30,30V509z"/>
-            </g>
-          </g>
-          <circle id="circle" fill="#777777" cx="312" cy="464" r="55" ref="lefteyecircle"/>
-        </g>
-        <g id="right" ref="righteye">
-          <g id="main_2_">
-            <g opacity="0.1">
-              <path d="M856,440c0-16.569-13.431-30-30-30H621c-16.569,0-30,13.431-30,30v89c0,16.569,13.431,30,30,30h205
-                c16.569,0,30-13.431,30-30V440z"/>
-            </g>
-            <g>
-              <path fill="#E9E9E9" d="M856,420c0-16.569-13.431-30-30-30H621c-16.569,0-30,13.431-30,30v89c0,16.569,13.431,30,30,30h205
-                c16.569,0,30-13.431,30-30V420z"/>
-            </g>
-          </g>
-          <circle id="circle_1_" fill="#777777" cx="712" cy="464" r="55" ref="righteyecircle"/>
-        </g>
-      </g>
-    </g>
-  </svg>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1024 1024" enable-background="new 0 0 1024 1024" xml:space="preserve">
+<g id="necks">
+	<g>
+		<g id="neck-center">
+			<path fill="#777777" d="M551,992c0,11-9,20-20,20h-38c-11,0-20-9-20-20V703c0-11,9-20,20-20h38c11,0,20,9,20,20V992z"/>
+		</g>
+		<g id="neck-top">
+			<path id="neck-top-color" fill="#B9B9B9" d="M593.331,837.247C591.609,848.111,581.2,857,570.2,857H453.8c-11,0-21.409-8.889-23.131-19.753
+				l-17.198-108.493C411.749,717.889,419.34,709,430.34,709h163.32c11,0,18.591,8.889,16.869,19.753L593.331,837.247z"/>
+		</g>
+		<g id="neck-bottom">
+			<path id="neck-bottom-color" fill="#B9B9B9" d="M590,1120c0,11-9,20-20,20H454c-11,0-20-9-20-20V958c0-11,9-20,20-20h116c11,0,20,9,20,20V1120z"/>
+		</g>
+	</g>
+</g>
+<g id="head">
+	<g id="antens">
+		<g id="anten-right">
+			<path fill="#777777" d="M398.304,339.808c1.881,5.168-0.808,10.936-5.977,12.817l-10.384,3.779
+				c-5.168,1.881-10.936-0.808-12.817-5.977L262.296,56.915c-1.881-5.168,0.808-10.936,5.977-12.817l10.384-3.779
+				c5.168-1.881,10.936,0.808,12.817,5.977L398.304,339.808z"/>
+		</g>
+		<g id="anten-left">
+			<path fill="#777777" d="M625.696,339.808c-1.881,5.168,0.808,10.936,5.977,12.817l10.384,3.779
+				c5.168,1.881,10.936-0.808,12.817-5.977l106.83-293.513c1.881-5.168-0.808-10.936-5.977-12.817l-10.384-3.779
+				c-5.168-1.881-10.936,0.808-12.817,5.977L625.696,339.808z"/>
+		</g>
+	</g>
+	<g id="face">
+		<g id="face-main">
+			<g opacity="0.1">
+				<path d="M851,698c0,49.706-40.294,90-90,90H259c-49.706,0-90-40.294-90-90V395c0-49.706,40.294-90,90-90h502
+					c49.706,0,90,40.294,90,90V698z"/>
+			</g>
+			<g>
+				<path id="face-color" fill="#B9B9B9" d="M851,678c0,49.706-40.294,90-90,90H259c-49.706,0-90-40.294-90-90V375c0-49.706,40.294-90,90-90h502
+					c49.706,0,90,40.294,90,90V678z"/>
+			</g>
+		</g>
+		<g id="rails">
+			<g id="rail-left">
+				<g opacity="0.1">
+					<path d="M297,645c0,8.284-6.716,15-15,15h-1c-8.284,0-15-6.716-15-15V361c0-8.284,6.716-15,15-15h1c8.284,0,15,6.716,15,15V645
+						z"/>
+				</g>
+				<g>
+					<path fill="#777777" d="M297,635c0,8.284-6.716,15-15,15h-1c-8.284,0-15-6.716-15-15V351c0-8.284,6.716-15,15-15h1
+						c8.284,0,15,6.716,15,15V635z"/>
+				</g>
+			</g>
+			<g id="rail-center">
+				<g opacity="0.1">
+					<path d="M527,696c0,8.284-6.716,15-15,15h-1c-8.284,0-15-6.716-15-15V518c0-8.284,6.716-15,15-15h1c8.284,0,15,6.716,15,15V696
+						z"/>
+				</g>
+				<g>
+					<path fill="#777777" d="M527,686c0,8.284-6.716,15-15,15h-1c-8.284,0-15-6.716-15-15V508c0-8.284,6.716-15,15-15h1
+						c8.284,0,15,6.716,15,15V686z"/>
+				</g>
+			</g>
+			<g id="rail-right">
+				<g opacity="0.1">
+					<path d="M757,645c0,8.284-6.716,15-15,15h-1c-8.284,0-15-6.716-15-15V361c0-8.284,6.716-15,15-15h1c8.284,0,15,6.716,15,15V645
+						z"/>
+				</g>
+				<g>
+					<path fill="#777777" d="M757,635c0,8.284-6.716,15-15,15h-1c-8.284,0-15-6.716-15-15V351c0-8.284,6.716-15,15-15h1
+						c8.284,0,15,6.716,15,15V635z"/>
+				</g>
+			</g>
+		</g>
+	</g>
+	<g id="lip">
+		<g>
+			<g opacity="0.1">
+				<path d="M592,665c0,11.046-8.954,20-20,20H452c-11.046,0-20-8.954-20-20v-34c0-11.046,8.954-20,20-20h120
+					c11.046,0,20,8.954,20,20V665z"/>
+			</g>
+			<g>
+				<path fill="#E9E9E9" d="M592,655c0,11.046-8.954,20-20,20H452c-11.046,0-20-8.954-20-20v-34c0-11.046,8.954-20,20-20h120
+					c11.046,0,20,8.954,20,20V655z"/>
+			</g>
+		</g>
+	</g>
+	<g id="eyes">
+		<g id="eye-left">
+			<g id="eye-left-main">
+				<g opacity="0.1">
+					<path d="M421,549c0,16.569-13.431,30-30,30H146c-16.569,0-30-13.431-30-30V438c0-16.569,13.431-30,30-30h245
+						c16.569,0,30,13.431,30,30V549z"/>
+				</g>
+				<g>
+					<path fill="#E9E9E9" d="M421,529c0,16.569-13.431,30-30,30H146c-16.569,0-30-13.431-30-30V418c0-16.569,13.431-30,30-30h245
+						c16.569,0,30,13.431,30,30V529z"/>
+				</g>
+			</g>
+			<circle id="eye-left-circle" fill="#777777" cx="282" cy="473.212" r="63.25"/>
+		</g>
+		<g id="eye-right">
+			<g id="eye-right-main">
+				<g opacity="0.1">
+					<path d="M908,438c0-16.569-13.431-30-30-30H633c-16.569,0-30,13.431-30,30v111c0,16.569,13.431,30,30,30h245
+						c16.569,0,30-13.431,30-30V438z"/>
+				</g>
+				<g>
+					<path fill="#E9E9E9" d="M908,418c0-16.569-13.431-30-30-30H633c-16.569,0-30,13.431-30,30v111c0,16.569,13.431,30,30,30h245
+						c16.569,0,30-13.431,30-30V418z"/>
+				</g>
+			</g>
+			<circle id="eye-right-circle" fill="#777777" cx="742" cy="473.212" r="63.25"/>
+		</g>
+	</g>
+</g>
+</svg>
 </template>
 
 <script>
@@ -128,58 +131,44 @@ export default {
   methods: {
     applyStyle() {
       const svg = this.$el;
-      const head = this.$refs.head;
-      const leap = this.$refs.leap;
-      const lefteye = this.$refs.lefteye;
-      const righteye = this.$refs.righteye;
-      const lefteyecircle = this.$refs.lefteyecircle;
-      const righteyecircle = this.$refs.righteyecircle;
+      const parts = (() => {
+        const ret = {};
+        ['head', 'necks', 'face-color', 'neck-top-color', 'neck-bottom-color', 'lip', 'eye-left', 'eye-left-circle', 'eye-right', 'eye-right-circle', 'antens'].forEach((part) => {
+          ret[part] = svg.getElementById(part);
+          ret[part].style.transformOrigin = 'center';
+          ret[part].style.transitionDuration = '0.4s';
+          ret[part].style.transitionProperty = 'fill, transform';
+          ret[part].style.willChange = 'fill, transform';
+        });
+        return ret;
+      })();
+      const unum = (from, to, hash) => strToNumber(minifyStr(this.name, 10) + hash, Math.abs(from - to) + 1) - Math.abs(from);
   
       svg.style.width = this.size + 'px';
       svg.style.height = this.size + 'px';
 
       if (!this.name) {
-        head.style.transform = null;
-        leap.style.transform = null;
-        lefteye.style.transform = null;
-        righteye.style.transform = null;
-        head.style.transform = null;
-        lefteyecircle.style.fill = null;
-        righteyecircle.style.fill = null;
-        return;
+        return Object.keys(parts).forEach((part) => {
+          parts[part].style.transform = null;
+          parts[part].style.fill = null;
+        });
       }
-      
-      const headDegree = strToNumber(this.name + 'head', 31) - 15;
-      head.style.transformOrigin = 'center';
-      head.style.transition = 'transform 0.3s';
-      head.style.transform = `rotate(${headDegree}deg)`;
 
-
-      // leap -8 to 1
-      const leapPos = strToNumber(this.name + 'leapG', 10) - 8;
-      leap.style.transition = 'transform 0.3s';
-      leap.style.transform = `translateY(${leapPos}%)`;
-
-      // lefteye -2 to 6
-      const lefteyePos = strToNumber(this.name + 'lefteyeA', 9) - 2;
-      lefteye.style.transition = 'transform 0.3s';
-      lefteye.style.transform = `translateY(${lefteyePos}%)`;
-
-      // righteye -2 to 6
-      const righteyePos = strToNumber(this.name + 'righteyeZ', 9) - 2;
-      righteye.style.transition = 'transform 0.3s';
-      righteye.style.transform = `translateY(${righteyePos}%)`;
-
-      // blue, red, yellow, green, purple
-      const eyeColors = ['#39638a', '#8a3939', '#8a6f39', '#54712a', '#682a71'];
-
-      // lefteyecircle
-      lefteyecircle.style.transition = 'fill 0.3s';
-      lefteyecircle.style.fill = eyeColors[strToNumber(this.name + 'lefteyecircleA', eyeColors.length)];
-
-      // righteyecircle
-      righteyecircle.style.transition = 'fill 0.3s';
-      righteyecircle.style.fill = eyeColors[strToNumber(this.name + 'righteyecircleZ', eyeColors.length)];
+      const headTransform = unum(-13, 13, 'F$@^G');
+      parts.head.style.transform = `rotate(${headTransform}deg)`;
+      parts.necks.style.transform = `rotate(${Math.ceil(headTransform / 3)}deg)`;
+      parts.lip.style.transform = `translateY(${unum(-8, 0, 'VS#f')}%)`;
+      parts.antens.style.transform = `translateY(${unum(0, 13, ':A$FK')}%)`;
+      parts['eye-left'].style.transform = `translateY(${unum(-3, 6, '*&IAX')}%)`;
+      parts['eye-right'].style.transform = `translateY(${unum(-3, 6, 'R@$(F')}%)`;
+      parts['eye-left-circle'].style.transform = `translateX(${unum(-7, 5, '<IHT')}%)`;
+      parts['eye-left-circle'].style.fill = `hsl(${unum(20, 359, '#0F')}, 10%, 50%)`;
+      parts['eye-right-circle'].style.transform = `translateX(${unum(-7, 5, 'ZXDQ')}%)`;
+      parts['eye-right-circle'].style.fill = parts['eye-left-circle'].style.fill;
+      parts['eye-right'].style.transform = `translateY(${unum(-3, 6, '231/c')}%)`;
+      parts['face-color'].style.fill = `hsl(${unum(20, 359, 'VG3Z')}, 10%, 70%)`;
+      parts['neck-top-color'].style.fill = parts['face-color'].style.fill;
+      parts['neck-bottom-color'].style.fill = parts['face-color'].style.fill;
     }
   },
   mounted() {
