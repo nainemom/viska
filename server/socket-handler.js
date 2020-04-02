@@ -2,6 +2,20 @@ const auth = require('./auth.js');
 const users = [];
 const readyToChatUsers = [];
 
+if (process.env.NODE_ENV === 'development') {
+  const log = () => setTimeout(() => {
+    console.log('===========================');
+    console.log('=== Users:');
+    console.log(users.map(_user => _user.sid));
+    console.log('=== Ready For Chat Users:');
+    console.log(readyToChatUsers.map(_user => _user.sid));
+    console.log('===========================');
+    console.log('');
+    log();
+  }, 5000);
+  log();
+}
+
 module.exports = (io) => (socket) => {
   const user = {
     socket,
@@ -10,24 +24,14 @@ module.exports = (io) => (socket) => {
     xid: undefined,
     readyToChat: false,
   };
-  if (process.env.NODE_ENV === 'development') {
-    setInterval(() => {
-      console.log('===========================');
-      console.log('=== Users:');
-      users.forEach(_user => console.log(user.sid));
-      console.log('=== Ready For Chat Users:');
-      readyToChatUsers.forEach(_user => console.log(user.sid));
-      console.log('===========================');
-      console.log('');
-    }, 5000);
-  }
+  console.log('========> new connection', user.sid);
 
   socket.on('login', ({ type, data }, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
     try {
-      if (user.type) {
+      if (user.type || users.findIndex(_user => _user.sid === user.sid || (_user.xid === user.xid && _user.type === user.type)) > -1) {
         return callback(true, false);
       }
       let xid = undefined;
@@ -53,7 +57,7 @@ module.exports = (io) => (socket) => {
     }
   });
 
-  socket.on('connetToRandomUser', (callback) => {
+  socket.on('connetToRandomUser', (callback) => { // has bug
     if (typeof callback !== 'function' || !user.xid) {
       return;
     }
@@ -154,6 +158,7 @@ module.exports = (io) => (socket) => {
       usersIndex !== -1 && users.splice(usersIndex, 1);
       readyToChatUsersIndex !== -1 && readyToChatUsers.splice(readyToChatUsersIndex, 1);
     }
+    console.log('========> lost connection', user.sid);
   });
   
 }
