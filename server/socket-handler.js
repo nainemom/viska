@@ -10,15 +10,18 @@ module.exports = (io) => (socket) => {
     xid: undefined,
     readyToChat: false,
   };
-  setInterval(() => {
-    console.log('===========================');
-    console.log('=== Users:');
-    users.forEach(_user => console.log(user.sid));
-    console.log('=== Ready For Chat Users:');
-    readyToChatUsers.forEach(_user => console.log(user.sid));
-    console.log('===========================');
-    console.log('');
-  }, 10000);
+  if (process.env.NODE_ENV === 'development') {
+    setInterval(() => {
+      console.log('===========================');
+      console.log('=== Users:');
+      users.forEach(_user => console.log(user.sid));
+      console.log('=== Ready For Chat Users:');
+      readyToChatUsers.forEach(_user => console.log(user.sid));
+      console.log('===========================');
+      console.log('');
+    }, 5000);
+  }
+
   socket.on('login', ({ type, data }, callback) => {
     if (typeof callback !== 'function') {
       return;
@@ -60,7 +63,7 @@ module.exports = (io) => (socket) => {
       }
       for (let i = 0; i < readyToChatUsers.length; i++) {
         const _user = users[i];
-        if (_user !== user) {
+        if (_user.sid !== user.sid) {
           _user.socket.emit('connetedToRandomUser',{
             type: user.type,
             xid: user.xid,
@@ -146,8 +149,8 @@ module.exports = (io) => (socket) => {
   socket.on('disconnect', () => {
     if (user.xid) {
       // remove this user from users list
-      const usersIndex = users.indexOf(user);
-      const readyToChatUsersIndex = readyToChatUsers.indexOf(user);
+      const usersIndex = users.findIndex(_user => _user.sid === user.sid);
+      const readyToChatUsersIndex = readyToChatUsers.findIndex(_user => _user.sid === user.sid);
       usersIndex !== -1 && users.splice(usersIndex, 1);
       readyToChatUsersIndex !== -1 && readyToChatUsers.splice(readyToChatUsersIndex, 1);
     }
