@@ -1,17 +1,14 @@
 <template>
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1024 1024" enable-background="new 0 0 1024 1024" xml:space="preserve">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1024px"
+	 height="1024px" viewBox="0 0 1024 1024" enable-background="new 0 0 1024 1024" xml:space="preserve">
 <g id="necks">
-	<g>
-		<g id="neck-center">
-			<path fill="#777777" d="M551,992c0,11-9,20-20,20h-38c-11,0-20-9-20-20V703c0-11,9-20,20-20h38c11,0,20,9,20,20V992z"/>
-		</g>
-		<g id="neck-top">
-			<path id="neck-top-color" fill="#B9B9B9" d="M593.331,837.247C591.609,848.111,581.2,857,570.2,857H453.8c-11,0-21.409-8.889-23.131-19.753
-				l-17.198-108.493C411.749,717.889,419.34,709,430.34,709h163.32c11,0,18.591,8.889,16.869,19.753L593.331,837.247z"/>
-		</g>
-		<g id="neck-bottom">
-			<path id="neck-bottom-color" fill="#B9B9B9" d="M590,1120c0,11-9,20-20,20H454c-11,0-20-9-20-20V958c0-11,9-20,20-20h116c11,0,20,9,20,20V1120z"/>
-		</g>
+	<rect id="neck-center" x="473" y="683" fill="#777777" width="78" height="329"/>
+	<g id="neck-top">
+		<path id="neck-top-color" fill="#B9B9B9" d="M593.331,837.247C591.609,848.111,581.2,857,570.2,857H453.8c-11,0-21.409-8.889-23.131-19.753
+			l-17.198-108.493C411.749,717.889,419.34,709,430.34,709h163.32c11,0,18.591,8.889,16.869,19.753L593.331,837.247z"/>
+	</g>
+	<g id="neck-bottom">
+		<path id="neck-bottom-color" fill="#B9B9B9" d="M590,1120c0,11-9,20-20,20H454c-11,0-20-9-20-20V958c0-11,9-20,20-20h116c11,0,20,9,20,20V1120z"/>
 	</g>
 </g>
 <g id="head">
@@ -74,11 +71,11 @@
 	<g id="lip">
 		<g>
 			<g opacity="0.1">
-				<path d="M592,665c0,11.046-8.954,20-20,20H452c-11.046,0-20-8.954-20-20v-34c0-11.046,8.954-20,20-20h120
+				<path d="M567,665c0,11.046-8.954,20-20,20h-70c-11.046,0-20-8.954-20-20v-34c0-11.046,8.954-20,20-20h70
 					c11.046,0,20,8.954,20,20V665z"/>
 			</g>
 			<g>
-				<path fill="#E9E9E9" d="M592,655c0,11.046-8.954,20-20,20H452c-11.046,0-20-8.954-20-20v-34c0-11.046,8.954-20,20-20h120
+				<path fill="#E9E9E9" d="M567,655c0,11.046-8.954,20-20,20h-70c-11.046,0-20-8.954-20-20v-34c0-11.046,8.954-20,20-20h70
 					c11.046,0,20,8.954,20,20V655z"/>
 			</g>
 		</g>
@@ -95,7 +92,17 @@
 						c16.569,0,30,13.431,30,30V529z"/>
 				</g>
 			</g>
-			<circle id="eye-left-circle" fill="#777777" cx="282" cy="473.212" r="63.25"/>
+			<g id="eye-left-circles">
+				<circle id="eye-left-circle" fill="#777777" cx="282" cy="473.212" r="63.25"/>
+				<g id="eye-left-circle-middle">
+					<g opacity="0.1">
+						<circle cx="282" cy="483.212" r="30.36"/>
+					</g>
+					<g>
+						<circle id="eye-left-circle-color" fill="#E5E5E5" cx="282" cy="473.212" r="30.36"/>
+					</g>
+				</g>
+			</g>
 		</g>
 		<g id="eye-right">
 			<g id="eye-right-main">
@@ -108,11 +115,22 @@
 						c16.569,0,30-13.431,30-30V418z"/>
 				</g>
 			</g>
-			<circle id="eye-right-circle" fill="#777777" cx="742" cy="473.212" r="63.25"/>
+			<g id="eye-right-circles">
+				<circle id="eye-right-circle" fill="#777777" cx="742" cy="473.212" r="63.25"/>
+				<g id="eye-right-circle-middle">
+					<g opacity="0.1">
+						<circle cx="742" cy="483.212" r="30.36"/>
+					</g>
+					<g>
+						<circle id="eye-right-circle-color" fill="#E5E5E5" cx="742" cy="473.212" r="30.36"/>
+					</g>
+				</g>
+			</g>
 		</g>
 	</g>
 </g>
 </svg>
+
 </template>
 
 <script>
@@ -133,7 +151,20 @@ export default {
       const svg = this.$el;
       const parts = (() => {
         const ret = {};
-        ['head', 'necks', 'face-color', 'neck-top-color', 'neck-bottom-color', 'lip', 'eye-left', 'eye-left-circle', 'eye-right', 'eye-right-circle', 'antens'].forEach((part) => {
+        [
+          'head',
+          'necks',
+          'face-color',
+          'neck-top-color',
+          'neck-bottom-color',
+          'lip', 'eye-left',
+          'eye-left-circles',
+          'eye-left-circle',
+          'eye-right',
+          'eye-right-circles',
+          'eye-right-circle',
+          'antens',
+        ].forEach((part) => {
           ret[part] = svg.getElementById(part);
           ret[part].style.transformOrigin = 'center';
           ret[part].style.transitionDuration = '0.4s';
@@ -159,13 +190,12 @@ export default {
       parts.necks.style.transform = `rotate(${Math.ceil(headTransform / 3)}deg)`;
       parts.lip.style.transform = `translateY(${unum(-8, 0, 'VS#f')}%)`;
       parts.antens.style.transform = `translateY(${unum(0, 13, ':A$FK')}%)`;
-      parts['eye-left'].style.transform = `translateY(${unum(-3, 6, '*&IAX')}%)`;
-      parts['eye-right'].style.transform = `translateY(${unum(-3, 6, 'R@$(F')}%)`;
-      parts['eye-left-circle'].style.transform = `translateX(${unum(-7, 5, '<IHT')}%)`;
-      parts['eye-left-circle'].style.fill = `hsl(${unum(20, 359, '#0F')}, 10%, 50%)`;
-      parts['eye-right-circle'].style.transform = `translateX(${unum(-7, 5, 'ZXDQ')}%)`;
+      parts['eye-left'].style.transform = `translateY(${unum(-2, 5, '*&IAX')}%)`;
+      parts['eye-right'].style.transform = `translateY(${unum(-2, 5, 'R@$(F')}%)`;
+      parts['eye-left-circles'].style.transform = `translateX(${unum(-7, 5, '<IHT')}%)`;
+      parts['eye-right-circles'].style.transform = `translateX(${unum(-7, 5, 'ZXDQ')}%)`;
+      parts['eye-left-circle'].style.fill = `hsl(${unum(20, 90, '#0F') * 4}, 10%, 50%)`;
       parts['eye-right-circle'].style.fill = parts['eye-left-circle'].style.fill;
-      parts['eye-right'].style.transform = `translateY(${unum(-3, 6, '231/c')}%)`;
       parts['face-color'].style.fill = `hsl(${unum(20, 359, 'VG3Z')}, 10%, 70%)`;
       parts['neck-top-color'].style.fill = parts['face-color'].style.fill;
       parts['neck-bottom-color'].style.fill = parts['face-color'].style.fill;
