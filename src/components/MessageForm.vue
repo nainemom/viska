@@ -8,7 +8,7 @@
       <Input ref="input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
     </div>
     <div class="padding-x-sm">
-      <Button class="padding-x-lg size-md" color="primary" :disabled="disabled"> <i class="fa fa-paper-plane" /> </Button>
+      <Button class="padding-x-lg size-md text-xl" color="default" :disabled="disabled"> <i class="fa fa-paper-plane"  :class="$style.sendIcon" /> </Button>
     </div>
   </Cell>
 </form>
@@ -38,6 +38,13 @@ export default {
       this.$refs.input.$el.focus();
       this.$emit('submit', this.value);
     },
-  }
+  },
+  style({ className }) {
+    return [
+      className('sendIcon', {
+        color: this.$root.theme.primaryColor,
+      }),
+    ];
+  },
 }
 </script>

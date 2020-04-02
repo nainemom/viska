@@ -10,7 +10,15 @@ module.exports = (io) => (socket) => {
     xid: undefined,
     readyToChat: false,
   };
-
+  setInterval(() => {
+    console.log('===========================');
+    console.log('=== Users:');
+    users.forEach(_user => console.log(user.sid));
+    console.log('=== Ready For Chat Users:');
+    readyToChatUsers.forEach(_user => console.log(user.sid));
+    console.log('===========================');
+    console.log('');
+  }, 10000);
   socket.on('login', ({ type, data }, callback) => {
     if (typeof callback !== 'function') {
       return;

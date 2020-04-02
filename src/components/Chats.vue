@@ -6,8 +6,7 @@
         <UserTitle :showName="false" :playMode="loadingRandomChat" />
       </div>
       <div class="padding-x-sm grow" v-if="!loadingRandomChat"> Talk to a Random User </div>
-      <div class="padding-x-sm grow" v-else> Finding a Random User... </div>
-      <div class="padding-x-sm"><StatusIcon v-if="loadingRandomChat" :value="null" /></div>
+      <div class="padding-x-sm grow" v-else> Looking for a Random User... </div>
     </Cell>
 
     <Cell class="padding-x-sm size-lg" :class="[$style.chatItem, isActive(chat) && 'actived']" v-for="(chat, index) in chats" :key="index" @click.native="goToChat(chat)">
@@ -64,7 +63,6 @@ export default {
             this.$chatService.$once('connetedToRandomUser', done)
           } else {
             this.loadingRandomChat = false;
-            alert('It seems there is no one wants to chat with you :(');
           }
         });
       }, 500);

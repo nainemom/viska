@@ -1,8 +1,13 @@
+const pkg = require('../package.json');
 const path = require('path');
 const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const OfflinePlugin = require('offline-plugin');
+const WebpackPwaManifest = require('webpack-pwa-manifest');
+
+
 
 module.exports = (config) => {
   const output = {};
@@ -13,6 +18,7 @@ module.exports = (config) => {
 
 
   output.path = path.resolve(__dirname, '../docs');
+  output.publicPath = '/';
   output.filename = 'bundle.js';
   output.chunkFilename = '[name].bundle.js';
 
@@ -26,6 +32,36 @@ module.exports = (config) => {
         from: path.resolve(__dirname, '../static'),
       },
     ]),
+    new OfflinePlugin({
+      safeToUseOptionalCaches: true,
+      externals: [
+        // 'https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap',
+        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css',
+      ],
+      publicPath: output.publicPath,
+      version() {
+        return pkg.version;
+      },
+      caches: 'all',
+      AppCache: false,
+      updateStrategy: 'all',
+      ServiceWorker: {
+        events: true
+      },
+    }),
+    new WebpackPwaManifest({
+      name: 'Viska Chat',
+      short_name: 'Viska',
+      description: 'Anonymous Chat Application.',
+      background_color: '#fff',
+      theme_color: '#745C89',
+      start_url: '/',
+      icons: [{
+        src: path.resolve('./static/logo.png'),
+        sizes: [96, 128, 192, 256, 384, 512],
+      }],
+      inject: true,
+    }),
   );
 
   const entry = path.resolve(__dirname, '../src/index.js');
@@ -57,13 +93,6 @@ module.exports = (config) => {
           },
         },
       },
-      // {
-      //   test: /\.(css)$/,
-      //   loaders: [
-      //     'style-loader',
-      //     'css-loader',
-      //   ],
-      // },
       {
         test: /\.svg$/,
         loader: 'raw-loader',

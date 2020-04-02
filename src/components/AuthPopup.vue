@@ -29,13 +29,13 @@
     <div :class="$style.box" class="padding-lg" v-else-if="currentPage === 'choose'">
       <div class="padding-bottom-lg">
         <Button class="size-xxl padding-xl" color="primary" fullWidth @click.native="currentPage = 'pidLogin'">
-          <div class="padding-bottom-md"> <b> <i class="fa fa-key" />  Enter by Passprase </b> </div>
+          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-key" />  Enter by Passprase </b> </div>
           <p> Get Your Unique Direct Link </p>
         </Button>
       </div>
       <div>
         <Button class="size-xxl padding-lg" color="default" fullWidth @click.native="auth('did')" :loading="loading">
-          <div class="padding-bottom-md"> <b> <i class="fa fa-arrow-right" /> Skip </b> </div>
+          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-arrow-right" /> Skip </b> </div>
           <p> Nobody Will Knows Who You Are </p>
         </Button>
       </div>

@@ -48,7 +48,7 @@ export default {
         this.playModeName = (Math.random() * 3000).toString();
         setTimeout(() => {
           this.randomizeLoop();
-        }, 800);
+        }, 500);
       } else {
         this.playModeName = '';
       }

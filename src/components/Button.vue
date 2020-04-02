@@ -35,6 +35,7 @@ export default {
         borderRadius: '8px',
         // minHeight: '48px',
         border: `solid 1px ${this.$root.theme.borderColor}`,
+        // border: 'none',
         textAlign: 'center',
         cursor: 'pointer',
         // padding: '0 16px',
@@ -50,6 +51,7 @@ export default {
         },
         '&.primary': {
           background: this.$root.theme.primaryColor,
+          borderColor: this.$root.theme.primaryColor,
           color: '#fff',
         },
         '&.danger': {

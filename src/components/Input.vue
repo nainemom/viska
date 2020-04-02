@@ -14,7 +14,7 @@ export default {
     return [
       className('input', {
         borderRadius: '8px',
-        border: `solid 1px ${this.$root.theme.borderColor}`,
+        border: `solid 2px ${this.$root.theme.borderColor}`,
         padding: '8px',
         height: '48px',
         fontSize: '1em',
@@ -26,7 +26,7 @@ export default {
         },
         '&:focus': {
           outline: 'none',
-          borderColor: this.$root.theme.primaryColorSimple,
+          border: `solid 2px ${this.$root.theme.primaryColor}`,
         },
       }),
     ];
