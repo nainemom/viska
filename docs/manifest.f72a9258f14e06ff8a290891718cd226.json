@@ -1,0 +1,42 @@
+{
+  "icons": [
+    {
+      "src": "/icon_512x512.82a612e4cfc14a8caa9e36e67268a7ac.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon_384x384.409c1b6512b9dfe8c2bdcbaf79e21e04.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon_256x256.b63c6f800c3fc8f23330b1e5baa4832d.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon_192x192.9a7cab2ce9bf4db7e9999babbb5606b7.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon_128x128.0c5778e5d2dd3f891933a44f88adf6e9.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon_96x96.797605d9675103dd8e294a022a368377.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    }
+  ],
+  "name": "Viska Chat",
+  "short_name": "Viska",
+  "orientation": "portrait",
+  "display": "standalone",
+  "start_url": "/",
+  "description": "Anonymous Chat Application.",
+  "background_color": "#fff",
+  "theme_color": "#745C89"
+}
