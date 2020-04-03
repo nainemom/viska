@@ -1,22 +1,4 @@
-const auth = require('./auth.js');
-const users = [];
-const readyToChatUsers = [];
-
-if (process.env.NODE_ENV === 'development') {
-  const log = () => setTimeout(() => {
-    console.log('===========================');
-    console.log('=== Users:');
-    console.log(users.map(_user => _user.sid));
-    console.log('=== Ready For Chat Users:');
-    console.log(readyToChatUsers.map(_user => _user.sid));
-    console.log('===========================');
-    console.log('');
-    log();
-  }, 5000);
-  log();
-}
-
-module.exports = (io) => (socket) => {
+module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
   const user = {
     socket,
     sid: socket.id,
@@ -31,7 +13,7 @@ module.exports = (io) => (socket) => {
       return;
     }
     try {
-      if (user.type || users.findIndex(_user => _user.sid === user.sid || (_user.xid === user.xid && _user.type === user.type)) > -1) {
+      if (user.xid) {
         return callback(true, false);
       }
       let xid = undefined;
@@ -43,13 +25,13 @@ module.exports = (io) => (socket) => {
         }
         xid = auth.generateKey(data.passprase, data.salt);
       }
-      const hasAnotherInstance = users.findIndex((_user) => _user.type === type && _user.xid === xid) > -1;
-      if (hasAnotherInstance) {
+      // check if has another instance
+      if (usersDb.find({ xid: xid, type: type })) {
         return callback(true, false);
       }
       user.xid = xid;
       user.type = type;
-      users.push(user);
+      usersDb.insert(user);
       return callback(false, user.xid);
     } catch (e) {
       console.error(e);
@@ -57,32 +39,34 @@ module.exports = (io) => (socket) => {
     }
   });
 
-  socket.on('connetToRandomUser', (callback) => { // has bug
-    if (typeof callback !== 'function' || !user.xid) {
+  socket.on('connectToRandomUser', (callback) => { // has bug
+    if (typeof callback !== 'function') {
       return;
     }
     try {
-      if (readyToChatUsers.includes(user)) {
+      if (!user.xid) {
+        return callback(true, false);
+      }
+      if (readyToChatUsersDb.find({ xid: user.xid, type: user.type })) {
         return callback('duplicate', false);
       }
-      for (let i = 0; i < readyToChatUsers.length; i++) {
-        const _user = users[i];
-        if (_user.sid !== user.sid) {
-          _user.socket.emit('connetedToRandomUser',{
-            type: user.type,
-            xid: user.xid,
-          });
-          // remove _user from readyToChatUsers
-          readyToChatUsers.splice(i, 1);
-          return callback(false, {
-            type: _user.type,
-            xid: _user.xid
-          });
-        }
-      };
-      // move current user to readyToChatUsers
-      readyToChatUsers.push(user);
-      return callback('promise', false);
+      const connectingUser = readyToChatUsersDb.find({});
+      if (connectingUser) {
+        readyToChatUsersDb.delete({ xid: connectingUser.xid, type: connectingUser.type });
+        readyToChatUsersDb.delete({ xid: user.xid, type: user.type });
+        connectingUser.socket.emit('connetedToRandomUser',{
+          type: user.type,
+          xid: user.xid,
+        });
+        return callback(false, {
+          type: connectingUser.type,
+          xid: connectingUser.xid
+        });
+      } else {
+        readyToChatUsersDb.insert(user);
+        return callback('promise', false);
+      }
+
     } catch (e) {
       console.error(e);
       return callback(true, false);
@@ -91,11 +75,14 @@ module.exports = (io) => (socket) => {
 
 
   socket.on('getUserStatus', ( { type, xid }, callback) => {
-    if (typeof callback !== 'function' || !user.xid) {
+    if (typeof callback !== 'function') {
       return;
     }
     try {
-      const theUser = users.find(_user => _user.type === type && _user.xid === xid);
+      if (!user.xid) {
+        return callback(true, false);
+      }
+      const theUser = usersDb.find({ xid: xid, type: type });
       if (!theUser) {
         return callback(false, false);
       }
@@ -107,12 +94,15 @@ module.exports = (io) => (socket) => {
   });
 
   socket.on('sendMessage', (data, callback) => {
-    if (typeof callback !== 'function' || !user.xid) {
+    if (typeof callback !== 'function') {
       return;
     }
     try {
+      if (!user.xid) {
+        return callback(true, false);
+      }
       const { user: { type, xid }, body } = data;
-      const receiverUser = users.find(_user => _user.type === type && _user.xid === xid);
+      const receiverUser = usersDb.find({ xid: xid, type: type });
       if (receiverUser) {
         const messageObject = {
           user: {
@@ -135,12 +125,15 @@ module.exports = (io) => (socket) => {
   });
 
   socket.on('sendIsTypingFlag', (data, callback) => {
-    if (typeof callback !== 'function' || !user.xid) {
+    if (typeof callback !== 'function') {
       return;
     }
     try {
+      if (!user.xid) {
+        return callback(true, false);
+      }
       const { user: { type, xid } } = data;
-      const receiverUser = users.find(_user => _user.type === type && _user.xid === xid);
+      const receiverUser = usersDb.find({ xid: xid, type: type });
       receiverUser.socket.emit('isTypingFlag', { type: user.type, xid: user.xid });
       return callback(false, true);
     } catch (e) {
@@ -153,10 +146,8 @@ module.exports = (io) => (socket) => {
   socket.on('disconnect', () => {
     if (user.xid) {
       // remove this user from users list
-      const usersIndex = users.findIndex(_user => _user.sid === user.sid);
-      const readyToChatUsersIndex = readyToChatUsers.findIndex(_user => _user.sid === user.sid);
-      usersIndex !== -1 && users.splice(usersIndex, 1);
-      readyToChatUsersIndex !== -1 && readyToChatUsers.splice(readyToChatUsersIndex, 1);
+      usersDb.delete({ sid: user.sid });
+      readyToChatUsersDb.delete({ sid: user.sid });
     }
     console.log('========> lost connection', user.sid);
   });
