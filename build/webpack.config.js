@@ -34,10 +34,6 @@ module.exports = (config) => {
     ]),
     new OfflinePlugin({
       safeToUseOptionalCaches: true,
-      externals: [
-        // 'https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap',
-        'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css',
-      ],
       publicPath: output.publicPath,
       version() {
         return pkg.version;
