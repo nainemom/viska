@@ -61,9 +61,9 @@ const ChatService = {
       this.$emit('logout');
     },
     // find random user
-    connetToRandomUser() {
+    connectToRandomUser() {
       return new Promise((resolve, reject) => {
-        this.server.emit('connetToRandomUser', (err, user) => {
+        this.server.emit('connectToRandomUser', (err, user) => {
           if (err || !user) {
             reject(err);
           } else {

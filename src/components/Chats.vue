@@ -1,7 +1,7 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.chatList">
-    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="connetToRandomUser">
+    <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="connectToRandomUser">
       <div class="padding-x-sm">
         <UserTitle :showName="false" :playMode="loadingRandomChat" />
       </div>
@@ -48,7 +48,7 @@ export default {
     },
   },
   methods: {
-    connetToRandomUser() {
+    connectToRandomUser() {
       if (this.loadingRandomChat) {
         return;
       }
@@ -58,7 +58,7 @@ export default {
         this.goToChat(chat);
       }
       setTimeout(() => {
-        this.$chatService.connetToRandomUser().then(done).catch((e) => {
+        this.$chatService.connectToRandomUser().then(done).catch((e) => {
           if (e === 'promise') {
             this.$chatService.$once('connetedToRandomUser', done)
           } else {
