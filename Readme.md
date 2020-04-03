@@ -7,7 +7,7 @@
 
 ## Details
 
-**Viska** is an anonymous chat service created using nodejs/socket.io (backend) and webpack/vue (client).
+**Viska** (means `whisper` in swedish and also `everything` in lithuanian) is an anonymous chat service created using nodejs/socket.io (backend) and webpack/vue (client).
 
 ## What is This? What's the Difference to Hazy?
 Well, **Hazy** is a commenting service that users can have their own space and ask others to answer their questions/polls anonymously. There is no thread for received comments and basicly the receiver can only looks at received data or just put a reply to those. But in other hand, **Viska** is a chat service. The anonymous part is still exists, but the receiver and sender can chat to each other. Unlike **Hazy**, all of the users are anonymous in **Viska** and there is no Database to keep conversations or usernames.
