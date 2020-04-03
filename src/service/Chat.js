@@ -92,6 +92,7 @@ const ChatService = {
             body,
           };
           if (err === 'receiver-is-offline') {
+            chat.isOnline = false;
             chat.pendingMessages.push(messageObject);
             this._saveChats();
             resolve();
