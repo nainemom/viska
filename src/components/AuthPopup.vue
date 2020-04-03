@@ -143,6 +143,7 @@ export default {
       }
       if (type === 'did') {
         getFingerprint().then((fingerprint) => {
+          fingerprint.time = Date.now();
           sendRequest(fingerprint);
         });
       } else if (type === 'pid') {

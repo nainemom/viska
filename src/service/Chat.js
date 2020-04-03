@@ -188,13 +188,15 @@ const ChatService = {
     },
     // save current chats in localStorage
     _saveChats() {
-      const chats = this.chats.map((chat) => {
-        return {
-          ...chat,
-          isOnline: null
-        }
-      });
-      localStorage.setItem(`${this.user.type}:${this.user.xid}:chats`, JSON.stringify(chats));
+      if (this.user.type === 'pid') {
+        const chats = this.chats.map((chat) => {
+          return {
+            ...chat,
+            isOnline: null
+          }
+        });
+        localStorage.setItem(`${this.user.type}:${this.user.xid}:chats`, JSON.stringify(chats));
+      }
     },
     // load current user chats from localStorage
     _loadChats() {
