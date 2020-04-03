@@ -54,7 +54,7 @@ export default {
   },
   methods: {
     goToChat(type, xid) {
-      const url = type ? `/chats/${type}/${xid}` : '/chats';
+      const url = type ? `${process.env.STATIC_URL_PREFIX ? `/${process.env.STATIC_URL_PREFIX}` : ''}/chats/${type}/${xid}` : '/chats';
       if (this.$route.path !== url) {
         this.$nextTick(() => {
           this.$router.push(url);
