@@ -33,8 +33,8 @@ export default {
         highlightColor: '#fdfdfd',
         borderColor: 'rgba(0, 0, 0, 0.1)',
         shadowColor: 'rgba(0, 0, 0, 0.1)',
-        primaryColor: '#745C89',
-        dangerColor: '#870c12',
+        primaryColor: '#8452b5',
+        dangerColor: '#bd161e',
         grayColor: '#c7c7c7',
         onlineColor: '#08c353',
       }
