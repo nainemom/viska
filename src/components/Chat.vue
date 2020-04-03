@@ -145,6 +145,7 @@ export default {
         flexDirection: 'row',
         alignItems: 'center',
         overflow: 'hidden',
+        flexShrink: 0,
         '& > .name': {
           flexGrow: 1,
         },
@@ -205,6 +206,7 @@ export default {
         // padding: '15px',
         background: this.$root.theme.backgroundColor2,
         borderTop: `solid 1px ${this.$root.theme.borderColor}`,
+        flexShrink: 0,
       }),
     ];
   },
