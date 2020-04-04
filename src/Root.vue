@@ -2,6 +2,7 @@
 <div :class="$style.container">
   <router-view></router-view>
   <AuthPopup ref="authPopup"/>
+  <AutoNetworkError />
 </div>
 </template>
 
@@ -11,6 +12,7 @@ import VueRouter from 'vue-router';
 import Root from './Root.vue';
 import routes from './routes.js';
 import AuthPopup from './components/AuthPopup.vue';
+import AutoNetworkError from './components/AutoNetworkError.vue';
 import { forEachSync, minifyStr, numberHash } from '../utils/handy.js';
 
 const router = new VueRouter({
@@ -21,6 +23,7 @@ export default {
   router,
   components: {
     AuthPopup,
+    AutoNetworkError,
   },
   data() {
     return {

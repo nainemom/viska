@@ -5,6 +5,7 @@ Promise.all([
   import(/* webpackChunkName: "vue-component-style" */ 'vue-component-style'),
   import(/* webpackChunkName: "chat" */ './service/Chat.js'),
   import(/* webpackChunkName: "notif" */ './service/notif.js'),
+  import(/* webpackChunkName: "connection" */ './service/Connection.js'),
   import(/* webpackChunkName: "app" */ './Root.vue'),
 ]).then(([
   { default: OfflinePluginRuntime },
@@ -13,6 +14,7 @@ Promise.all([
   { default: VueComponentStyle },
   { default: Chat },
   { default: notif },
+  { default: Connection },
   { default: Root },
 ]) => {
   OfflinePluginRuntime.install({
@@ -36,5 +38,6 @@ Promise.all([
   Vue.use(VueRouter);
   Vue.prototype.$chatService = new Vue(Chat);
   Vue.prototype.$notify = notif;
+  Vue.prototype.$connection = new Vue(Connection);
   window.$app = new Vue(Root).$mount('#root');
 });
