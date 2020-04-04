@@ -33,15 +33,17 @@ export const generateDecrypter = () => new Promise((resolve) => {
       'spki',
       keyPair.publicKey,
     ).then((res) => ab2str(res)).then((publicKey) => {
+      const sign = window.crypto.getRandomValues(new Uint32Array(4));
       resolve({
         publicKey,
+        sign,
         decrypt: (data) => window.crypto.subtle.decrypt(algorithm, keyPair.privateKey, str2ab(data)).then(res => ab2str(res)),
       })
     });
   });
 });
 
-export const generateEncrypter = (publicKey) => new Promise((resolve) => {
+export const generateEncrypter = (publicKey, sign) => new Promise((resolve) => {
   window.crypto.subtle.importKey(
     'spki',
     str2ab(publicKey),
@@ -50,6 +52,8 @@ export const generateEncrypter = (publicKey) => new Promise((resolve) => {
     ['encrypt']
   ).then((publicKeySubtle) => {
     resolve({
+      publicKey,
+      sign,
       encrypt: (data) => window.crypto.subtle.encrypt(algorithm, publicKeySubtle, str2ab(data)).then((res) => ab2str(res)),
     })
   });
