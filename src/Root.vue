@@ -46,40 +46,6 @@ export default {
         this.$refs.authPopup.open();
       });
     },
-    getStaticLink(link) {
-      return `${process.env.STATIC_URL_PREFIX || ''}${link}`
-    },
-    notify(title, text, icon, onclick) {
-      const show = () => {
-        const notification = new Notification('', {
-          renotify: true,
-          body: `${title}:\n${text}`,
-          icon: icon,
-          tag: 'msg'
-        });
-        notification.onclick = onclick;
-      }
-      if (!('Notification' in window)) {
-        return
-      } else if (Notification.permission === 'granted') {
-        show();
-      } else if (Notification.permission !== 'denied') {
-        Notification.requestPermission(function (permission) {
-          // Whatever the user answers, we make sure we store the information
-          if(!('permission' in Notification)) {
-            Notification.permission = permission;
-          }
-          if (permission === "granted") {
-            show();
-          }
-        });
-      }
-
-    },
-    calculateName(sid, pid) {
-      return ((pid ? 'PID-' : 'SID-') + minifyStr(pid || sid || ''));
-    },
-  },
   created() {
     this.$chatService.init(process.env.SERVER_URL);
   },
