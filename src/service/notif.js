@@ -19,7 +19,11 @@ export default (title, body, tag, playSound, showTitle, onclick) => {
   playSound && ding.play();
   
   if (showTitle && !document.title.includes(titleText)) {
-    document.title+=titleText;
+    if (document.title.includes('|')) {
+      document.title = document.title.substr(0, document.title.indexOf('|') - 1) + titleText;
+    } else {
+      document.title += titleText;
+    }
   }
 
   if (!('Notification' in window)) {
