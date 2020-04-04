@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[3],{6:function(n,t,o){"use strict";o.r(t),t.default={data:function(){return{status:window.navigator.onLine}},methods:{onStatusChange:function(){window.location.reload()}},created:function(){window.addEventListener("online",this.onStatusChange),window.addEventListener("offline",this.onStatusChange)}}}}]);
