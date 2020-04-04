@@ -46,6 +46,7 @@ export default {
         this.$refs.authPopup.open();
       });
     },
+  },
   created() {
     this.$chatService.init(process.env.SERVER_URL);
   },
