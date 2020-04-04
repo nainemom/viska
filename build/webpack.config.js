@@ -8,7 +8,6 @@ const OfflinePlugin = require('offline-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
 
 
-
 module.exports = (config) => {
   const output = {};
   const plugins = [
@@ -38,6 +37,9 @@ module.exports = (config) => {
       version() {
         return pkg.version;
       },
+      excludes: [
+        'CNAME',
+      ],
       caches: 'all',
       AppCache: false,
       updateStrategy: 'all',
