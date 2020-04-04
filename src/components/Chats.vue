@@ -82,6 +82,7 @@ export default {
     return [
       className('container', {
         height: '100%',
+        overflow: 'auto',
       }),
       className('chatList', {
         margin: 0,
