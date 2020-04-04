@@ -72,8 +72,9 @@ export default {
   methods: {
     sendMessage() {
       if (this.chat) {
+        const message = this.inputText;
         this.inputText = '';
-        this.$chatService.sendMessage(this.chat, this.inputText).then();
+        this.$chatService.sendMessage(this.chat, message).then();
       }
     },
     onInput(newValue) {
