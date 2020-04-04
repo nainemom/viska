@@ -18,8 +18,8 @@ module.exports = (config) => {
 
   output.path = path.resolve(__dirname, '../docs');
   output.publicPath = '/';
-  output.filename = 'bundle.js';
-  output.chunkFilename = '[name].bundle.js';
+  output.filename = 'bundle-[hash].js';
+  output.chunkFilename = '[name].bundle-[hash].js';
 
   plugins.push(
     new HtmlWebpackPlugin({
