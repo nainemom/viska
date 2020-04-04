@@ -1,4 +1,13 @@
-export default (title, body, tag, onclick) => {
+import sound from '../../utils/sound.js';
+
+const ding = sound('/ding.mp3');
+const titleText = ' [New Message]';
+
+window.addEventListener('focus', () => {
+  document.title = document.title.replace(titleText, '');
+});
+
+export default (title, body, tag, playSound, showTitle, onclick) => {
   const show = () => {
     const notification = new Notification(title, {
       // renotify: true,
@@ -7,6 +16,12 @@ export default (title, body, tag, onclick) => {
     });
     notification.onclick = onclick;
   }
+  playSound && ding.play();
+  
+  if (showTitle && !document.title.includes(titleText)) {
+    document.title+=titleText;
+  }
+
   if (!('Notification' in window)) {
     return
   } else if (Notification.permission === 'granted') {

@@ -76,8 +76,11 @@ export default {
   },
   created() {
     this.$chatService.$on('newMessage', ({user, body}) => {
-      if (!this.activeChat || (this.activeChat.user.type !== user.type && this.activeChat.user.xid !== user.xid)) {
-        this.$notify(user.name, body, 'message', () => {
+      const hasFocus = document.hasFocus();
+      const isOnChatPage = this.activeChat && this.activeChat.user.type === user.type && this.activeChat.user.xid === user.xid;
+
+      if (!isOnChatPage || !hasFocus) {
+        this.$notify(user.name, body, 'message', true, !hasFocus, () => {
           window.focus();
           this.goToChat(user.type, user.xid);
         });
