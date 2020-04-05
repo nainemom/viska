@@ -13,6 +13,9 @@
       <div class="padding-x-sm grow">
         <UserTitle :user="chat.user"/>
       </div>
+      <div class="padding-x-sm last-message">
+        {{ chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].body : ''}}
+      </div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
   </div>
@@ -98,6 +101,13 @@ export default {
           color: '#fff',
           fontWeight: 'bold',
           cursor: 'default',
+        },
+        '& .last-message': {
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          fontWeight: 'normal',
+          fontStyle: 'italic',
         },
       }),
       className('topButtons', {
