@@ -170,7 +170,7 @@ export default {
       }),
       className('isTyping', {}),
       className('messageItem', {
-        // marginTop: '15px',
+        userSelect: 'none',
         fontWeight: 'bold',
         width: '100%',
         '& > .inside': {
@@ -178,6 +178,7 @@ export default {
           maxWidth: '70%',
           display: 'inline-block',
           overflow: 'hidden',
+          userSelect: 'text',
           '&.pending': {
             opacity: 0.5,
           }
