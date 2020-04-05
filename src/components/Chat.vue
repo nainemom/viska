@@ -11,7 +11,7 @@
       <i class="fa fa-times" /> 
     </Button>
   </Cell>
-  <div :class="$style.conversation" class="padding-y-lg" ref="conversation">
+  <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
     <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from]">
       <div class="inside padding-lg margin-y-sm">
         {{ message.body }}
@@ -22,8 +22,12 @@
         {{ message.body }}
       </div>
     </div>
+    <div :class="$style.isTyping" class="padding-sm">
+      <span  v-if="itIsTyping">
+        {{ chat.user.name }} is typing...
+      </span>
+    </div>
   </div>
-  <div :class="$style.isTyping" class="padding-md" v-if="itIsTyping"> {{ chat.user.name }} is typing... </div>
   <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
 </div>
 </template>
@@ -87,6 +91,9 @@ export default {
     closeChat() {
       this.$emit('close');
     },
+    scrollToEnd() {
+      this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
+    }
   },
   mounted() {
     const reloadLoop = () => {
@@ -120,13 +127,20 @@ export default {
     'messages.length'() {
       this.itIsTyping = false;
       this.$nextTick(() => {
-        this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
+        this.scrollToEnd();
       });
     },
     'pendingMessages.length'() {
       this.$nextTick(() => {
-        this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);
+        this.scrollToEnd();
       });
+    },
+    itIsTyping(itIsTyping) {
+      if (itIsTyping) {
+        this.$nextTick(() => {
+          this.scrollToEnd();
+        });
+      }
     }
   },
   style({ className, mediaQuery }) {
@@ -168,7 +182,11 @@ export default {
         overflowWrap: 'break-word',
         lineHeight: 1.5,
       }),
-      className('isTyping', {}),
+      className('isTyping', {
+        position: 'sticky',
+        bottom: 0,
+        backgroundColor: this.$root.theme.backgroundColor,
+      }),
       className('messageItem', {
         userSelect: 'none',
         fontWeight: 'bold',
