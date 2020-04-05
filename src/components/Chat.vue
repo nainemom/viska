@@ -12,12 +12,12 @@
     </Button>
   </Cell>
   <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
-    <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from]">
+    <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]">
       <div class="inside padding-lg margin-y-sm">
         {{ message.body }}
       </div>
     </div>
-    <div v-for="(message, index) in pendingMessages" :key="'p' + index" :class="[$style.messageItem, message.from]">
+    <div v-for="(message, index) in pendingMessages" :key="'p' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]">
       <div class="inside padding-lg margin-y-sm pending" title="This message will automaticly resend when both of you go online.">
         {{ message.body }}
       </div>
@@ -28,7 +28,7 @@
       </span>
     </div>
   </div>
-  <MessageForm :class="$style.messageForm" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
+  <MessageForm :class="[$style.messageForm, calcTextDir(inputText)]" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
 </div>
 </template>
 
@@ -38,6 +38,7 @@ import Button from './Button.vue';
 import UserTitle from './UserTitle.vue';
 import StatusIcon from './StatusIcon.vue';
 import MessageForm from './MessageForm.vue';
+import calcTextDirection from '../../utils/calcTextDirection.js';
 
 export default {
   components: {
@@ -74,6 +75,9 @@ export default {
     }
   },
   methods: {
+    calcTextDir(str) {
+      return calcTextDirection(str);
+    },
     sendMessage() {
       if (this.chat) {
         const message = this.inputText;
@@ -191,6 +195,9 @@ export default {
         userSelect: 'none',
         fontWeight: 'bold',
         width: '100%',
+        '&.rtl': {
+          direction: 'rtl',
+        },
         '& > .inside': {
           // padding: '15px',
           maxWidth: '70%',
@@ -226,6 +233,9 @@ export default {
         background: this.$root.theme.backgroundColor2,
         borderTop: `solid 1px ${this.$root.theme.borderColor}`,
         flexShrink: 0,
+        '&.rtl input': {
+          direction: 'rtl',
+        }
       }),
     ];
   },
