@@ -35,14 +35,17 @@
       </div>
       <div>
         <Button class="size-xxl padding-lg" color="default" fullWidth @click.native="auth('did')" :loading="loading">
-          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-arrow-right" /> Skip </b> </div>
-          <p> Nobody Will Knows Who You Are </p>
+          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-user-secret" /> Skip </b> </div>
+          <p> Enter Anonymously </p>
         </Button>
       </div>
     </div>
     <div :class="$style.box" class="padding-lg" v-else-if="currentPage === 'pidLogin'">
       <div class="padding-bottom-xl">
         <a role="button" @click="currentPage = 'choose'"> <b> <i class="fa fa-chevron-left" />  Back </b> </a>
+      </div>
+      <div class="padding-bottom-xl">
+        <p> Keep in mind that this is not a normal login with Username and Password! This is something likes bitcoin wallet and you have to keep entered text somewhere safe to access this account later. </p>
       </div>
       <form @submit.prevent="auth('pid')">
         <div class="padding-bottom-lg">
