@@ -7,19 +7,19 @@
 
 ## Details
 
-**Viska** (means `whisper` in swedish and also `everything` in lithuanian) is an anonymous chat service created using nodejs/socket.io (backend) and webpack/vue (client).
+**Viska** (meaning `whisper` in swedish and `everything` in lithuanian) is an anonymous chat service created using nodejs/socket.io (backend) and webpack/vue (client).
 
-## What is This? What's the Difference to Hazy?
-Well, **Hazy** is a commenting service that users can have their own space and ask others to answer their questions/polls anonymously. There is no thread for received comments and basicly the receiver can only looks at received data or just put a reply to those. But in other hand, **Viska** is a chat service. The anonymous part is still exists, but the receiver and sender can chat to each other. Unlike **Hazy**, all of the users are anonymous in **Viska** and there is no Database to keep conversations or usernames.
+## What Is It? How Is It Different Than Hazy?
+Well, **Hazy** is a commenting service where users have their own space and ask others to answer their questions or polls anonymously. There is no thread for received comments and basicly the receiver can only look at the received data or just reply to them. But on the other hand, **Viska** is a chat service. The anonymous part still exists, but the receiver and the sender can chat with each other. Unlike **Hazy**, all the users are anonymous in **Viska** and there is no database to keep the conversations or the usernames.
 
-## How Auth System Works?
-Basicaly all of the user accounts on system are based on hash. You'll send a string (manual passprase or device id) to server and server will gives you a hash based on that. The mentioned hash will be your username and you can send/receive message by that. If anyone wants to access to your account, he should generate that hash again that it's not possible easily.
+## How Does the Authentication System Work?
+Basicaly, all of the user accounts in the system are based on a hash. You'll send a string (manual passphrase or device id) to the server and get its hash string back. This hash will be your username and you can send and receive messages through it. If anyone wants to access your account, they should generate the same hash again which it's not possible easily.
 
-## How Conversations History Works?
-This is simple and useful feature created for **PID** accounts. As I said before, There is no Database to keep conversations or users data. So any sent/received messages will be save to your browser storage till you manually logout.
+## How Does the Conversation History Work?
+This is a simple and useful feature created for **PID** accounts. As mentioned before, there is no database for keeping the conversations or user data. So every messages will be stored on your browser untill you manually logout.
 
-## What's the Difference Between DID and PID Accounts?
-**DID** users are temporary/automatic. Each time you open the app, you will get a random id automaticly. So basically you are a ghost. **PID** id's will generate based on your entered passprase and you can have same id by entering the passprase again. So **PID** is good for people who wants to have a static address and share it to other social networks and ask others to talk for example.
+## What's the Difference between DID and PID Accounts?
+**DID** users are temporary and automatically generated. Each time you open the app, you will get a random id and in essence you are a ghost. **PID** id's will be generated based on your entered passphrase and you can have the same id by entering that same passphrase again. So **PID** is good for people who want to have a static address and share it with others for example on social networks and ask others to talk.
 
 ## Is My Activity Trackable?
 In a one word, NO. But still you have to be carefull to be anonymous. So:
@@ -28,7 +28,7 @@ In a one word, NO. But still you have to be carefull to be anonymous. So:
 - use the **DID** account if you don't sure what is this.
 
 ## How Can I Contribute?
-First make sure you have installed `nodejs` >=11.0.0 and `npm` >=6.0.0 on your system, then just clone this repo and do these to run **Viska** locally:
+First make sure you have `nodejs` >=11.0.0 and `npm` >=6.0.0 installed on your system, then clone this repo and do the following to run **Viska** locally:
 
 ```bash
 npm i # to install dependencies
@@ -37,8 +37,8 @@ npm run dev:server # to start server locally on :3002 port
 npm run dev:client # to start client locally on :8080 port
 ```
 
-## Donate?
-If you like this project and want to help me, You can send me BTC to the following address:
+## Donation
+If you like this project and want to help, You can send me BTC to the following address:
 ```
 1DckVaVPkJQDBfga2Wd8moX9MbqUiurNoL
 ```
