@@ -196,7 +196,7 @@ export default {
       parts['eye-right-circles'].style.transform = `translateX(${unum(-7, 5, 'ZXDQ')}%)`;
       parts['eye-left-circle'].style.fill = `hsl(${unum(20, 90, '#0F') * 4}, 10%, 50%)`;
       parts['eye-right-circle'].style.fill = parts['eye-left-circle'].style.fill;
-      parts['face-color'].style.fill = `hsl(${unum(20, 359, 'VG3Z')}, 10%, 70%)`;
+      parts['face-color'].style.fill = `hsl(${unum(20, 45, 'VG3Z') * 8}, 40%, 70%)`;
       parts['neck-top-color'].style.fill = parts['face-color'].style.fill;
       parts['neck-bottom-color'].style.fill = parts['face-color'].style.fill;
     }
