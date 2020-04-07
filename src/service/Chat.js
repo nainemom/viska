@@ -1,5 +1,6 @@
 import { minifyStr, strToNumber, forEachSync } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
+import { generateDecrypter, generateEncrypter } from '../../utils/client-rsa.js';
 
 const User = (type, xid) => {
   const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
@@ -17,6 +18,7 @@ const ChatService = {
       sid: undefined,
       server: undefined,
       chats: [],
+      decrypter: undefined,
     }
   },
   methods: {
@@ -33,22 +35,26 @@ const ChatService = {
     // will connect to server...
     login(type, data) {
       return new Promise((resolve, reject) => {
-        this.server.open();
-        this.$once('connect', () => {
-          this.server.emit('login', {
-            type,
-            data,
-          }, (err, xid) => {
-            if (err) {
-              this.server.close();
-              reject();
-            } else {
-              this.sid = this.server.id;
-              this.user = User(type, xid);
-              this._loadChats();
-              this.$emit('login', this.auth);
-              resolve();
-            }
+        generateDecrypter((decrypter) => {
+          this.server.open();
+          this.$once('connect', () => {
+            this.server.emit('login', {
+              type,
+              data,
+              publicKey: decrypter.publicKey,
+            }, (err, xid) => {
+              if (err) {
+                this.server.close();
+                reject();
+              } else {
+                this.sid = this.server.id;
+                this.user = User(type, xid);
+                this.decrypter = decrypter;
+                this._loadChats();
+                this.$emit('login', this.auth);
+                resolve();
+              }
+            });
           });
         });
       });
@@ -80,29 +86,58 @@ const ChatService = {
       this._saveChats();
       this.$emit('connetedToRandomUser', chat);
     },
+    getChatEncrypter(chat) {
+      return new Promise((resolve, reject) => {
+        if (chat.encrypter) {
+          resolve(chat.encrypter);
+        } else {
+          this.server.emit('e2eHandshake', {
+            user: chat.user,
+          }, (err, { publicKey, sign }) => {
+            if (err) {
+              return reject(err);
+            }
+            generateEncrypter(publicKey, sign).then((encrypter) => {
+              chat.encrypter = encrypter;
+              resolve(encrypter);
+            });
+          });
+        }
+      });
+    },
     // send a message
     sendMessage(chat, body) {
       return new Promise((resolve, reject) => {
-        this.server.emit('sendMessage', {
-          user: chat.user,
-          body,
-        }, (err) => {
-          const messageObject = {
-            from: 'me',
-            body,
-          };
-          if (err === 'receiver-is-offline') {
-            chat.isOnline = false;
-            chat.pendingMessages.push(messageObject);
-            this._saveChats();
-            resolve();
-          } else if (err) {
-            reject(err);
-          } else {
-            chat.messages.push(messageObject);
-            this._saveChats();
-            resolve();
-          }
+        this.getChatEncrypter(chat).then((encrypter) => {
+          encrypter.encrypt(body).then((encryptedBody) => {
+            this.server.emit('sendMessage', {
+              user: chat.user,
+              body: encryptedBody,
+              publicKeySign: encrypter.sign,
+            }, (err) => {
+              const messageObject = {
+                from: 'me',
+                body,
+              };
+              if (err === 'receiver-is-offline') {
+                chat.isOnline = false;
+                chat.encrypter = undefined;
+                chat.pendingMessages.push(messageObject);
+                this._saveChats();
+                resolve();
+              } else if (err === 'sign-is-not-correct') {
+                chat.encrypter = undefined;
+                this.sendMessage(chat, body);
+
+              } else if (err) {
+                reject(err);
+              } else {
+                chat.messages.push(messageObject);
+                this._saveChats();
+                resolve();
+              }
+            });
+          });
         });
       });
     },
