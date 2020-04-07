@@ -10,35 +10,21 @@ const auth = require('./auth.js');
 
 const usersDb = store.create('users');
 const readyToChatUsersDb = store.create('readyToChatUsers');
+const pendingMessagesDb = store.create('pendingMessages');
 
 const socketHandler = require('./socket-handler.js');
 
 
 app.get('/ping', (req, res) => res.send('pong'));
 app.get('/state', (req, res) => {
-  const users = usersDb._store.map((doc) => {
-    return {
-      sid: doc.sid,
-      xid: doc.xid,
-      type: doc.type,
-    }
-  });
-  const readyToChatUsers = readyToChatUsersDb._store.map((doc) => {
-    return {
-      sid: doc.sid,
-      xid: doc.xid,
-      type: doc.type,
-    }
-  });
   res.send({
-    usersLength: users.length,
-    readyToChatUsersLength: readyToChatUsers.length,
-    users,
-    readyToChatUsers,
+    usersDb: usersDb.size,
+    readyToChatUsersDb: readyToChatUsersDb.size,
+    pendingMessagesDb: pendingMessagesDb.size,
   });
 });
 
 
-io.on('connection', socketHandler(io, auth, usersDb, readyToChatUsersDb));
+io.on('connection', socketHandler(io, auth, usersDb, readyToChatUsersDb, pendingMessagesDb));
 
 server.listen(PORT, () => console.log(`App started on port ${PORT}!`));

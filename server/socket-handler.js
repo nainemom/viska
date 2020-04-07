@@ -1,4 +1,4 @@
-module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
+module.exports = (io, auth, usersDb, readyToChatUsersDb, pendingMessagesDb) => (socket) => {
   const user = {
     socket,
     sid: socket.id,
@@ -25,13 +25,23 @@ module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
         }
         xid = auth.generateKey(data.passprase, data.salt);
       }
-      // check if has another instance
-      if (usersDb.find({ xid: xid, type: type })) {
+      if (usersDb.get({ xid: xid, type: type })) {
         return callback(true, false);
       }
       user.xid = xid;
       user.type = type;
-      usersDb.insert(user);
+      usersDb.set({ xid: xid, type: type }, user);
+      // give pending messages to user. TODO handle auto delete
+      setTimeout(() => {
+        const pendingMessages = pendingMessagesDb.get({ xid: xid, type: type });
+        if (pendingMessages) {
+          pendingMessages.forEach((pendingMessage) => {
+            user.socket.emit('newMessage', pendingMessage);
+            console.log('emiting...')
+          });
+          pendingMessagesDb.delete({ xid: xid, type: type });
+        }
+      }, 3000);
       return callback(false, user.xid);
     } catch (e) {
       console.error(e);
@@ -39,7 +49,7 @@ module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
     }
   });
 
-  socket.on('connectToRandomUser', (callback) => { // has bug
+  socket.on('connectToRandomUser', (callback) => {
     if (typeof callback !== 'function') {
       return;
     }
@@ -47,23 +57,22 @@ module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
       if (!user.xid) {
         return callback(true, false);
       }
-      if (readyToChatUsersDb.find({ xid: user.xid, type: user.type })) {
-        return callback('duplicate', false);
-      }
-      const connectingUser = readyToChatUsersDb.find({});
+      const connectingUser = readyToChatUsersDb.get({ topic: 'general' });
       if (connectingUser) {
-        readyToChatUsersDb.delete({ xid: connectingUser.xid, type: connectingUser.type });
-        readyToChatUsersDb.delete({ xid: user.xid, type: user.type });
+        if (connectingUser === user) {
+          return callback('duplicate', false);
+        }
         connectingUser.socket.emit('connetedToRandomUser',{
           type: user.type,
           xid: user.xid,
         });
+        readyToChatUsersDb.delete({ topic: 'general' });
         return callback(false, {
           type: connectingUser.type,
           xid: connectingUser.xid
         });
       } else {
-        readyToChatUsersDb.insert(user);
+        readyToChatUsersDb.set({ topic: 'general' }, user);
         return callback('promise', false);
       }
 
@@ -82,7 +91,7 @@ module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
       if (!user.xid) {
         return callback(true, false);
       }
-      const theUser = usersDb.find({ xid: xid, type: type });
+      const theUser = usersDb.get({ xid: xid, type: type });
       if (!theUser) {
         return callback(false, false);
       }
@@ -102,18 +111,20 @@ module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
         return callback(true, false);
       }
       const { user: { type, xid }, body } = data;
-      const receiverUser = usersDb.find({ xid: xid, type: type });
+      const messageObject = {
+        user: {
+          type: user.type,
+          xid: user.xid,
+        },
+        body,
+      };
+      const receiverUser = usersDb.get({ xid: xid, type: type });
       if (receiverUser) {
-        const messageObject = {
-          user: {
-            type: user.type,
-            xid: user.xid,
-          },
-          body,
-        };
         receiverUser.socket.emit('newMessage', messageObject);
         return callback(false, true);
       } else {
+        pendingMessagesDb.put({ xid: xid, type: type }, messageObject);
+        return callback(false, true);
         // receiver user is offline. so tell the user try again later
         return callback('receiver-is-offline', true);
       }
@@ -133,8 +144,10 @@ module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
         return callback(true, false);
       }
       const { user: { type, xid } } = data;
-      const receiverUser = usersDb.find({ xid: xid, type: type });
-      receiverUser.socket.emit('isTypingFlag', { type: user.type, xid: user.xid });
+      const receiverUser = usersDb.get({ xid: xid, type: type });
+      if (receiverUser) {
+        receiverUser.socket.emit('isTypingFlag', { type: user.type, xid: user.xid });
+      }
       return callback(false, true);
     } catch (e) {
       console.error(e);
@@ -145,8 +158,9 @@ module.exports = (io, auth, usersDb, readyToChatUsersDb) => (socket) => {
 
   socket.on('disconnect', () => {
     if (user.xid) {
+      usersDb.delete({ xid: user.xid, type: user.type })
       // remove this user from users list
-      usersDb.delete({ sid: user.sid });
+      // usersDb.delete({ sid: user.sid });
       readyToChatUsersDb.delete({ sid: user.sid });
     }
     console.log('========> lost connection', user.sid);
