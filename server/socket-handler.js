@@ -6,6 +6,73 @@ module.exports = (io, db, memDb) => (socket) => {
   let user = null;
   console.log('========> new connection', socket.id);
 
+  // DONE
+  socket.on('auth', ({ type, username, password }, callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
+    try {
+      if (user !== null) {
+        return callback('dublicate', false);
+      }
+      if (type === 'persist') {
+        if (!username || !password || !/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(username)) {
+          return callback('data-error', false);
+        }
+        
+        const _password = auth.generateKey(password, username);
+        const theUser = db.users.find((_user) => _user.username === username && _user.type === type)[0];
+        if (!theUser) {
+          db.users.insert({
+            username,
+            password: _password,
+            type,
+          });
+          // no way that he is already actived
+        } else {
+          if (theUser.password !== _password) {
+            return callback('wrong-password', false);
+          }
+          const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === username).length > 0;
+          if (isDublicate) {
+            return callback('dublicate', false);
+          }
+
+          user = theUser;
+        }
+        user = memDb.activeUsers.insert({
+          username,
+          type,
+          sid: socket.id,
+          readyForChat: false,
+        });
+        return callback(false, {
+          username,
+          type,
+        });
+      } else if (type === 'temporary') {
+        const _username = socket.id;
+        const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === _username).length > 0;
+        if (isDublicate) {
+          return callback('dublicate', false);
+        }
+        user = memDb.activeUsers.insert({
+          username: _username,
+          type,
+          sid: socket.id,
+          readyForChat: false,
+        });
+        return callback(false, {
+          username: _username,
+          type,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+      return callback(true, false);
+    }
+  });
+
   socket.on('login', ({ type, data }, callback) => {
     if (typeof callback !== 'function') {
       return;
@@ -58,6 +125,7 @@ module.exports = (io, db, memDb) => (socket) => {
     }
   });
 
+  // DONE
   socket.on('connectToRandomUser', (callback) => {
     if (typeof callback !== 'function') {
       return;
@@ -67,33 +135,30 @@ module.exports = (io, db, memDb) => (socket) => {
         return callback(true, false);
       }
 
-      const connectingUser = memDb.readyForChatUsers.find((_user) => {
-        return _user.chatTopic === 'general';
+      const connectingUser = memDb.activeUsers.find((_user) => {
+        return _user.readyForChat && _user.readyForChat.topic === 'general';
       })[0];
 
       if (connectingUser) {
-        if (userFinderHandler(user.type, user.xid)(connectingUser.user)) {
+        if (user.type === connectingUser.type && user.username === connectingUser.username) {
           return callback('duplicate', false);
         }
-        io.sockets.connected[connectingUser.user.sid].emit('connetedToRandomUser',{
+        io.sockets.connected[connectingUser.sid].emit('connetedToRandomUser', {
           type: user.type,
-          xid: user.xid,
+          username: user.username,
         });
-        memDb.readyForChatUsers.remove(connectingUser);
+        connectingUser.readyForChat = false;
+        memDb.activeUsers.update(connectingUser);
+
         return callback(false, {
-          type: connectingUser.user.type,
-          xid: connectingUser.user.xid
+          type: connectingUser.type,
+          username: connectingUser.username,
         });
       } else {
-        console.info('add user to ready for chats');
-        memDb.readyForChatUsers.insert({
-          user: {
-            type: user.type,
-            xid: user.xid,
-            sid: user.sid,
-          },
-          chatTopic: 'general',
-        });
+        user.readyForChat = {
+          topic: 'general'
+        }
+        memDb.activeUsers.update(user);
         return callback('promise', false);
       }
 
@@ -104,7 +169,7 @@ module.exports = (io, db, memDb) => (socket) => {
   });
 
 
-  socket.on('getUserStatus', ( { type, xid }, callback) => {
+  socket.on('getUserStatus', ( { type, username }, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
@@ -112,8 +177,10 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
+      const theUser = memDb.activeUsers.find((_user) => {
+        return _user.type === type && _user.username === username;
+      })[0];
 
-      const theUser = memDb.activeUsers.find(userFinderHandler(type, xid))[0];
       if (!theUser) {
         return callback(false, false);
       }
@@ -132,25 +199,32 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
-      const { user: { type, xid }, body } = data;
+      const { user: { type, username }, body } = data;
       const messageObject = {
         from: {
-          xid: user.xid,
+          username: user.userma,e,
           type: user.type,
         },
         to: {
-          type: type,
-          xid: xid,
+          username,
+          type,
         },
         body,
         date: Date.now(),
       };
-      const receiverUser = memDb.activeUsers.find(userFinderHandler(type, xid))[0];
+      const receiverUser = memDb.activeUsers.find((_user) => {
+        return _user.type === type && _user.username === username;
+      })[0];
 
       if (receiverUser) {
         io.sockets.connected[receiverUser.sid].emit('newMessage', messageObject);
       } else {
-        db.pendingMessages.insert(messageObject);
+        const realReceiverUser = db.users.find((_user) => {
+          return _user.type === type && _user.username === username;
+        })[0];
+        if (realReceiverUser) {
+          db.pendingMessages.insert(messageObject);
+        }
       }
       return callback(false, messageObject);
 
@@ -169,13 +243,15 @@ module.exports = (io, db, memDb) => (socket) => {
         return callback(true, false);
       }
 
-      const { user: { type, xid } } = data;
+      const { user: { type, username } } = data;
 
-      const receiverUser = memDb.activeUsers.find(userFinderHandler(type, xid))[0];
+      const receiverUser = memDb.activeUsers.find((_user) => {
+        return _user.type === type && _user.username === username;
+      })[0];
       if (receiverUser) {
         io.sockets.connected[receiverUser.sid].emit('isTypingFlag', {
           type: user.type,
-          xid: user.xid
+          username: user.username
         });
       }
       return callback(false, true);
@@ -188,7 +264,6 @@ module.exports = (io, db, memDb) => (socket) => {
   socket.on('disconnect', () => {
     if (user !== null) {
       memDb.activeUsers.remove(user);
-      memDb.readyForChatUsers.remove(userFinderHandler(user.type, user.xid));
     }
 
     console.log('========> lost connection', socket.id);

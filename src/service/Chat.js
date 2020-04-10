@@ -10,12 +10,11 @@ import SocketIo from 'socket.io-client';
 
 // console.log(db)
 
-const User = (type, xid) => {
-  const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
+const User = (type, username) => {
+  // const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(username, 10)}`;
   return {
     type,
-    xid,
-    name,
+    username,
   }
 }
 
@@ -30,6 +29,7 @@ const ChatService = {
   },
   methods: {
     init(serverUrl) {
+      console.log('inited');
       this.server = SocketIo(serverUrl, {
         autoConnect: false,
       });
@@ -40,22 +40,19 @@ const ChatService = {
       this.server.on('connetedToRandomUser', this._onConnetedToRandomUser);
     },
     // will connect to server...
-    login(type, data) {
+    login(data) {
+      console.log('login', data);
       return new Promise((resolve, reject) => {
         this.server.open();
         this.$once('connect', () => {
-          this.server.emit('login', {
-            type,
-            data,
-          }, (err, xid) => {
+          this.server.emit('auth', data, (err, res) => {
             if (err) {
               this.server.close();
-              reject();
+              reject(err);
             } else {
-              this.sid = this.server.id;
-              this.user = User(type, xid);
+              this.user = User(res.type, res.username);
               this._loadChats();
-              this.$emit('login', this.auth);
+              this.$emit('login', res.type, res.username);
               resolve();
             }
           });
@@ -72,11 +69,13 @@ const ChatService = {
     // find random user
     connectToRandomUser() {
       return new Promise((resolve, reject) => {
+        console.log('connecting to random user');
         this.server.emit('connectToRandomUser', (err, user) => {
           if (err || !user) {
             reject(err);
           } else {
-            const chat = this._upsertChat(user.type, user.xid);
+            console.log('connected to random user', { type: user.type, username: user.username });
+            const chat = this._upsertChat(user.type, user.username);
             this._saveChats();
             resolve(chat);
           }
@@ -84,8 +83,9 @@ const ChatService = {
       });
     },
     // when new random user comes
-    _onConnetedToRandomUser({ type, xid }) {
-      const chat = this._upsertChat(type, xid);
+    _onConnetedToRandomUser({ type, username }) {
+      console.log('connected to random user', { type, username });
+      const chat = this._upsertChat(type, username);
       this._saveChats();
       this.$emit('connetedToRandomUser', chat);
     },
@@ -115,7 +115,7 @@ const ChatService = {
         this.server.emit('sendIsTypingFlag', {
           user: {
             type: chat.user.type,
-            xid: chat.user.xid,
+            username: chat.user.username,
           }
         }, (err) => {
           if (err) {
@@ -131,8 +131,8 @@ const ChatService = {
       this.$emit('isTypingFlag', chat);
     },
     // get single chat
-    getChat({ type, xid }) {
-      const chat = this._upsertChat(type, xid);
+    getChat({ type, username }) {
+      const chat = this._upsertChat(type, username);
       return chat;
     },
     // refresh chat status
@@ -149,8 +149,8 @@ const ChatService = {
       });
     },
 
-    _onNewMessage({from: { type, xid }, body, date}) {
-      const chat = this._upsertChat(type, xid);
+    _onNewMessage({from: { type, username }, body, date}) {
+      const chat = this._upsertChat(type, username);
       chat.isOnline = true;
       chat.messages.push({
         from: 'its',
@@ -159,26 +159,27 @@ const ChatService = {
       });
       this._saveChats();
       this.$emit('newMessage', {
-        user: User(type, xid),
+        user: User(type, username),
         body,
         date,
       });
     },
     // save current chats in localStorage
     _saveChats() {
-      if (this.user.type === 'pid') {
+      if (this.user.type === 'persist') {
         const chats = this.chats.map((chat) => {
           return {
             ...chat,
             isOnline: null
           }
         });
-        localStorage.setItem(`${this.user.type}:${this.user.xid}:chats`, JSON.stringify(chats));
+        localStorage.setItem(`${this.user.type}:${this.user.username}:chats`, JSON.stringify(chats));
       }
     },
     // load current user chats from localStorage
     _loadChats() {
-      const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.xid}:chats`);
+      return false;
+      const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.username}:chats`);
       if (cachedChats) {
         this.chats = JSON.parse(cachedChats).map((chat) => {
           // this is for backward compatibility
@@ -191,7 +192,7 @@ const ChatService = {
     },
     // delete current user chats
     _clearChats() {
-      localStorage.removeItem(`${this.user.type}:${this.user.xid}:chats`);
+      localStorage.removeItem(`${this.user.type}:${this.user.username}:chats`);
       this.chats = [];
     },
     _onConnectionStateChange(newState) {
@@ -199,15 +200,15 @@ const ChatService = {
         this.sid = this.server.id;
         this.$emit('connect', this.sid);
       } else {
-        this.sid = undefined;
+        location.reload();
         this.$emit('disconnect');
       }
     },
-    _upsertChat(type, xid) {
-      let chat = this.chats.find((chat) => chat.user.type === type && chat.user.xid === xid);
+    _upsertChat(type, username) {
+      let chat = this.chats.find((chat) => chat.user.type === type && chat.user.username === username);
       if (!chat) {
         chat = {
-          user: User(type, xid),
+          user: User(type, username),
           isOnline: null,
           messages: [],
           pendingMessages: [],

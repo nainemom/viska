@@ -7,7 +7,7 @@
           <UserTitle :user="$chatService.user" multiLine :avatarSize="128"/>
         </div>
         <div>
-          <Button class="size-sm padding-left-lg padding-right-lg" color="default" :disabled="$chatService.user.type !== 'pid'" title="Only Available for PID Users" @click.native="copyLink">
+          <Button class="size-sm padding-left-lg padding-right-lg" color="default" :disabled="$chatService.user.type !== 'persist'" title="This feature isn't available for anonymous accounts." @click.native="copyLink">
             <b> <i class="fa fa-share" />  {{ copyToClipboardText }} </b>
           </Button>
           <Button class="size-sm padding-left-lg padding-right-lg" color="default" v-if="$chatService.user.type" @click.native="logout">
@@ -15,7 +15,7 @@
           </Button>
         </div>
       </div>
-      <Chats :activeChat="activeChat" @select="goToChat($event.user.type, $event.user.xid)"/>
+      <Chats :activeChat="activeChat" @select="goToChat($event.user.type, $event.user.username)"/>
     </div>
     <Chat :class="[$style.chat, !activeChat && 'hidden-on-mobile']" :chat="activeChat" @close="goToChat(undefined, undefined)"/>
   </div>
@@ -43,18 +43,20 @@ export default {
   },
   computed: {
     activeChat() {
-      if (this.$route.params.type) {
+      if (this.$route.params.user) {
+        const type = this.$route.params.user.substr(0, 1) === '@' ? 'persist' : 'temporary';
+        const username = this.$route.params.user.substr(1);
         return this.$chatService.getChat({
-          type: this.$route.params.type,
-          xid: this.$route.params.xid,
+          type,
+          username,
         });
       }
       return undefined;
     },
   },
   methods: {
-    goToChat(type, xid) {
-      const url = type ? `/chats/${type}/${xid}` : '/chats';
+    goToChat(type, username) {
+      const url = type ? `/chats/${type === 'persist' ? '@' : '!'}${username}` : '/chats';
       if (this.$route.path !== url) {
         this.$nextTick(() => {
           this.$router.push(url);
@@ -62,7 +64,7 @@ export default {
       }
     },
     copyLink() {
-      copyToClipboard(`${location.protocol}//${location.host}/#/chats/${this.$chatService.user.type}/${this.$chatService.user.xid}`);
+      copyToClipboard(`${location.protocol}//${location.host}/#/chats/${type === 'persist' ? '@' : '!'}${this.$chatService.user.username}`);
       const oldText = this.copyToClipboardText;
       this.copyToClipboardText = 'Copied!';
       setTimeout(() => {
@@ -70,19 +72,19 @@ export default {
       }, 750);
     },
     logout() {
-      // TODO use better way
+      // TODO use a better way
       this.$root.$refs.authPopup.openLogout();
     },
   },
   created() {
     this.$chatService.$on('newMessage', ({user, body}) => {
       const hasFocus = document.hasFocus();
-      const isOnChatPage = this.activeChat && this.activeChat.user.type === user.type && this.activeChat.user.xid === user.xid;
+      const isOnChatPage = this.activeChat && this.activeChat.user.type === user.type && this.activeChat.user.username === user.username;
 
       if (!isOnChatPage || !hasFocus) {
         this.$notify(user.name, body, 'message', true, !hasFocus, () => {
           window.focus();
-          this.goToChat(user.type, user.xid);
+          this.goToChat(user.type, user.username);
         });
       }
     });

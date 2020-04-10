@@ -20,6 +20,7 @@ const startApp = async () => {
     path: path.resolve(__dirname, '../db/db.json'),
     regenerate: false,
     collections: [
+      'users',
       'pendingMessages',
     ],
   });
@@ -28,7 +29,6 @@ const startApp = async () => {
     regenerate: true,
     collections: [
       'activeUsers',
-      'readyForChatUsers',
     ],
   });
 
@@ -40,13 +40,17 @@ const startApp = async () => {
 
 
   app.get('/ping', (_req, res) => res.send('pong'));
-  // app.get('/state', (req, res) => {
-  //   res.send({
-  //     usersDb: usersDb.size,
-  //     readyToChatUsersDb: readyToChatUsersDb.size,
-  //     pendingMessagesDb: pendingMessagesDb.size,
-  //   });
-  // });
+  app.get('/state', (_req, res) => {
+    res.send({
+      db: {
+        users: db.users.find(() => true), 
+        pendingMessages: db.pendingMessages.find(() => true), 
+      },
+      memDb: {
+        activeUsers: memDb.activeUsers.find(() => true), 
+      }
+    });
+  });
   
   
   io.on('connection', socketHandler(io, db, memDb));
