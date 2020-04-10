@@ -1,5 +1,14 @@
 import { minifyStr, strToNumber, forEachSync } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
+// import initDatabase from '../../utils/database.js';
+
+const db = initDatabase({
+  path: 'chats',
+  regenerate: false,
+  browser: true,
+});
+
+console.log(db)
 
 const User = (type, xid) => {
   const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
@@ -86,47 +95,17 @@ const ChatService = {
         this.server.emit('sendMessage', {
           user: chat.user,
           body,
-        }, (err) => {
-          const messageObject = {
-            from: 'me',
-            body,
-          };
-          if (err === 'receiver-is-offline') {
-            chat.isOnline = false;
-            chat.pendingMessages.push(messageObject);
-            this._saveChats();
-            resolve();
-          } else if (err) {
+        }, (err, messageObject) => {
+          if (err) {
             reject(err);
-          } else {
-            chat.messages.push(messageObject);
-            this._saveChats();
-            resolve();
           }
-        });
-      });
-    },
-    // resend pending messages
-    resendPendingMessages(chat) {
-      let spliceOffset = 0;
-      return forEachSync(chat.pendingMessages.slice(0), (pendingMessage, index) => {
-        return new Promise((resolve) => {
-          this.server.emit('sendMessage', {
-            user: chat.user,
-            body: pendingMessage.body,
-          }, (err) => {
-            const messageObject = {
-              from: 'me',
-              body: pendingMessage.body,
-            };
-            if (!err) {
-              chat.pendingMessages.splice(index + spliceOffset, 1);
-              spliceOffset--;
-              chat.messages.push(messageObject);
-              this._saveChats();
-              resolve();
-            }
+          chat.messages.push({
+            from: 'me',
+            body: messageObject.body,
+            date: messageObject.date,
           });
+          this._saveChats();
+          resolve();
         });
       });
     },
@@ -164,26 +143,25 @@ const ChatService = {
             reject();
           } else {
             chat.isOnline = status;
-            if (status) {
-              this.resendPendingMessages(chat);
-            }
             resolve(status);
           }
         });
       });
     },
 
-    _onNewMessage({user: { type, xid }, body}) {
+    _onNewMessage({from: { type, xid }, body, date}) {
       const chat = this._upsertChat(type, xid);
       chat.isOnline = true;
       chat.messages.push({
         from: 'its',
         body,
+        date,
       });
       this._saveChats();
       this.$emit('newMessage', {
         user: User(type, xid),
         body,
+        date,
       });
     },
     // save current chats in localStorage
