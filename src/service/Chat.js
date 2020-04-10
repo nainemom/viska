@@ -2,13 +2,13 @@ import { minifyStr, strToNumber, forEachSync } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
 // import initDatabase from '../../utils/database.js';
 
-const db = initDatabase({
-  path: 'chats',
-  regenerate: false,
-  browser: true,
-});
+// const db = initDatabase({
+//   path: 'chats',
+//   regenerate: false,
+//   browser: true,
+// });
 
-console.log(db)
+// console.log(db)
 
 const User = (type, xid) => {
   const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
