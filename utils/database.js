@@ -56,10 +56,19 @@ module.exports = ({
     }
 
     let saveToCloudTimeout = null;
+    let savingToCloud = false;
     const saveToCloud = () => {
+      if (savingToCloud) {
+        return;
+      }
       clearTimeout(saveToCloudTimeout);
       saveToCloudTimeout = setTimeout(() => {
-        // SAVE TO CLOUD
+        savingToCloud = true;
+        syncToCloud().then(() => {
+          savingToCloud = false;
+        }).catch(() => {
+          saveToCloud = false;
+        });
       }, 10000);
       return true;
     }

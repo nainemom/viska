@@ -8,6 +8,7 @@ const socketIo = require('socket.io');
 const io = socketIo(server);
 
 const initDatabase = require(path.resolve(__dirname, '../utils/database.js'));
+const initCloud = require(path.resolve(__dirname, './utils/cloud.js'));
 // const initStore = require('./utils/store.js');
 
 // const usersDb = store.create('users');
@@ -16,10 +17,26 @@ const initDatabase = require(path.resolve(__dirname, '../utils/database.js'));
 
 
 const startApp = async () => {
+  let cloud = null;
+
+  if (process.env.VISKA_BACKBLAZE_APP_KEY) {
+    cloud = await initCloud({
+      applicationKey: process.env.VISKA_BACKBLAZE_APP_KEY,
+      applicationKeyId: process.env.VISKA_BACKBLAZE_APP_KEY_ID,
+      bucketId: process.env.VISKA_BACKBLAZE_BUCKET_ID,
+    });
+  }
+
+  const dbPath = path.resolve(__dirname, '../db/db.json');
+
+  cloud && await cloud.download(dbPath);
+
   const db = await initDatabase({
-    name: path.resolve(__dirname, '../db/db.json'),
+    name: dbPath,
     memory: false,
-    syncToCloud: true,
+    syncToCloud: cloud ? () => {
+      return cloud.upload(dbPath);
+    } : false,
     collections: [
       'users',
       'pendingMessages',
@@ -33,9 +50,6 @@ const startApp = async () => {
     ],
   });
 
-  // const store = initStore('activeUsers');
-  
-  // console.log(db.activeUsers);
 
   const socketHandler = require('./socket-handler.js');
 
@@ -62,5 +76,3 @@ const startApp = async () => {
 
 
 startApp();
-
-
