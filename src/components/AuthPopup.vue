@@ -53,7 +53,7 @@
             <b> <i class="fa fa-user" /> Username </b>
           </div>
           <div class="padding-bottom-md">
-            <Input placeholder="Enter Your Username." required v-model="form.username" :disabled="loading" name="username" pattern="^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$"/>
+            <Input placeholder="Enter Your Username." required v-model="form.username" :disabled="loading" name="username" pattern="^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$" minlength="3"/>
           </div>
         </div>
         <div class="padding-bottom-xl">

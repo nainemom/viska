@@ -16,7 +16,7 @@ module.exports = (io, db, memDb) => (socket) => {
         return callback('dublicate', false);
       }
       if (type === 'persist') {
-        if (!username || !password || !/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(username)) {
+        if (!username || !password || !/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(username) || username.length < 3) {
           return callback('data-error', false);
         }
         
