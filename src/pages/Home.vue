@@ -82,10 +82,18 @@ export default {
       const isOnChatPage = this.activeChat && this.activeChat.user.type === user.type && this.activeChat.user.username === user.username;
 
       if (!isOnChatPage || !hasFocus) {
-        this.$notify(user.name, body, 'message', true, !hasFocus, () => {
+        this.$notify(user.username, body, 'message', true, !hasFocus, () => {
           window.focus();
           this.goToChat(user.type, user.username);
         });
+      }
+      if (!isOnChatPage) {
+        const theChat = this.$chatService.getChat({
+          type: user.type,
+          username: user.username,
+        });
+        theChat.badge++;
+        this.$chatService._saveChats();
       }
     });
   },

@@ -107,7 +107,7 @@ export default {
     }
     reloadLoop();
     this.$chatService.$on('isTypingFlag', (user) => {
-      if (this.chat && this.chat.user.xid === user.xid && this.chat.user.type === user.type) {
+      if (this.chat && this.chat.user.username === user.username && this.chat.user.type === user.type) {
         this.itIsTyping = true;
         clearTimeout(this.isTypingTimer);
         this.isTypingTimer = setTimeout(() => {
@@ -120,6 +120,8 @@ export default {
     chat() {
       if (this.chat) {
         this.$chatService.refreshChat(this.chat);
+        this.chat.badge = 0;
+        this.$chatService._saveChats();
       }
       this.ItIsTyping = false;
       clearTimeout(this.isTypingTimer);
@@ -204,7 +206,11 @@ export default {
             opacity: 0.5,
             fontSize: '10px',
             textAlign: 'left',
+            display: 'block',
           },
+          '&:hover > .info': {
+            display: 'block'
+          }
         },
         '&.its': {
           textAlign: 'left',

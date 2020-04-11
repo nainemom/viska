@@ -17,16 +17,17 @@ const initDatabase = require(path.resolve(__dirname, '../utils/database.js'));
 
 const startApp = async () => {
   const db = await initDatabase({
-    path: path.resolve(__dirname, '../db/db.json'),
-    regenerate: false,
+    name: path.resolve(__dirname, '../db/db.json'),
+    memory: false,
+    syncToCloud: true,
     collections: [
       'users',
       'pendingMessages',
     ],
   });
   const memDb = await initDatabase({
-    path: path.resolve(__dirname, '../db/memDb.json'),
-    regenerate: true,
+    name: 'memDb',
+    memory: true,
     collections: [
       'activeUsers',
     ],

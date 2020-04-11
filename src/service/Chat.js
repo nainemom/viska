@@ -1,6 +1,5 @@
-import { minifyStr, strToNumber, forEachSync } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
-// import initDatabase from '../../utils/database.js';
+import initDatabase from '../../utils/database.js';
 
 // const db = initDatabase({
 //   path: 'chats',
@@ -8,10 +7,7 @@ import SocketIo from 'socket.io-client';
 //   browser: true,
 // });
 
-// console.log(db)
-
 const User = (type, username) => {
-  // const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(username, 10)}`;
   return {
     type,
     username,
@@ -25,11 +21,11 @@ const ChatService = {
       sid: undefined,
       server: undefined,
       chats: [],
+      db: null,
     }
   },
   methods: {
     init(serverUrl) {
-      console.log('inited');
       this.server = SocketIo(serverUrl, {
         autoConnect: false,
       });
@@ -41,7 +37,6 @@ const ChatService = {
     },
     // will connect to server...
     login(data) {
-      console.log('login', data);
       return new Promise((resolve, reject) => {
         this.server.open();
         this.$once('connect', () => {
@@ -51,9 +46,19 @@ const ChatService = {
               reject(err);
             } else {
               this.user = User(res.type, res.username);
-              this._loadChats();
-              this.$emit('login', res.type, res.username);
-              resolve();
+              initDatabase({
+                name: `${JSON.stringify(this.user)}.db`,
+                memory: false,
+                browser: true,
+                collections: [
+                  'chats',
+                ],
+              }).then((db) => {
+                this.db = db;
+                this._loadChats();
+                this.$emit('login', res.type, res.username);
+                resolve();
+              });
             }
           });
         });
@@ -166,33 +171,47 @@ const ChatService = {
     },
     // save current chats in localStorage
     _saveChats() {
-      if (this.user.type === 'persist') {
-        const chats = this.chats.map((chat) => {
-          return {
-            ...chat,
-            isOnline: null
-          }
+      if (this.user.type === 'persist' && this.db) {
+        // this.db.chats.remove(() => true);
+        setTimeout(() => {
+          this.chats.forEach((chat) => {
+            try {
+              this.db.chats.update(chat);
+            } catch (e) {
+              this.db.chats.insert(chat);
+            }
+          });
         });
-        localStorage.setItem(`${this.user.type}:${this.user.username}:chats`, JSON.stringify(chats));
+        // localStorage.setItem(`${this.user.type}:${this.user.username}:chats`, JSON.stringify(chats));
       }
     },
     // load current user chats from localStorage
     _loadChats() {
-      return false;
-      const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.username}:chats`);
-      if (cachedChats) {
-        this.chats = JSON.parse(cachedChats).map((chat) => {
-          // this is for backward compatibility
-          if (!chat.pendingMessages) {
-            chat.pendingMessages = [];
-          }
-          return chat;
+      if (this.user.type === 'persist' && this.db) {
+        this.chats = this.db.chats.find(() => true).map((chat) => {
+          chat.isOnline = null;
+          return JSON.parse(JSON.stringify(chat));
         });
+      } else {
+        this.chats = [];
       }
+      // return false;
+      // const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.username}:chats`);
+      // if (cachedChats) {
+      //   this.chats = JSON.parse(cachedChats).map((chat) => {
+      //     // this is for backward compatibility
+      //     if (!chat.pendingMessages) {
+      //       chat.pendingMessages = [];
+      //     }
+      //     return chat;
+      //   });
+      // }
     },
     // delete current user chats
     _clearChats() {
-      localStorage.removeItem(`${this.user.type}:${this.user.username}:chats`);
+      if (this.user.type === 'persist') {
+        this.db.chats.remove(() => true);
+      }
       this.chats = [];
     },
     _onConnectionStateChange(newState) {
@@ -212,6 +231,7 @@ const ChatService = {
           isOnline: null,
           messages: [],
           pendingMessages: [],
+          badge: 0,
         };
         this.chats.unshift(chat);
       }

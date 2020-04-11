@@ -1,5 +1,5 @@
 <template>
-<span :class="[$style.status, value ? 'online' : 'offline', value === null && 'loading']">
+<span :class="[$style.status, value === null ? 'null' : value.toString()]">
   <i v-if="value === null" class="fa fa-spinner fa-pulse" />
 </span>
 </template>
@@ -9,8 +9,7 @@
 export default {
   props: {
     value: {
-      validator: (v) => [true, false, null].includes(v),
-      default: false,
+      default: 'badge',
     }
   },
   style({ className, mediaQuery }) {
@@ -22,13 +21,16 @@ export default {
         borderRadius: '5px',
         fontSize: '12px',
         color: '#000',
-        '&.online': {
+        '&.true': {
           background: this.$root.theme.onlineColor,
         },
-        '&.offline': {
+        '&.false': {
           backgroundColor: this.$root.theme.grayColor,
         },
-        '&.loading': {
+        '&.badge': {
+          backgroundColor: this.$root.theme.primaryColor,
+        },
+        '&.null': {
           backgroundColor: 'transparent',
           color: '#000',
         }

@@ -1,9 +1,9 @@
 <template>
 <div :class="[$style.container, multiLine && 'multi-line', !user || !user.type && 'unknown-mode']">
   <div class="avatar">
-    <Avatar :name="playModeName || (user ? user.name : '')" :size="avatarSize"/>
+    <Avatar :name="playModeName || (user ? user.username : '')" :size="avatarSize"/>
   </div>
-  <div class="name" v-if="showName && user"> {{ user.name }} </div>
+  <div class="name" v-if="showName && user"> {{ user.type === 'persist' ? '@' : '' }}{{ user.type === 'temporary' ? '!' : '' }}{{ user.username }} </div>
   <slot />
 </div>
 </template>

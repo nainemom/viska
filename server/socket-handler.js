@@ -46,12 +46,35 @@ module.exports = (io, db, memDb) => (socket) => {
           sid: socket.id,
           readyForChat: false,
         });
+
+        const pendingMessages = db.pendingMessages.find((_item) => _item.to.type === type && _item.to.username === username);
+
+        setTimeout(() =>{
+          pendingMessages.forEach((messageObject) => {
+            io.sockets.connected[user.sid].emit('newMessage', {
+              from: messageObject.from,
+              body: messageObject.body,
+              date: messageObject.date,
+            });
+            db.pendingMessages.remove(messageObject);
+          });
+        });
+
         return callback(false, {
           username,
           type,
         });
       } else if (type === 'temporary') {
-        const _username = socket.id;
+        const _username = `${Math.floor(Math.random() * 10000).toString()}${Date.now().toString()}`
+          .split('1').join('a')
+          .split('2').join('9')
+          .split('3').join('o')
+          .split('4').join('n')
+          .split('5').join('y')
+          .split('6').join('m')
+          .split('7').join('0')
+          .split('8').join('u')
+          .split('9').join('s');
         const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === _username).length > 0;
         if (isDublicate) {
           return callback('dublicate', false);
@@ -202,7 +225,7 @@ module.exports = (io, db, memDb) => (socket) => {
       const { user: { type, username }, body } = data;
       const messageObject = {
         from: {
-          username: user.userma,e,
+          username: user.username,
           type: user.type,
         },
         to: {
