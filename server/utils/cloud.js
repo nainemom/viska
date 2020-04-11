@@ -1,11 +1,6 @@
 const B2 = require('backblaze-b2');
 const path = require('path');
 const fs = require('fs');
-// const applicationKey = 'K000sUPmgS1YKxe1Od50uG0YZnaHAyk';
-// const applicationKeyId = '0007e2b5cec3f940000000001';
-// const bucketId = 'f74e72ab75bc5efc731f0914';
-
-
 
 module.exports = async ({
   applicationKey,
@@ -59,7 +54,6 @@ module.exports = async ({
       return localUpload(uploadData);
     }
   }
-
 
   const download = async (filePath) => {
     const fileName = path.basename(filePath);

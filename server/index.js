@@ -9,12 +9,6 @@ const io = socketIo(server);
 
 const initDatabase = require(path.resolve(__dirname, '../utils/database.js'));
 const initCloud = require(path.resolve(__dirname, './utils/cloud.js'));
-// const initStore = require('./utils/store.js');
-
-// const usersDb = store.create('users');
-// const readyToChatUsersDb = store.create('readyToChatUsers');
-// const pendingMessagesDb = store.create('pendingMessages');
-
 
 const startApp = async () => {
   let cloud = null;
@@ -50,9 +44,7 @@ const startApp = async () => {
     ],
   });
 
-
   const socketHandler = require('./socket-handler.js');
-
 
   app.get('/ping', (_req, res) => res.send('pong'));
   app.get('/state', (_req, res) => {
