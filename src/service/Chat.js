@@ -34,33 +34,31 @@ const ChatService = {
       this.server.on('newMessage', this._onNewMessage);
       this.server.on('isTypingFlag', this._onIsTypingFlag);
       this.server.on('connetedToRandomUser', this._onConnetedToRandomUser);
+      this.server.open();
     },
     // will connect to server...
     login(data) {
       return new Promise((resolve, reject) => {
-        this.server.open();
-        this.$once('connect', () => {
-          this.server.emit('auth', data, (err, res) => {
-            if (err) {
-              this.server.close();
-              reject(err);
-            } else {
-              this.user = User(res.type, res.username);
-              initDatabase({
-                name: `${JSON.stringify(this.user)}.db`,
-                memory: false,
-                browser: true,
-                collections: [
-                  'chats',
-                ],
-              }).then((db) => {
-                this.db = db;
-                this._loadChats();
-                this.$emit('login', res.type, res.username);
-                resolve();
-              });
-            }
-          });
+        this.server.emit('auth', data, (err, res) => {
+          if (err) {
+            // this.server.close();
+            reject(err);
+          } else {
+            this.user = User(res.type, res.username);
+            initDatabase({
+              name: `${JSON.stringify(this.user)}.db`,
+              memory: false,
+              browser: true,
+              collections: [
+                'chats',
+              ],
+            }).then((db) => {
+              this.db = db;
+              this._loadChats();
+              this.$emit('login', res.type, res.username);
+              resolve();
+            });
+          }
         });
       });
     },
@@ -68,7 +66,6 @@ const ChatService = {
     logout() {
       this._clearChats();
       this.user = User();
-      this.server.close();
       this.$emit('logout');
     },
     // find random user
@@ -89,7 +86,6 @@ const ChatService = {
     },
     // when new random user comes
     _onConnetedToRandomUser({ type, username }) {
-      console.log('connected to random user', { type, username });
       const chat = this._upsertChat(type, username);
       this._saveChats();
       this.$emit('connetedToRandomUser', chat);

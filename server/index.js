@@ -15,7 +15,7 @@ const startApp = async () => {
   const dbPath = path.resolve(__dirname, '../db/db.json');
 
   let cloud = null;
-  if (process.env.VISKA_BACKBLAZE_APP_KEY) {
+  if (process.env.VISKA_BACKBLAZE_APP_KEY && process.env.NODE_ENV === 'production') {
     console.log('RESTORING BACKUP FILES FROM BACKBLAZE...');
     cloud = await initCloud({
       applicationKey: process.env.VISKA_BACKBLAZE_APP_KEY,

@@ -45,7 +45,7 @@
         <a role="button" @click="currentPage = 'choose'"> <b> <i class="fa fa-chevron-left" />  Back </b> </a>
       </div>
       <div class="padding-bottom-xl">
-        <p> This form is using for both login and signup. If you'r entered username isn't exists in system, your account will be generate. </p>
+        <p> This form is using for both login and signup. If you enter a existed username, the system will check for password. otherwise your account will be generate. </p>
       </div>
       <form @submit.prevent="auth('persist')">
         <div class="padding-bottom-lg">
@@ -53,7 +53,7 @@
             <b> <i class="fa fa-user" /> Username </b>
           </div>
           <div class="padding-bottom-md">
-            <Input placeholder="Enter Your Username." required v-model="form.username" :disabled="loading" name="username" pattern="^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$" minlength="3"/>
+            <Input placeholder="Enter Your Username." autocomplete="username" required v-model="form.username" :disabled="loading" name="username" pattern="^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$" minlength="3"/>
           </div>
         </div>
         <div class="padding-bottom-xl">
@@ -61,7 +61,7 @@
             <b> <i class="fa fa-fingerprint" /> Password </b>
           </div>
           <div class="padding-bottom-md">
-            <Input placeholder="Enter Your Password." required v-model="form.password" :disabled="loading" name="password" type="password"/>
+            <Input placeholder="Enter Your Password." autocomplete="current-password" required v-model="form.password" :disabled="loading" name="password" type="password"/>
           </div>
           <div>
             <small> <i class="fa fa-info-circle" /> Keep your password somewhere safe. There is no Reset-Password like feature. </small>
@@ -71,6 +71,9 @@
           <div>
             <label> <input type="checkbox" v-model="form.remember" :disabled="loading"/> Remember Me </label>
           </div>
+        </div>
+        <div class="padding-bottom-xl" :class="$style.dangerText" v-if="passError">
+          <p> <i class="fa fa-info-circle" /> The entered username is already in system and/or the password is wrong. </p>
         </div>
         <div>
           <Button class="size-md" color="primary" fullWidth :disabled="loading" :loading="loading">
@@ -104,7 +107,8 @@ export default {
         username: '',
         password: '',
         remember: false,
-      }
+      },
+      passError: false,
     }
   },
   methods: {
@@ -140,7 +144,11 @@ export default {
           this.loading = false;
         }).catch((e) => {
           this.loading = false;
-          this.currentPage = 'duplicate';
+          if (e === 'wrong-password') {
+            this.passError = true;
+          } else {
+            this.currentPage = 'duplicate';
+          }
         });
       }
       if (type === 'temporary') {
@@ -188,6 +196,9 @@ export default {
           textDecoration: 'underline',
           cursor: 'pointer',
         }
+      }),
+      className('dangerText', {
+        color: '#e00000',
       }),
       className('button', {
         padding: '8px',
