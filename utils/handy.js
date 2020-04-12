@@ -29,17 +29,10 @@ module.exports.minifyStr = (str, length) => {
 module.exports.strToNumber = (str, limit) => {
   let sum = 1;
   for(let i = 0; i < str.length; i++) {
-    sum = Math.imul(sum, str.charCodeAt(i));
+    sum = sum + str.charCodeAt(i);
   }
-  const sin = (Math.cos(sum) + 1) / 2; // here is number between 0 to 1
-  let ret = Math.floor(sin * limit) - 1;
-  if (ret < 0) {
-    ret++;
-  };
-  if (ret >= limit) {
-    ret = limit - 1;
-  };
-  return Math.floor(sin * limit);
+  const sin = (Math.sin(sum) + 1) / 2; // here is number between 0 to 1
+  return Math.round(sin * limit);
 }
 
 
