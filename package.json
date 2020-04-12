@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf ./docs",
-    "dev:server": "cross-env NODE_ENV=development nodemon server/index.js",
+    "dev:server": "cross-env NODE_ENV=development nodemon server/index.js --ignore 'db/*'",
     "dev:client": "cross-env NODE_ENV=development SERVER_URL=':3002' node build --watch",
     "build:client": "npm run clean && cross-env NODE_ENV=production SERVER_URL='https://viska.herokuapp.com' node build --production",
     "build": "echo \"Server code does'nt need to build. To building client use build:client command.\"",
@@ -16,8 +16,10 @@
     "npm": ">=6.0.0"
   },
   "dependencies": {
+    "backblaze-b2": "^1.5.0",
     "express": "^4.17.1",
     "fingerprintjs2": "^2.1.0",
+    "lokijs": "^1.5.8",
     "offline-plugin": "^5.0.7",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",

@@ -1,44 +1,69 @@
 const PORT = parseInt(process.env.PORT || 3002);
+const path = require('path');
 const express = require('express');
 const http = require('http');
 const app = express();
 const server = http.createServer(app);
 const socketIo = require('socket.io');
 const io = socketIo(server);
-const store = require('./store.js');
-const auth = require('./auth.js');
 
-const usersDb = store.create('users');
-const readyToChatUsersDb = store.create('readyToChatUsers');
+const initDatabase = require(path.resolve(__dirname, '../utils/database.js'));
+const initCloud = require(path.resolve(__dirname, './utils/cloud.js'));
 
-const socketHandler = require('./socket-handler.js');
+const startApp = async () => {
+  console.log('STARTING THE APP...');
+  const dbPath = path.resolve(__dirname, '../db/db.json');
 
+  let cloud = null;
+  if (process.env.VISKA_BACKBLAZE_APP_KEY && process.env.NODE_ENV === 'production') {
+    console.log('RESTORING BACKUP FILES FROM BACKBLAZE...');
+    cloud = await initCloud({
+      applicationKey: process.env.VISKA_BACKBLAZE_APP_KEY,
+      applicationKeyId: process.env.VISKA_BACKBLAZE_APP_KEY_ID,
+      bucketId: process.env.VISKA_BACKBLAZE_BUCKET_ID,
+    });
+    await cloud.download(dbPath);
+  }
 
-app.get('/ping', (req, res) => res.send('pong'));
-app.get('/state', (req, res) => {
-  const users = usersDb._store.map((doc) => {
-    return {
-      sid: doc.sid,
-      xid: doc.xid,
-      type: doc.type,
-    }
+  console.log('INTIALIZING DATABASE...');
+  const db = await initDatabase({
+    name: dbPath,
+    memory: false,
+    syncToCloud: cloud ? () => {
+      return cloud.upload(dbPath);
+    } : false,
+    collections: [
+      'users',
+      'pendingMessages',
+    ],
   });
-  const readyToChatUsers = readyToChatUsersDb._store.map((doc) => {
-    return {
-      sid: doc.sid,
-      xid: doc.xid,
-      type: doc.type,
-    }
+  const memDb = await initDatabase({
+    name: 'memDb',
+    memory: true,
+    collections: [
+      'activeUsers',
+    ],
   });
-  res.send({
-    usersLength: users.length,
-    readyToChatUsersLength: readyToChatUsers.length,
-    users,
-    readyToChatUsers,
+
+  console.log('SETUP REQUEST HANDLERS...');
+  const socketHandler = require('./socket-handler.js');
+  app.get('/ping', (_req, res) => res.send('pong'));
+  app.get('/state', (_req, res) => {
+    res.send({
+      db: {
+        users: db.users.find(() => true), 
+        pendingMessages: db.pendingMessages.find(() => true), 
+      },
+      memDb: {
+        activeUsers: memDb.activeUsers.find(() => true), 
+      }
+    });
   });
-});
+  io.on('connection', socketHandler(io, db, memDb));
+  
+  server.listen(PORT, () => console.log(`DONE! APP STARTED ON PORT ${PORT}!`));
+}
 
 
-io.on('connection', socketHandler(io, auth, usersDb, readyToChatUsersDb));
 
-server.listen(PORT, () => console.log(`App started on port ${PORT}!`));
+startApp();

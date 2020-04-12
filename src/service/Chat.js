@@ -1,12 +1,16 @@
-import { minifyStr, strToNumber, forEachSync } from '../../utils/handy.js';
 import SocketIo from 'socket.io-client';
+import initDatabase from '../../utils/database.js';
 
-const User = (type, xid) => {
-  const name = !type ? '' : `${type.toUpperCase()}-${minifyStr(xid, 10)}`;
+// const db = initDatabase({
+//   path: 'chats',
+//   regenerate: false,
+//   browser: true,
+// });
+
+const User = (type, username) => {
   return {
     type,
-    xid,
-    name,
+    username,
   }
 }
 
@@ -17,6 +21,7 @@ const ChatService = {
       sid: undefined,
       server: undefined,
       chats: [],
+      db: null,
     }
   },
   methods: {
@@ -29,27 +34,31 @@ const ChatService = {
       this.server.on('newMessage', this._onNewMessage);
       this.server.on('isTypingFlag', this._onIsTypingFlag);
       this.server.on('connetedToRandomUser', this._onConnetedToRandomUser);
+      this.server.open();
     },
     // will connect to server...
-    login(type, data) {
+    login(data) {
       return new Promise((resolve, reject) => {
-        this.server.open();
-        this.$once('connect', () => {
-          this.server.emit('login', {
-            type,
-            data,
-          }, (err, xid) => {
-            if (err) {
-              this.server.close();
-              reject();
-            } else {
-              this.sid = this.server.id;
-              this.user = User(type, xid);
+        this.server.emit('auth', data, (err, res) => {
+          if (err) {
+            // this.server.close();
+            reject(err);
+          } else {
+            this.user = User(res.type, res.username);
+            initDatabase({
+              name: `${JSON.stringify(this.user)}.db`,
+              memory: false,
+              browser: true,
+              collections: [
+                'chats',
+              ],
+            }).then((db) => {
+              this.db = db;
               this._loadChats();
-              this.$emit('login', this.auth);
+              this.$emit('login', res.type, res.username);
               resolve();
-            }
-          });
+            });
+          }
         });
       });
     },
@@ -57,17 +66,18 @@ const ChatService = {
     logout() {
       this._clearChats();
       this.user = User();
-      this.server.close();
       this.$emit('logout');
     },
     // find random user
     connectToRandomUser() {
       return new Promise((resolve, reject) => {
+        console.log('connecting to random user');
         this.server.emit('connectToRandomUser', (err, user) => {
           if (err || !user) {
             reject(err);
           } else {
-            const chat = this._upsertChat(user.type, user.xid);
+            console.log('connected to random user', { type: user.type, username: user.username });
+            const chat = this._upsertChat(user.type, user.username);
             this._saveChats();
             resolve(chat);
           }
@@ -75,8 +85,8 @@ const ChatService = {
       });
     },
     // when new random user comes
-    _onConnetedToRandomUser({ type, xid }) {
-      const chat = this._upsertChat(type, xid);
+    _onConnetedToRandomUser({ type, username }) {
+      const chat = this._upsertChat(type, username);
       this._saveChats();
       this.$emit('connetedToRandomUser', chat);
     },
@@ -86,47 +96,17 @@ const ChatService = {
         this.server.emit('sendMessage', {
           user: chat.user,
           body,
-        }, (err) => {
-          const messageObject = {
-            from: 'me',
-            body,
-          };
-          if (err === 'receiver-is-offline') {
-            chat.isOnline = false;
-            chat.pendingMessages.push(messageObject);
-            this._saveChats();
-            resolve();
-          } else if (err) {
+        }, (err, messageObject) => {
+          if (err) {
             reject(err);
-          } else {
-            chat.messages.push(messageObject);
-            this._saveChats();
-            resolve();
           }
-        });
-      });
-    },
-    // resend pending messages
-    resendPendingMessages(chat) {
-      let spliceOffset = 0;
-      return forEachSync(chat.pendingMessages.slice(0), (pendingMessage, index) => {
-        return new Promise((resolve) => {
-          this.server.emit('sendMessage', {
-            user: chat.user,
-            body: pendingMessage.body,
-          }, (err) => {
-            const messageObject = {
-              from: 'me',
-              body: pendingMessage.body,
-            };
-            if (!err) {
-              chat.pendingMessages.splice(index + spliceOffset, 1);
-              spliceOffset--;
-              chat.messages.push(messageObject);
-              this._saveChats();
-              resolve();
-            }
+          chat.messages.push({
+            from: 'me',
+            body: messageObject.body,
+            date: messageObject.date,
           });
+          this._saveChats();
+          resolve();
         });
       });
     },
@@ -136,7 +116,7 @@ const ChatService = {
         this.server.emit('sendIsTypingFlag', {
           user: {
             type: chat.user.type,
-            xid: chat.user.xid,
+            username: chat.user.username,
           }
         }, (err) => {
           if (err) {
@@ -152,8 +132,8 @@ const ChatService = {
       this.$emit('isTypingFlag', chat);
     },
     // get single chat
-    getChat({ type, xid }) {
-      const chat = this._upsertChat(type, xid);
+    getChat({ type, username }) {
+      const chat = this._upsertChat(type, username);
       return chat;
     },
     // refresh chat status
@@ -164,56 +144,70 @@ const ChatService = {
             reject();
           } else {
             chat.isOnline = status;
-            if (status) {
-              this.resendPendingMessages(chat);
-            }
             resolve(status);
           }
         });
       });
     },
 
-    _onNewMessage({user: { type, xid }, body}) {
-      const chat = this._upsertChat(type, xid);
+    _onNewMessage({from: { type, username }, body, date}) {
+      const chat = this._upsertChat(type, username);
       chat.isOnline = true;
       chat.messages.push({
         from: 'its',
         body,
+        date,
       });
       this._saveChats();
       this.$emit('newMessage', {
-        user: User(type, xid),
+        user: User(type, username),
         body,
+        date,
       });
     },
     // save current chats in localStorage
     _saveChats() {
-      if (this.user.type === 'pid') {
-        const chats = this.chats.map((chat) => {
-          return {
-            ...chat,
-            isOnline: null
-          }
+      if (this.user.type === 'persist' && this.db) {
+        // this.db.chats.remove(() => true);
+        setTimeout(() => {
+          this.chats.forEach((chat) => {
+            try {
+              this.db.chats.update(chat);
+            } catch (e) {
+              this.db.chats.insert(chat);
+            }
+          });
         });
-        localStorage.setItem(`${this.user.type}:${this.user.xid}:chats`, JSON.stringify(chats));
+        // localStorage.setItem(`${this.user.type}:${this.user.username}:chats`, JSON.stringify(chats));
       }
     },
     // load current user chats from localStorage
     _loadChats() {
-      const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.xid}:chats`);
-      if (cachedChats) {
-        this.chats = JSON.parse(cachedChats).map((chat) => {
-          // this is for backward compatibility
-          if (!chat.pendingMessages) {
-            chat.pendingMessages = [];
-          }
-          return chat;
+      if (this.user.type === 'persist' && this.db) {
+        this.chats = this.db.chats.find(() => true).map((chat) => {
+          chat.isOnline = null;
+          return JSON.parse(JSON.stringify(chat));
         });
+      } else {
+        this.chats = [];
       }
+      // return false;
+      // const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.username}:chats`);
+      // if (cachedChats) {
+      //   this.chats = JSON.parse(cachedChats).map((chat) => {
+      //     // this is for backward compatibility
+      //     if (!chat.pendingMessages) {
+      //       chat.pendingMessages = [];
+      //     }
+      //     return chat;
+      //   });
+      // }
     },
     // delete current user chats
     _clearChats() {
-      localStorage.removeItem(`${this.user.type}:${this.user.xid}:chats`);
+      if (this.user.type === 'persist') {
+        this.db.chats.remove(() => true);
+      }
       this.chats = [];
     },
     _onConnectionStateChange(newState) {
@@ -221,18 +215,19 @@ const ChatService = {
         this.sid = this.server.id;
         this.$emit('connect', this.sid);
       } else {
-        this.sid = undefined;
+        location.reload();
         this.$emit('disconnect');
       }
     },
-    _upsertChat(type, xid) {
-      let chat = this.chats.find((chat) => chat.user.type === type && chat.user.xid === xid);
+    _upsertChat(type, username) {
+      let chat = this.chats.find((chat) => chat.user.type === type && chat.user.username === username);
       if (!chat) {
         chat = {
-          user: User(type, xid),
+          user: User(type, username),
           isOnline: null,
           messages: [],
           pendingMessages: [],
+          badge: 0,
         };
         this.chats.unshift(chat);
       }

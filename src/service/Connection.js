@@ -5,12 +5,12 @@ export default {
     };
   },
   methods: {
-    onStatusChange() {
-      window.location.reload();
+    onStatusChange(newStatus) {
+      this.status = newStatus;
     },
   },
   created() {
-    window.addEventListener('online', this.onStatusChange);
-    window.addEventListener('offline', this.onStatusChange);
+    window.addEventListener('online', this.onStatusChange.bind(this, true));
+    window.addEventListener('offline', this.onStatusChange.bind(this, true));
   },
 }

@@ -13,13 +13,9 @@
   </Cell>
   <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
     <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]">
-      <div class="inside padding-lg margin-y-sm">
+      <div class="inside padding-top-md padding-x-md margin-y-xs">
         {{ message.body }}
-      </div>
-    </div>
-    <div v-for="(message, index) in pendingMessages" :key="'p' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]">
-      <div class="inside padding-lg margin-y-sm pending" title="This message will automaticly resend when both of you go online.">
-        {{ message.body }}
+        <div class="info padding-bottom-md padding-top-sm"> {{ message.date | datetime }} </div>
       </div>
     </div>
     <div :class="$style.isTyping" class="padding-sm">
@@ -111,7 +107,7 @@ export default {
     }
     reloadLoop();
     this.$chatService.$on('isTypingFlag', (user) => {
-      if (this.chat && this.chat.user.xid === user.xid && this.chat.user.type === user.type) {
+      if (this.chat && this.chat.user.username === user.username && this.chat.user.type === user.type) {
         this.itIsTyping = true;
         clearTimeout(this.isTypingTimer);
         this.isTypingTimer = setTimeout(() => {
@@ -124,6 +120,8 @@ export default {
     chat() {
       if (this.chat) {
         this.$chatService.refreshChat(this.chat);
+        this.chat.badge = 0;
+        this.$chatService._saveChats();
       }
       this.ItIsTyping = false;
       clearTimeout(this.isTypingTimer);
@@ -193,7 +191,7 @@ export default {
       }),
       className('messageItem', {
         userSelect: 'none',
-        fontWeight: 'bold',
+        // fontWeight: 'bold',
         width: '100%',
         '&.rtl': {
           direction: 'rtl',
@@ -204,8 +202,14 @@ export default {
           display: 'inline-block',
           overflow: 'hidden',
           userSelect: 'text',
-          '&.pending': {
+          '& > .info': {
             opacity: 0.5,
+            fontSize: '10px',
+            textAlign: 'left',
+            display: 'block',
+          },
+          '&:hover > .info': {
+            display: 'block'
           }
         },
         '&.its': {
@@ -213,8 +217,11 @@ export default {
           '& > .inside': {
             background: this.$root.theme.shadowColor,
             color: '#111',
-            borderTopRightRadius: '24px',
-            borderBottomRightRadius: '24px',
+            borderTopRightRadius: '8px',
+            borderBottomRightRadius: '8px',
+            '& > .info': {
+              textAlign: 'right',
+            }
           }
         },
         '&.me': {
@@ -222,8 +229,8 @@ export default {
           '& > .inside': {
             background: this.$root.theme.primaryColor,
             color: '#fff',
-            borderTopLeftRadius: '24px',
-            borderBottomLeftRadius: '24px',
+            borderTopLeftRadius: '8px',
+            borderBottomLeftRadius: '8px',
           }
         },
 

@@ -13,9 +13,7 @@
       <div class="padding-x-sm grow">
         <UserTitle :user="chat.user"/>
       </div>
-      <div class="padding-x-sm last-message">
-        {{ chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].body : ''}}
-      </div>
+      <div class="padding-x-sm" v-if="chat.badge"><StatusIcon value="badge" /></div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
   </div>
@@ -71,14 +69,10 @@ export default {
       }, 500);
     },
     isActive(chat) {
-      return this.activeChat && chat.user.xid === this.activeChat.user.xid && chat.user.type === this.activeChat.user.type;
+      return this.activeChat && chat.user.username === this.activeChat.user.username && chat.user.type === this.activeChat.user.type;
     },
     goToChat(chat) {
       this.$emit('select', chat);
-      // const path = `/chats/${chat.user.type}/${chat.user.xid}`;
-      // if (this.$route.path !== path) {
-      //   this.$router.push(path);
-      // }
     },
   },
   style({ className, mediaQuery }) {
@@ -101,13 +95,6 @@ export default {
           color: '#fff',
           fontWeight: 'bold',
           cursor: 'default',
-        },
-        '& .last-message': {
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          fontWeight: 'normal',
-          fontStyle: 'italic',
         },
       }),
       className('topButtons', {

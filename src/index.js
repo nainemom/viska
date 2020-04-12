@@ -36,6 +36,13 @@ Promise.all([
   Vue.config.productionTip = false;
   Vue.use(VueComponentStyle);
   Vue.use(VueRouter);
+  Vue.filter('datetime', (date) => {
+    const dt = new Date(date);
+    const now = new Date();
+    const isToday = dt.getDate() === now.getDate() && dt.getMonth() === now.getMonth() && dt.getFullYear() === now.getFullYear();
+    const dateStr = `${dt.getFullYear()}-${(dt.getMonth() + 1).toString().padStart(2, 0)}-${dt.getDate().toString().padStart(2, 0)}`;
+    return `${isToday ? '' : dateStr} ${dt.getHours().toString().padStart(2, 0)}:${dt.getMinutes().toString().padStart(2, 0)}:${dt.getSeconds().toString().padStart(2, 0)}`
+  });
   Vue.prototype.$chatService = new Vue(Chat);
   Vue.prototype.$notify = notif;
   Vue.prototype.$connection = new Vue(Connection);

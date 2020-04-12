@@ -1,6 +1,6 @@
 <template>
   <div :class="$style.container" v-if="visible">
-    <div v-if="currentPage === 'cannot-connect'" :class="$style.sessionError">
+    <div v-if="currentPage === 'duplicate'" :class="$style.sessionError">
       <h2 class="padding-bottom-lg"><i class="fa fa-info-circle"> Close the Other Sessions First. </i></h2>
       <h3 role="button" @click="currentPage = 'choose'">
         <b> <i class="fa fa-chevron-right" /> Or Let Me Try with Another Credentials </b>
@@ -28,56 +28,56 @@
     </div>
     <div :class="$style.box" class="padding-lg" v-else-if="currentPage === 'choose'">
       <div class="padding-bottom-lg">
-        <Button class="size-xxl padding-xl" color="primary" fullWidth @click.native="currentPage = 'pidLogin'">
-          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-key" />  Enter by Passprase </b> </div>
-          <p> Get Your Unique Direct Link </p>
+        <Button class="size-xxl padding-xl" color="primary" fullWidth @click.native="currentPage = 'persistLogin'">
+          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-key" />  Enter to My Account </b> </div>
+          <p> Login/Signup </p>
         </Button>
       </div>
       <div>
-        <Button class="size-xxl padding-lg" color="default" fullWidth @click.native="auth('did')" :loading="loading">
-          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-user-secret" /> Skip </b> </div>
-          <p> Enter Anonymously </p>
+        <Button class="size-xxl padding-lg" color="default" fullWidth @click.native="auth('temporary')" :loading="loading">
+          <div class="padding-bottom-md text-xl"> <b> <i class="fa fa-user-secret" /> Enter Anonymously </b> </div>
+          <p> No Information Needed </p>
         </Button>
       </div>
     </div>
-    <div :class="$style.box" class="padding-lg" v-else-if="currentPage === 'pidLogin'">
+    <div :class="$style.box" class="padding-lg" v-else-if="currentPage === 'persistLogin'">
       <div class="padding-bottom-xl">
         <a role="button" @click="currentPage = 'choose'"> <b> <i class="fa fa-chevron-left" />  Back </b> </a>
       </div>
       <div class="padding-bottom-xl">
-        <p> Keep in mind that this is not a normal login with Username and Password! This is something likes bitcoin wallet and you have to keep entered text somewhere safe to access this account later. </p>
+        <p> This form is using for both login and signup. If you enter a existed username, the system will check for password. otherwise your account will be generate. </p>
       </div>
-      <form @submit.prevent="auth('pid')">
+      <form @submit.prevent="auth('persist')">
         <div class="padding-bottom-lg">
           <div class="padding-bottom-md">
-            <b> <i class="fa fa-fingerprint" /> Passprase </b>
+            <b> <i class="fa fa-user" /> Username </b>
           </div>
           <div class="padding-bottom-md">
-            <Input placeholder="Enter your Passprase." required v-model="form.passprase" :disabled="loading"/>
-          </div>
-          <div>
-            <small> <i class="fa fa-info-circle" /> Choose a big and unique string as Passprase will helps you to keep your generated PID safe. </small>
+            <Input placeholder="Enter Your Username." autocomplete="username" required v-model="form.username" :disabled="loading" name="username" pattern="^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$" minlength="3"/>
           </div>
         </div>
         <div class="padding-bottom-xl">
           <div class="padding-bottom-md">
-            <b> <i class="fa fa-key" /> Salt </b>
+            <b> <i class="fa fa-fingerprint" /> Password </b>
           </div>
           <div class="padding-bottom-md">
-            <Input placeholder="Enter your Email or Phone for example." required v-model="form.salt" :disabled="loading"/>
+            <Input placeholder="Enter Your Password." autocomplete="current-password" required v-model="form.password" :disabled="loading" name="password" type="password"/>
           </div>
           <div>
-            <small> <i class="fa fa-info-circle" /> To generate a unguessable PID, It's better that appending a Salt to it. So why not? </small>
+            <small> <i class="fa fa-info-circle" /> Keep your password somewhere safe. There is no Reset-Password like feature. </small>
           </div>
         </div>
         <div class="padding-bottom-lg">
           <div>
-            <label> <input type="checkbox" v-model="form.remember" :disabled="loading"/> Remember These </label>
+            <label> <input type="checkbox" v-model="form.remember" :disabled="loading"/> Remember Me </label>
           </div>
+        </div>
+        <div class="padding-bottom-xl" :class="$style.dangerText" v-if="passError">
+          <p> <i class="fa fa-info-circle" /> The entered username is already in system and/or the password is wrong. </p>
         </div>
         <div>
           <Button class="size-md" color="primary" fullWidth :disabled="loading" :loading="loading">
-            <b> <i class="fa fa-check" />  Generate a PID and Enter </b>
+            <b> <i class="fa fa-check" />  Enter </b>
           </Button>
         </div>
       </form>
@@ -90,7 +90,6 @@ import UserTitle from './UserTitle.vue';
 import Input from './Input.vue';
 import Button from './Button.vue';
 import Cell from './Cell.vue';
-import getFingerprint from '../../utils/fingerprint.js';
 
 export default {
   components: {
@@ -105,22 +104,23 @@ export default {
       loading: false,
       visible: false,
       form: {
-        passprase: '',
-        salt: '',
+        username: '',
+        password: '',
         remember: false,
-      }
+      },
+      passError: false,
     }
   },
   methods: {
     open() {
       this.visible = true;
-      const passprase = localStorage.getItem('passprase');
-      const salt = localStorage.getItem('salt');
-      if (salt && passprase) {
-        this.form.passprase = passprase;
-        this.form.salt = salt;
+      const username = localStorage.getItem('username');
+      const password = localStorage.getItem('password');
+      if (username && password) {
+        this.form.username = username;
+        this.form.password = password;
         this.currentPage = 'none';
-        this.auth('pid');
+        this.auth('persist');
       } else {
         this.currentPage = 'choose';
       }
@@ -131,34 +131,38 @@ export default {
     },
     auth(type) {
       this.loading = true;
-      const sendRequest = (data) => {
-        this.$chatService.login(type, data).then(() => {
-          if (type === 'pid' && this.form.remember) {
-            localStorage.setItem('passprase', this.form.passprase);
-            localStorage.setItem('salt', this.form.salt);
+      const sendRequest = (data = {}) => {
+        this.$chatService.login({
+          type,
+          ...data
+        }).then(() => {
+          if (type === 'persist' && this.form.remember) {
+            localStorage.setItem('username', this.form.username);
+            localStorage.setItem('password', this.form.password);
           }
           this.visible = false;
           this.loading = false;
-        }).catch(() => {
+        }).catch((e) => {
           this.loading = false;
-          this.currentPage = 'cannot-connect';
+          if (e === 'wrong-password') {
+            this.passError = true;
+          } else {
+            this.currentPage = 'duplicate';
+          }
         });
       }
-      if (type === 'did') {
-        getFingerprint().then((fingerprint) => {
-          fingerprint.time = Date.now();
-          sendRequest(fingerprint);
-        });
-      } else if (type === 'pid') {
+      if (type === 'temporary') {
+        sendRequest();
+      } else if (type === 'persist') {
         sendRequest({
-          passprase: this.form.passprase,
-          salt: this.form.salt,
+          username: this.form.username,
+          password: this.form.password,
         });
       }
     },
     logout() {
-      localStorage.removeItem('passprase');
-      localStorage.removeItem('salt');
+      localStorage.removeItem('username');
+      localStorage.removeItem('password');
       this.$chatService.logout();
       // TODO do something better
       location.reload();
@@ -192,6 +196,9 @@ export default {
           textDecoration: 'underline',
           cursor: 'pointer',
         }
+      }),
+      className('dangerText', {
+        color: '#e00000',
       }),
       className('button', {
         padding: '8px',
