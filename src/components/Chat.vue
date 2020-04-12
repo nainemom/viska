@@ -3,7 +3,7 @@
   <Cell :class="$style.header" v-if="chat">
     <Cell class="padding-x-sm size-lg grow">
       <div class="padding-x-sm">
-        <UserTitle :user="chat.user" :avatarSize="65"/>
+        <UserTitle :user="chat.user" :avatarSize="56"/>
       </div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
@@ -13,7 +13,7 @@
   </Cell>
   <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
     <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]">
-      <div class="inside padding-top-md padding-x-md margin-y-xs">
+      <div class="inside padding-top-md padding-x-md margin-y-xs text-md">
         {{ message.body }}
         <div class="info padding-bottom-md padding-top-sm"> {{ message.date | datetime }} </div>
       </div>
@@ -197,11 +197,13 @@ export default {
           direction: 'rtl',
         },
         '& > .inside': {
+          // fontSize: '22px',
           // padding: '15px',
           maxWidth: '70%',
           display: 'inline-block',
           overflow: 'hidden',
           userSelect: 'text',
+          minWidth: '100px',
           '& > .info': {
             opacity: 0.5,
             fontSize: '10px',

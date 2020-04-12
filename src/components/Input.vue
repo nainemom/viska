@@ -15,6 +15,8 @@ export default {
       className('input', {
         borderRadius: '8px',
         border: `solid 2px ${this.$root.theme.borderColor}`,
+        backgroundColor: this.$root.theme.backgroundColor,
+        color: this.$root.theme.fillColor,
         padding: '8px',
         height: '48px',
         fontSize: '1em',

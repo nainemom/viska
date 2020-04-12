@@ -1,6 +1,9 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.chatList">
+    <!-- <Cell class="padding-lg">
+      <Input class="size-md" placeholder="Search for Users"/>
+    </Cell> -->
     <Cell class="padding-x-sm size-lg" :class="[$style.chatItem]" @click.native="connectToRandomUser">
       <div class="padding-x-sm">
         <UserTitle :showName="false" :playMode="loadingRandomChat" />
@@ -24,6 +27,8 @@
 import ChatListItem from './ChatListItem.vue';
 import UserTitle from './UserTitle.vue';
 import Cell from './Cell.vue';
+import Input from './Input.vue';
+import Button from './Button.vue';
 import StatusIcon from './StatusIcon.vue';
 
 export default {
@@ -31,6 +36,8 @@ export default {
     ChatListItem,
     UserTitle,
     Cell,
+    Input,
+    Button,
     StatusIcon,
   },
   props: {
@@ -86,7 +93,7 @@ export default {
         padding: 0,
       }),
       className('chatItem', {
-        borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
+        borderBottom: `solid 3px ${this.$root.theme.borderColor}`,
         cursor: 'pointer',
         '&.actived': {
           // borderLeft: `solid 6px ${this.$root.theme.primaryColor}`,

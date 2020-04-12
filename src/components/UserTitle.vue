@@ -30,7 +30,7 @@ export default {
     },
     avatarSize: {
       type: Number,
-      default: 64
+      default: 48
     },
     playMode: {
       type: Boolean,
@@ -91,9 +91,10 @@ export default {
           position: 'relative',
           marginRight: this.showName ? '8px' : 0,
           // borderRadius: avatarSize,
-          padding: '4px 0 0 0',
-          width: avatarSize,
-          height: avatarSize,
+          padding: '8px 0',
+          lineHeight: 1,
+          // width: avatarSize,
+          // height: avatarSize,
           overflow: 'hidden',
         },
       }),

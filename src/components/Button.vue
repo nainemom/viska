@@ -34,7 +34,7 @@ export default {
         display: 'inline-block',
         borderRadius: '8px',
         // minHeight: '48px',
-        border: `solid 1px ${this.$root.theme.borderColor}`,
+        border: `solid 2px ${this.$root.theme.borderColor}`,
         // border: 'none',
         textAlign: 'center',
         cursor: 'pointer',
@@ -44,7 +44,8 @@ export default {
         width: 'auto',
         '&:focus': {
           outline: 'none',
-          textDecoration: 'underline',
+          border: `solid 2px ${this.$root.theme.primaryColor}`,
+          color: this.$root.theme.primaryColor,
         },
         '&.full-width': {
           width: '100%',
