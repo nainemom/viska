@@ -64,9 +64,9 @@ export default {
       }
     },
     copyLink() {
-      copyToClipboard(`${location.protocol}//${location.host}/#/chats/${type === 'persist' ? '@' : '!'}${this.$chatService.user.username}`);
+      copyToClipboard(`${location.protocol}//${location.host}/#/chats/${this.$chatService.user.type === 'persist' ? '@' : '!'}${this.$chatService.user.username}`);
       const oldText = this.copyToClipboardText;
-      this.copyToClipboardText = 'Copied!';
+      this.copyToClipboardText = 'Copied to Clipboard!';
       setTimeout(() => {
         this.copyToClipboardText = oldText;
       }, 750);
