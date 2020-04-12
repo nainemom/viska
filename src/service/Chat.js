@@ -138,14 +138,10 @@ const ChatService = {
     },
     // refresh chat status
     refreshChat(chat) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         this.server.emit('getUserStatus', chat.user, (err, status) => {
-          if (err) {
-            reject();
-          } else {
-            chat.isOnline = status;
-            resolve(status);
-          }
+          chat.isOnline = err ? false : status;
+          resolve(chat.isOnline);
         });
       });
     },
