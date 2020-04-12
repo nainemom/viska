@@ -11,20 +11,21 @@ const initDatabase = require(path.resolve(__dirname, '../utils/database.js'));
 const initCloud = require(path.resolve(__dirname, './utils/cloud.js'));
 
 const startApp = async () => {
-  let cloud = null;
+  console.log('STARTING THE APP...');
+  const dbPath = path.resolve(__dirname, '../db/db.json');
 
+  let cloud = null;
   if (process.env.VISKA_BACKBLAZE_APP_KEY) {
+    console.log('RESTORING BACKUP FILES FROM BACKBLAZE...');
     cloud = await initCloud({
       applicationKey: process.env.VISKA_BACKBLAZE_APP_KEY,
       applicationKeyId: process.env.VISKA_BACKBLAZE_APP_KEY_ID,
       bucketId: process.env.VISKA_BACKBLAZE_BUCKET_ID,
     });
+    await cloud.download(dbPath);
   }
 
-  const dbPath = path.resolve(__dirname, '../db/db.json');
-
-  cloud && await cloud.download(dbPath);
-
+  console.log('INTIALIZING DATABASE...');
   const db = await initDatabase({
     name: dbPath,
     memory: false,
@@ -44,8 +45,8 @@ const startApp = async () => {
     ],
   });
 
+  console.log('SETUP REQUEST HANDLERS...');
   const socketHandler = require('./socket-handler.js');
-
   app.get('/ping', (_req, res) => res.send('pong'));
   app.get('/state', (_req, res) => {
     res.send({
@@ -58,11 +59,9 @@ const startApp = async () => {
       }
     });
   });
-  
-  
   io.on('connection', socketHandler(io, db, memDb));
   
-  server.listen(PORT, () => console.log(`App started on port ${PORT}!`));
+  server.listen(PORT, () => console.log(`DONE! APP STARTED ON PORT ${PORT}!`));
 }
 
 
