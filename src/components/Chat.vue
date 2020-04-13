@@ -127,6 +127,7 @@ export default {
         this.chat.badge = 0;
         this.$chatService._saveChats();
       }
+      this.inputText = '';
       this.ItIsTyping = false;
       clearTimeout(this.isTypingTimer);
     },
