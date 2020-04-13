@@ -48,19 +48,6 @@ module.exports = (io, db, memDb) => (socket) => {
           readyForChat: false,
         });
 
-        const pendingMessages = db.pendingMessages.find((_item) => _item.to.type === type && _item.to.username === _username);
-
-        setTimeout(() =>{
-          pendingMessages.forEach((messageObject) => {
-            io.sockets.connected[user.sid].emit('newMessage', {
-              from: messageObject.from,
-              body: messageObject.body,
-              date: messageObject.date,
-            });
-            db.pendingMessages.remove(messageObject);
-          });
-        });
-
         return callback(false, {
           username: _username,
           type,
@@ -96,6 +83,36 @@ module.exports = (io, db, memDb) => (socket) => {
       return callback(true, false);
     }
   });
+
+  socket.on('askForPendingMessages', (callback) => {
+    if (typeof callback !== 'function') {
+      return;
+    }
+    try {
+      if (user === null) {
+        return callback(true, false);
+      }
+      const pendingMessages = db.pendingMessages.find((_item) => _item.to.type === user.type && _item.to.username === user.username);
+
+
+      pendingMessages.forEach((messageObject) => {
+        io.sockets.connected[user.sid].emit('newMessage', {
+          from: messageObject.from,
+          body: messageObject.body,
+          date: messageObject.date,
+        });
+        db.pendingMessages.remove(messageObject);
+      });
+
+      return callback(false, true);
+
+
+    } catch (e) {
+      console.error(e);
+      return callback(true, false);
+    }
+  });
+
 
   socket.on('cancelConnectToRandomUser', (callback) => {
     if (typeof callback !== 'function') {

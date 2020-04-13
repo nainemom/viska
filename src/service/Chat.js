@@ -56,6 +56,9 @@ const ChatService = {
               this.db = db;
               this._loadChats();
               this.$emit('login', res.type, res.username);
+              setTimeout(() => {
+                this.server.emit('askForPendingMessages', () => {});
+              });
               resolve();
             });
           }
