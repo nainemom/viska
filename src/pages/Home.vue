@@ -2,22 +2,32 @@
 <div :class="$style.container">
   <div :class="$style.app">
     <div :class="[$style.chats, activeChat && 'hidden-on-mobile']">
-      <div class="profile padding-bottom-xl padding-top-xl">
+      <div class="profile padding-bottom-lg padding-top-md">
         <div class="padding-bottom-lg">
-          <UserTitle :user="$chatService.user" multiLine :avatarSize="128"/>
+          <div class="padding-bottom-lg">
+            <UserAvatar :user="$chatService.user" :size="160" />
+          </div>
+          <h3>
+            <UserName :user="$chatService.user" />
+          </h3>
         </div>
-        <div>
-          <Button class="size-sm padding-left-lg padding-right-lg" color="default" :disabled="$chatService.user.type !== 'persist'" title="This feature isn't available for anonymous accounts." @click.native="copyLink">
+        <Cell class="buttons">
+          <Button class="size-sm padding-left-lg padding-right-lg" color="light" :disabled="$chatService.user.type !== 'persist'" title="This feature isn't available for anonymous accounts." @click.native="copyLink">
             <b> <i class="fa fa-share" />  {{ copyToClipboardText }} </b>
           </Button>
-          <Button class="size-sm padding-left-lg padding-right-lg" color="default" v-if="$chatService.user.type" @click.native="logout">
+          <span class="padding-left-sm" />
+          <Button class="size-sm padding-left-lg padding-right-lg" color="light" v-if="$chatService.user.type" @click.native="logout">
             <b> <i class="fa fa-sign-out-alt" />  Exit </b>
           </Button>
-        </div>
+        </Cell>
       </div>
-      <Chats :activeChat="activeChat" @select="goToChat($event.user.type, $event.user.username)"/>
+      <Chats :activeChat="activeChat" @select="goToChat($event.user.type, $event.user.username)"  @add="goToChat($event.type, $event.username)"/>
+      <Cell class="padding-md app-info text-sm">
+        <div class="grow"> <i class="fa fa-code-branch" /> {{packageVersion}} </div>
+        <div> <a href="https://github.com/nainemom/viska/issues" target="_blank"> <i class="fa fa-bug" /> Report Bug </a> </div>
+      </Cell>
     </div>
-    <Chat :class="[$style.chat, !activeChat && 'hidden-on-mobile']" :chat="activeChat" @close="goToChat(undefined, undefined)"/>
+    <Chat :class="[$style.chat, !activeChat && 'hidden-on-mobile']" :chat="activeChat" @close="goToChat(undefined, undefined)" @remove="removeChat(activeChat)"/>
   </div>
 </div>
 </template>
@@ -25,20 +35,24 @@
 <script>
 import { copyToClipboard } from '../../utils/handy.js';
 import Button from '../components/Button.vue';
-import UserTitle from '../components/UserTitle.vue';
 import Chats from '../components/Chats.vue';
 import Chat from '../components/Chat.vue';
+import Cell from '../components/Cell.vue';
+import UserAvatar from '../components/UserAvatar.vue';
+import UserName from '../components/UserName.vue';
 
 export default {
   components: {
     Button,
-    UserTitle,
+    UserAvatar,
+    UserName,
     Chats,
     Chat,
+    Cell,
   },
   data() {
     return {
-      copyToClipboardText: 'Share My Direct Link',
+      copyToClipboardText: 'Share My Direct Link!',
     }
   },
   computed: {
@@ -53,18 +67,25 @@ export default {
       }
       return undefined;
     },
+    packageVersion() {
+      return process.env.PKG_VER;
+    }
   },
   methods: {
     goToChat(type, username) {
-      const url = type ? `/chats/${type === 'persist' ? '@' : '!'}${username}` : '/chats';
+      const url = type ? `/${type === 'persist' ? '@' : '!'}${username}` : '/';
       if (this.$route.path !== url) {
         this.$nextTick(() => {
           this.$router.push(url);
         });
       }
     },
+    removeChat(chat) {
+      this.goToChat(undefined, undefined);
+      this.$chatService.deleteChat(chat);
+    },
     copyLink() {
-      copyToClipboard(`${location.protocol}//${location.host}/#/chats/${this.$chatService.user.type === 'persist' ? '@' : '!'}${this.$chatService.user.username}`);
+      copyToClipboard(`${location.protocol}//${location.host}/#/${this.$chatService.user.type === 'persist' ? '@' : '!'}${this.$chatService.user.username}`);
       const oldText = this.copyToClipboardText;
       this.copyToClipboardText = 'Copied to Clipboard!';
       setTimeout(() => {
@@ -111,14 +132,29 @@ export default {
       }),
       className('chats', {
         height: '100%',
-        width: '340px',
-        minWidth: '340px',
+        width: '324px',
+        minWidth: '320px',
         backgroundColor: this.$root.theme.backgroundColor2,
         borderRight: `solid 1px ${this.$root.theme.borderColor}`,
-        boxShadow: `inset -4px 0 9px ${this.$root.theme.shadowColor}`,
+        display: 'flex',
+        flexDirection: 'column',
+        // boxShadow: `inset -4px 0 9px ${this.$root.theme.shadowColor}`,
         '& > .profile': {
           textAlign: 'center',
           borderBottom: `solid 1px ${this.$root.theme.borderColor}`,
+          backgroundColor: this.$root.theme.primaryColor,
+          color: this.$root.theme.backgroundColor,
+          '& > .buttons': {
+            display: 'inline-flex',
+          }
+        },
+        '& > .app-info': {
+          // backgroundColor: this.$root.theme.borderColor,
+          borderTop: `solid 1px ${this.$root.theme.borderColor}`,
+          '&, & a, & a:visited': {
+            color: this.$root.theme.fillColor,
+            textDecoration: 'none',
+          }
         }
       }),
       className('chat', {
@@ -128,10 +164,10 @@ export default {
       }),
       mediaQuery({ maxWidth: '960px' }, [
         className('chats', {
-          display: 'block',
           backgroundColor: this.$root.theme.backgroundColor,
           boxShadow: 'none',
           width: '100%',
+          borderRight: 'none',
           '&.hidden-on-mobile': {
             display: 'none',
           }

@@ -15,7 +15,7 @@ export default {
         // padding: '0 8px',
         overflow: 'hidden',
         '& > .item': {
-          // margin: '0 8px',
+          margin: '0 8px',
         },
         '& > .grow': {
           flexGrow: 1,

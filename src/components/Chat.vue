@@ -2,13 +2,23 @@
 <div :class="$style.container">
   <Cell :class="$style.header" v-if="chat">
     <Cell class="padding-x-sm size-lg grow">
-      <div class="padding-x-sm">
-        <UserTitle :user="chat.user" :avatarSize="56"/>
+      <div class="padding-right-md">
+        <UserAvatar :user="chat.user" :size="48" />
+      </div>
+      <div class="padding-right-md">
+        <div>
+          <b>
+            <UserName :user="chat.user" />
+          </b>
+        </div>
       </div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
-    <Button class="size-lg padding-lg padding-x-xl" color="transparent" @click.native="closeChat">
-      <i class="fa fa-times" /> 
+    <Button class="size-lg padding-lg" color="text-danger" @click.native="removeChat">
+      <i class="fa fa-trash" /> Delete
+    </Button>
+    <Button class="size-lg padding-lg" color="transparent" @click.native="closeChat">
+      <i class="fa fa-times" /> Close
     </Button>
   </Cell>
   <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
@@ -31,8 +41,8 @@
 <script>
 import Cell from './Cell.vue';
 import Button from './Button.vue';
-import UserTitle from './UserTitle.vue';
-import StatusIcon from './StatusIcon.vue';
+import UserAvatar from './UserAvatar.vue';
+import UserName from './UserName.vue';import StatusIcon from './StatusIcon.vue';
 import MessageForm from './MessageForm.vue';
 import calcTextDirection from '../../utils/calcTextDirection.js';
 
@@ -40,7 +50,8 @@ export default {
   components: {
     Cell,
     Button,
-    UserTitle,
+    UserAvatar,
+    UserName,
     StatusIcon,
     MessageForm,
   },
@@ -90,6 +101,9 @@ export default {
     },
     closeChat() {
       this.$emit('close');
+    },
+    removeChat() {
+      this.$emit('remove');
     },
     scrollToEnd() {
       this.$refs.conversation.scrollTo(0, this.$refs.conversation.scrollHeight);

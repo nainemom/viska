@@ -65,22 +65,30 @@ const ChatService = {
     // will disconnect from server
     logout() {
       this._clearChats();
-      this.user = User();
-      this.$emit('logout');
+      setTimeout(() => {
+        this.user = User();
+        this.$emit('logout');
+        location.reload();
+      }, 1000);
     },
     // find random user
     connectToRandomUser() {
       return new Promise((resolve, reject) => {
-        console.log('connecting to random user');
         this.server.emit('connectToRandomUser', (err, user) => {
           if (err || !user) {
             reject(err);
           } else {
-            console.log('connected to random user', { type: user.type, username: user.username });
             const chat = this._upsertChat(user.type, user.username);
             this._saveChats();
             resolve(chat);
           }
+        });
+      });
+    },
+    cancelConnectToRandomUser() {
+      return new Promise((resolve) => {
+        this.server.emit('cancelConnectToRandomUser', (err) => {
+          resolve();
         });
       });
     },
@@ -136,6 +144,10 @@ const ChatService = {
       const chat = this._upsertChat(type, username);
       return chat;
     },
+    deleteChat(chat) {
+      this.chats.splice(this.chats.indexOf(chat), 1);
+      this.db.chats.remove((_chat) => _chat.user.type === chat.user.type && _chat.user.username === chat.user.username);
+    },
     // refresh chat status
     refreshChat(chat) {
       return new Promise((resolve) => {
@@ -187,24 +199,13 @@ const ChatService = {
       } else {
         this.chats = [];
       }
-      // return false;
-      // const cachedChats = localStorage.getItem(`${this.user.type}:${this.user.username}:chats`);
-      // if (cachedChats) {
-      //   this.chats = JSON.parse(cachedChats).map((chat) => {
-      //     // this is for backward compatibility
-      //     if (!chat.pendingMessages) {
-      //       chat.pendingMessages = [];
-      //     }
-      //     return chat;
-      //   });
-      // }
     },
     // delete current user chats
     _clearChats() {
+      this.chats = [];
       if (this.user.type === 'persist') {
         this.db.chats.remove(() => true);
       }
-      this.chats = [];
     },
     _onConnectionStateChange(newState) {
       if (newState === true) {

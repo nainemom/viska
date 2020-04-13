@@ -13,7 +13,7 @@ export default {
   style({ className, mediaQuery }) {
     return [
       className('input', {
-        borderRadius: '8px',
+        // borderRadius: '8px',
         border: `solid 2px ${this.$root.theme.borderColor}`,
         backgroundColor: this.$root.theme.backgroundColor,
         color: this.$root.theme.fillColor,

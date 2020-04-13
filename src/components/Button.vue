@@ -32,7 +32,7 @@ export default {
     return [
       className('button', {
         display: 'inline-block',
-        borderRadius: '8px',
+        // borderRadius: '8px',
         // minHeight: '48px',
         border: `solid 2px ${this.$root.theme.borderColor}`,
         // border: 'none',
@@ -41,6 +41,7 @@ export default {
         // padding: '0 16px',
         // lineHeight: 1.6,
         // fontSize: '16px',
+        fontWeight: 'bold',
         width: 'auto',
         '&:focus': {
           outline: 'none',
@@ -59,8 +60,23 @@ export default {
           background: this.$root.theme.dangerColor,
           color: '#fff',
         },
+        '&.text-danger': {
+          background: 'transparent',
+          color: this.$root.theme.dangerColor,
+          border: 'none',
+        },
         '&.transparent': {
           background: 'transparent',
+          color: 'inherit',
+          border: 'none',
+        },
+        '&.light': {
+          background: 'rgba(255, 255, 255, 0.1)',
+          color: 'inherit',
+          border: 'none',
+        },
+        '&.dark': {
+          background: 'rgba(0, 0, 0, 0.1)',
           color: 'inherit',
           border: 'none',
         },

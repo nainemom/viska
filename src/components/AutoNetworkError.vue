@@ -1,20 +1,13 @@
 <template>
   <div :class="$style.container" v-if="$connection.status === false">
       <div>
-        <div class="padding-bottom-lg"> <UserTitle :showName="false" playMode :avatarSize="256" /> </div>
         <h2> Waiting for Network... </h2>
       </div>
   </div>
 </template>
 
 <script>
-import UserTitle from './UserTitle.vue';
-
-
 export default {
-  components: {
-    UserTitle,
-  },
   style({ className }) {
     return [
       className('container', {

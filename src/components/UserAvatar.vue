@@ -102,14 +102,13 @@
 import { minifyStr, strToNumber } from '../../utils/handy.js';
 export default {
   props: {
-    name: {
-      type: String,
-      default: '',
+    user: {
+      type: Object,
     },
     size: {
       type: Number,
-      default: 64,
-    }
+      default: 48,
+    },
   },
   methods: {
     applyStyle() {
@@ -139,12 +138,12 @@ export default {
         });
         return ret;
       })();
-      const unum = (from, to, hash) => strToNumber(minifyStr(this.name, 10) + hash, Math.abs(from - to)) - Math.abs(from);
+      const unum = (from, to, hash) => strToNumber(minifyStr(this.user.username, 10) + hash, Math.abs(from - to)) - Math.abs(from);
       
       svg.style.width = this.size + 'px';
       svg.style.height = this.size + 'px';
 
-      if (!this.name) {
+      if (!this.user || !this.user.username) {
         return Object.keys(parts).forEach((part) => {
           parts[part].style.transform = null;
           parts[part].style.fill = null;
@@ -179,7 +178,7 @@ export default {
     });
   },
   watch: {
-    name() {
+    user() {
       this.applyStyle();
     },
     size() {
@@ -192,7 +191,7 @@ export default {
         display: 'inline-block',
         position: 'relative',
         // border: 'solid 1px',
-        borderRadius: '50%',
+        // borderRadius: '50%',
         overflow: 'hidden',
         // backgroundColor: this.$root.theme.primaryColor,
         verticalAlign: 'middle',
