@@ -1,16 +1,9 @@
 <template>
 <form @submit.prevent="submit">
-  <!-- <div v-if="$root.pid" class="padding-x-md padding-bottom-md">
-    <small> <i class="fa fa-info-circle" /> Your PID will not send to the recipient. </small>
-  </div> TODO: append it when flex issue resolves -->
-  <Cell class="padding-x-sm">
-    <div class="padding-x-sm grow">
-      <Input ref="input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
-    </div>
-    <div class="padding-x-sm">
-      <Button class="padding-x-lg size-md text-xl" color="default" :disabled="disabled"> <i class="fa fa-paper-plane"  :class="$style.sendIcon" /> </Button>
-    </div>
-  </Cell>
+  <div :class="$style.inputContainer">
+    <Input ref="input" :class="$style.input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
+    <Button v-if="value" :class="$style.sendBtn" class="padding-x-lg size-md text-xl" color="transparent" :disabled="disabled"> <i class="fa fa-paper-plane" /> </Button>
+  </div>
 </form>
 </template>
 
@@ -41,8 +34,19 @@ export default {
   },
   style({ className }) {
     return [
-      className('sendIcon', {
-        color: this.$root.theme.primaryColor,
+      className('inputContainer', {
+        position: 'relative',
+      }),
+      className('sendBtn', {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        '& > i': {
+          color: this.$root.theme.primaryColor,
+        }
+      }),
+      className('input', {
+        paddingRight: '40px !important'
       }),
     ];
   },
