@@ -62,7 +62,7 @@ module.exports = (io, db, memDb) => (socket) => {
         });
 
         return callback(false, {
-          username,
+          username: _username,
           type,
         });
       } else if (type === 'temporary') {

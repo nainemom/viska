@@ -1,7 +1,6 @@
 <template>
 <div :class="$style.container">
   <div :class="$style.chatList">
-
     <Cell>
       <Button class="padding-x-sm size-lg grow" color="dark" @click.native="connectToRandomUser">
         <div class="padding-x-sm grow" v-if="!loadingRandomChat"> <i class="fa fa-random" />  Talk to a Random User </div>
@@ -94,6 +93,7 @@ export default {
       if (username.indexOf('/') !== -1) {
         username = username.substr(username.lastIndexOf('/') + 1);
       }
+      username = username.toLowerCase();
       return {
         type,
         username,
