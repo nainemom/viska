@@ -9,7 +9,7 @@
       </Button>
     </Cell>
     <Cell class="padding-lg">
-      <form @submit.prevent="addChat(searchingUser)">
+      <form @submit.prevent="addChat(searchingUser)" :class="$style.searchForm">
         <Input class="size-md" placeholder="Search for Users" v-model="searchUserInput" required/>
       </form>
     </Cell>
@@ -178,6 +178,12 @@ export default {
         overflow: 'hidden',
         border: 'none',
         border: `solid 1px ${this.$root.theme.borderColor}`,
+      }),
+      className('searchForm', {
+        '&, & > *': {
+          width: '100% !important',
+          display: 'block !important',
+        }
       }),
     ];
   }
