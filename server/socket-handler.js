@@ -20,11 +20,12 @@ module.exports = (io, db, memDb) => (socket) => {
           return callback('data-error', false);
         }
         
-        const _password = auth.generateKey(password, username);
-        const theUser = db.users.find((_user) => _user.username === username && _user.type === type)[0];
+        const _username = username.toLowerCase();
+        const _password = auth.generateKey(password, _username);
+        const theUser = db.users.find((_user) => _user.username === _username && _user.type === type)[0];
         if (!theUser) {
           db.users.insert({
-            username,
+            username: _username,
             password: _password,
             type,
           });
@@ -41,13 +42,13 @@ module.exports = (io, db, memDb) => (socket) => {
           user = theUser;
         }
         user = memDb.activeUsers.insert({
-          username,
+          username: _username,
           type,
           sid: socket.id,
           readyForChat: false,
         });
 
-        const pendingMessages = db.pendingMessages.find((_item) => _item.to.type === type && _item.to.username === username);
+        const pendingMessages = db.pendingMessages.find((_item) => _item.to.type === type && _item.to.username === _username);
 
         setTimeout(() =>{
           pendingMessages.forEach((messageObject) => {
