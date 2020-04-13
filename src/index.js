@@ -17,21 +17,23 @@ Promise.all([
   { default: Connection },
   { default: Root },
 ]) => {
-  OfflinePluginRuntime.install({
-    onInstalled: function() {
-      console.log('sw installed');
-    },
-    onUpdating: function() {
-      console.log('updating sw...');
-    },
-  
-    onUpdateReady: function() {
-      OfflinePluginRuntime.applyUpdate();
-    },
-    onUpdated: function() {
-      window.location.reload();
-    }
-  });
+  if (process.env.NODE_ENV === 'production') {
+    OfflinePluginRuntime.install({
+      onInstalled: function() {
+        console.log('sw installed');
+      },
+      onUpdating: function() {
+        console.log('updating sw...');
+      },
+    
+      onUpdateReady: function() {
+        OfflinePluginRuntime.applyUpdate();
+      },
+      onUpdated: function() {
+        window.location.reload();
+      }
+    });
+  }
 
   Vue.config.productionTip = false;
   Vue.use(VueComponentStyle);
