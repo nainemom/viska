@@ -4,12 +4,12 @@
     <div :class="[$style.chats, activeChat && 'hidden-on-mobile']">
       <div class="profile padding-bottom-lg padding-top-md">
         <div class="padding-bottom-lg">
-          <div class="padding-bottom-lg">
-            <UserAvatar :user="$chatService.user" :size="160" />
+          <div class="padding-bottom-sm">
+            <UserAvatar :user="$chatService.user" :size="96" />
           </div>
-          <h3>
+          <b>
             <UserName :user="$chatService.user" />
-          </h3>
+          </b>
         </div>
         <Cell class="buttons">
           <Button class="size-sm padding-left-lg padding-right-lg" color="light" :disabled="$chatService.user.type !== 'persist'" title="This feature isn't available for anonymous accounts." @click.native="copyLink">
@@ -22,7 +22,7 @@
         </Cell>
       </div>
       <Chats :activeChat="activeChat" @select="goToChat($event.user.type, $event.user.username)"  @add="goToChat($event.type, $event.username)"/>
-      <Cell class="padding-md app-info text-sm">
+      <Cell class="padding-x-md app-info text-sm size-sm">
         <div class="grow"> <i class="fa fa-code-branch" /> {{packageVersion}} </div>
         <div> <a href="https://github.com/nainemom/viska/issues" target="_blank"> <i class="fa fa-bug" /> Report Bug </a> </div>
       </Cell>
@@ -138,6 +138,7 @@ export default {
         borderRight: `solid 1px ${this.$root.theme.borderColor}`,
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'auto',
         // boxShadow: `inset -4px 0 9px ${this.$root.theme.shadowColor}`,
         '& > .profile': {
           textAlign: 'center',

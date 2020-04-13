@@ -9,11 +9,11 @@
     </Cell>
     <Cell class="padding-lg">
       <form @submit.prevent="addChat(searchingUser)" :class="$style.searchForm">
-        <Input class="size-md" placeholder="Search for Users" v-model="searchUserInput" required/>
+        <Input class="size-md" placeholder="Search for Users" v-model="searchUserInput" required @input="scrollToSearchResult()"/>
       </form>
     </Cell>
     
-    <Cell v-if="searchingUser" class="padding-sm" :class="$style.chatItem" @click.native="addChat(searchingUser)">
+    <Cell v-if="searchingUser" ref="searchResult" class="padding-sm" :class="$style.chatItem" @click.native="addChat(searchingUser)">
       <div class="padding-right-md">
         <UserAvatar :user="searchingUser" :size="48" />
       </div>
@@ -134,13 +134,16 @@ export default {
     addChat(user) {
       this.$emit('add', user);
       this.searchUserInput = '';
-    }
+    },
+    scrollToSearchResult() {
+      this.$refs.searchResult.$el.scrollIntoView();
+    },
   },
   style({ className, mediaQuery }) {
     return [
       className('container', {
         // height: '100%',
-        overflow: 'auto',
+        overflow: 'visible',
         flexGrow: 1,
       }),
       className('chatList', {
