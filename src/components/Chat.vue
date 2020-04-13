@@ -110,16 +110,6 @@ export default {
     }
   },
   mounted() {
-    const reloadLoop = () => {
-      if (this.chat) {
-        this.$chatService.refreshChat(this.chat).then(() => {
-          setTimeout(reloadLoop, 5000);
-        });
-      } else {
-        setTimeout(reloadLoop, 5000);
-      }
-    }
-    reloadLoop();
     this.$chatService.$on('isTypingFlag', (user) => {
       if (this.chat && this.chat.user.username === user.username && this.chat.user.type === user.type) {
         this.itIsTyping = true;

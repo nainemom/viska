@@ -22,6 +22,7 @@ const ChatService = {
       server: undefined,
       chats: [],
       db: null,
+      _refreshChatsLoopTimeout: null,
     }
   },
   methods: {
@@ -35,6 +36,7 @@ const ChatService = {
       this.server.on('isTypingFlag', this._onIsTypingFlag);
       this.server.on('connetedToRandomUser', this._onConnetedToRandomUser);
       this.server.open();
+      this.startRefreshChatsLoop();
     },
     // will connect to server...
     login(data) {
@@ -160,7 +162,15 @@ const ChatService = {
         });
       });
     },
-
+    startRefreshChatsLoop() {
+      clearTimeout(this._refreshChatsLoopTimeout);
+      this.chats.forEach((chat) => {
+        this.refreshChat(chat);
+      });
+      this._refreshChatsLoopTimeout = setTimeout(() => {
+        this.startRefreshChatsLoop();
+      }, 10000);
+    },
     _onNewMessage({from: { type, username }, body, date}) {
       const chat = this._upsertChat(type, username);
       chat.isOnline = true;
@@ -199,6 +209,7 @@ const ChatService = {
           chat.isOnline = null;
           return JSON.parse(JSON.stringify(chat));
         });
+        this.startRefreshChatsLoop();
       } else {
         this.chats = [];
       }
