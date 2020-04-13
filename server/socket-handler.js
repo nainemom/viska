@@ -97,59 +97,27 @@ module.exports = (io, db, memDb) => (socket) => {
     }
   });
 
-  socket.on('login', ({ type, data }, callback) => {
+  socket.on('cancelConnectToRandomUser', (callback) => {
     if (typeof callback !== 'function') {
       return;
     }
     try {
-      if (user !== null) {
-        return callback(true, false);
-      }
-      let xid = undefined;
-      if (type === 'did') {
-        xid = auth.generateKey(JSON.stringify(data), '');
-      } else if (type === 'pid') {
-        if (!data.passprase || !data.salt) {
-          return callback(true, false);
-        }
-        xid = auth.generateKey(data.passprase, data.salt);
-      } else {
+      if (user === null) {
         return callback(true, false);
       }
 
-      const isDublicate = memDb.activeUsers.find(userFinderHandler(type, xid)).length > 0;
-      if (isDublicate) {
-        return callback(true, false);
+      if (user.readyForChat) {
+        user.readyForChat = false;
+        memDb.activeUsers.update(user);
       }
+      return callback(false, true);
 
-      user = memDb.activeUsers.insert({
-        sid: socket.id,
-        xid,
-        type,
-      });
-
-      const pendingMessages = db.pendingMessages.find((_item) => _item.to.type === type && _item.to.xid === xid);
-
-      setTimeout(() =>{
-        pendingMessages.forEach((messageObject) => {
-          io.sockets.connected[user.sid].emit('newMessage', {
-            from: messageObject.from,
-            to: messageObject.to,
-            body: messageObject.body,
-            date: messageObject.date,
-          });
-          db.pendingMessages.remove(messageObject);
-        });
-      }, 2000);
-  
-      return callback(false, user.xid);
     } catch (e) {
       console.error(e);
       return callback(true, false);
     }
   });
 
-  // DONE
   socket.on('connectToRandomUser', (callback) => {
     if (typeof callback !== 'function') {
       return;
