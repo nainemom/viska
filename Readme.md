@@ -18,14 +18,13 @@ Basicaly, all of the user accounts in the system are based on a hash. You'll sen
 ## How Does the Conversation History Work?
 This is a simple and useful feature created for **PID** accounts. As mentioned before, there is no database for keeping the conversations or user data. So every messages will be stored on your browser untill you manually logout.
 
-## What's the Difference between DID and PID Accounts?
-**DID** users are temporary and automatically generated. Each time you open the app, you will get a random id and in essence you are a ghost. **PID** id's will be generated based on your entered passphrase and you can have the same id by entering that same passphrase again. So **PID** is good for people who want to have a static address and share it with others for example on social networks and ask others to talk.
+## What's the Difference between Persist and Temporary Accounts?
+**Temporary** users are based on random chars and automatically generated. Each time you open the app, you will get a random id and in essence you are a ghost. **Persist** id's will be generated based on your entered credentials and you can have the same id by entering that same credentials again. So **Persist** is good for people who want to have a static address and share it with others for example on social networks and ask others to talk, and **Temporary** is good for people who want to sending anonymous messages to others.
 
 ## Is My Activity Trackable?
 In a one word, NO. But still you have to be carefull to be anonymous. So:
 - don't share your personal information in any of your open chats.
-- don't use your **PID** to send a dangerous message if you have shared it before.
-- use the **DID** account if you don't sure what is this.
+- don't use your **Persist** account to send a dangerous message if you have shared it before.
 
 ## How Can I Contribute?
 First make sure you have `nodejs` >=11.0.0 and `npm` >=6.0.0 installed on your system, then clone this repo and do the following to run **Viska** locally:
