@@ -34,7 +34,7 @@
       </span>
     </div>
   </div>
-  <MessageForm :class="[$style.messageForm, calcTextDir(inputText)]" class="padding-x-md padding-y-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
+  <MessageForm :class="[$style.messageForm, calcTextDir(inputText)]" class="padding-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
 </div>
 </template>
 
