@@ -16,16 +16,15 @@ Well, **Hazy** is a commenting service where users have their own space and ask 
 Basically, all of the user accounts in the system are based on a hash. You'll send a string (manual passphrase or device id) to the server and get its hash string back. This hash will be your username and you can send and receive messages through it. If anyone wants to access your account, they should generate the same hash again which it's not possible easily.
 
 ## How Does the Conversation History Work?
-This is a simple and useful feature created for **PID** accounts. As mentioned before, there is no database for keeping conversations or user data. So every message will be stored on your browser until you manually logout.
+This is a simple and useful feature created for **Persist** accounts. As mentioned before, there is no database for keeping conversations or user data. So every message will be stored on your browser until you manually logout.
 
-## What's the Difference between DID and PID Accounts?
-**DID** users are temporary and automatically generated. Each time you open the app, you will get a random id and in essence, you are a ghost. **PID** id's will be generated based on your entered passphrase and you can have the same id by entering that same passphrase again. So **PID** is good for people who want to have a static address and share it with others for example on social networks and ask others to talk.
+## What's the Difference between Temporary and Persist Accounts?
+**Temporary** users are anonymous and automatically generated. Each time you open the app, you will get a random id and in essence, you are a ghost. **Persist** id's will be generated based on your entered passphrase and you can have the same id by entering that same passphrase again. So **Persist** id's is good for people who want to have a static address and share it with others for example on social networks and ask others to talk.
 
 ## Is My Activity Trackable?
 In one word, NO. But still, you have to be careful to be anonymous. So:
 - don't share your personal information in any of your open chats.
-- don't use your **PID** to send a dangerous message if you have shared it before.
-- use the **DID** account if you don't sure what is this.
+- don't use your **Persist** account to send a dangerous message if you have shared it before.
 
 ## How Can I Contribute?
 First make sure you have `nodejs` >=11.0.0 and `npm` >=6.0.0 installed on your system, then clone this repo and do the following to run **Viska** locally:
