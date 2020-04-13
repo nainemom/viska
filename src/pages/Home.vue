@@ -24,7 +24,8 @@
       <Chats :activeChat="activeChat" @select="goToChat($event.user.type, $event.user.username)"  @add="goToChat($event.type, $event.username)"/>
       <Cell class="padding-x-md app-info text-sm size-sm">
         <div class="grow"> <i class="fa fa-code-branch" /> {{packageVersion}} </div>
-        <div> <a href="https://github.com/nainemom/viska/issues" target="_blank"> <i class="fa fa-bug" /> Report Bug </a> </div>
+        <div class="grow"> <a href="https://github.com/nainemom/viska" target="_blank"> <i class="fa fa-code" /> Source-Code </a> </div>
+        <div class="grow"> <a href="https://github.com/nainemom/viska/issues" target="_blank"> <i class="fa fa-bug" /> Report Bug </a> </div>
       </Cell>
     </div>
     <Chat :class="[$style.chat, !activeChat && 'hidden-on-mobile']" :chat="activeChat" @close="goToChat(undefined, undefined)" @remove="removeChat(activeChat)"/>
@@ -132,7 +133,7 @@ export default {
       }),
       className('chats', {
         height: '100%',
-        width: '324px',
+        width: '340px',
         minWidth: '320px',
         backgroundColor: this.$root.theme.backgroundColor2,
         borderRight: `solid 1px ${this.$root.theme.borderColor}`,
@@ -150,7 +151,7 @@ export default {
           }
         },
         '& > .app-info': {
-          // backgroundColor: this.$root.theme.borderColor,
+          textAlign: 'center',
           borderTop: `solid 1px ${this.$root.theme.borderColor}`,
           '&, & a, & a:visited': {
             color: this.$root.theme.fillColor,
