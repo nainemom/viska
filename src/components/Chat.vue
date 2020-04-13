@@ -15,10 +15,10 @@
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>
     </Cell>
     <Button class="size-lg padding-lg" color="text-danger" @click.native="removeChat">
-      <i class="fa fa-trash" /> Delete
+      <i class="fa fa-trash" /> <span :class="$style.hiddenOnMobile"> Delete </span>
     </Button>
     <Button class="size-lg padding-lg" color="transparent" @click.native="closeChat">
-      <i class="fa fa-times" /> Close
+      <i class="fa fa-times" /> <span :class="$style.hiddenOnMobile"> Close </span>
     </Button>
   </Cell>
   <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
@@ -260,6 +260,11 @@ export default {
           direction: 'rtl',
         }
       }),
+      mediaQuery({ maxWidth: '960px' }, [
+        className('hiddenOnMobile', {
+          display: 'none',
+        }),
+      ]),
     ];
   },
 }
