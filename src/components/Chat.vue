@@ -251,7 +251,7 @@ export default {
           direction: 'rtl',
         }
       }),
-      mediaQuery({ maxWidth: '960px' }, [
+      mediaQuery({ maxWidth: '600px' }, [
         className('hiddenOnMobile', {
           display: 'none',
         }),
