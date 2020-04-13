@@ -7,12 +7,13 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const OfflinePlugin = require('offline-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
 
+process.env.PKG_VER = require('../package.json').version;
 
 module.exports = (config) => {
   const output = {};
   const plugins = [
     new VueLoaderPlugin(),
-    new webpack.EnvironmentPlugin(['NODE_ENV', 'SERVER_URL']),
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'SERVER_URL', 'PKG_VER']),
   ];
 
 
