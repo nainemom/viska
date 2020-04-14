@@ -51,11 +51,11 @@ const startApp = async () => {
   app.get('/state', (_req, res) => {
     res.send({
       db: {
-        users: db.users.find(() => true), 
-        pendingMessages: db.pendingMessages.find(() => true), 
+        users: db.users.find(() => true).map((_user) => `@${_user.username}`), 
+        pendingMessages: db.pendingMessages.find(() => true).map((_message) => `${_message.from.type === 'persist' ? '@' : '!'}${_message.from.username} => @${_message.to.username}`), 
       },
       memDb: {
-        activeUsers: memDb.activeUsers.find(() => true), 
+        activeUsers: memDb.activeUsers.find(() => true).map((_user) => `${_user.type === 'persist' ? '@' : '!'}${_user.username}`), 
       }
     });
   });
