@@ -124,13 +124,11 @@ export default {
         this.$chatService.refreshChat(this.chat);
         this.chat.badge = 0;
         this.$chatService._saveChats();
+        this.$refs.messageForm.focus();
       }
       this.inputText = '';
       this.ItIsTyping = false;
       clearTimeout(this.isTypingTimer);
-    },
-    'chat.user.username'(username) {
-      if (username) this.$refs.messageForm.focusOnInput();
     },
     'messages.length'() {
       this.itIsTyping = false;

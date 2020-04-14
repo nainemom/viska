@@ -28,10 +28,10 @@ export default {
   },
   methods: {
     submit() {
-      this.focusOnInput();
+      this.focus();
       this.$emit('submit', this.value);
     },
-    focusOnInput() {
+    focus() {
       this.$refs.input.$el.focus();
     }
   },
