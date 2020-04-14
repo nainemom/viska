@@ -73,6 +73,7 @@ const ChatService = {
       setTimeout(() => {
         this.user = User();
         this.$emit('logout');
+        this.$router.push('/');
         location.reload();
       }, 1000);
     },
