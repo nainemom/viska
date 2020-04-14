@@ -7,9 +7,7 @@
       </div>
       <div class="padding-right-md">
         <div>
-          <b>
-            <UserName :user="chat.user" />
-          </b>
+          <UserName :user="chat.user" />
         </div>
       </div>
       <div class="padding-x-sm"><StatusIcon :value="chat.isOnline" /></div>

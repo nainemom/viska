@@ -19,9 +19,7 @@
       </div>
       <div class="padding-right-md grow">
         <div>
-          <b>
-            <UserName :user="searchingUser" />
-          </b>
+          <UserName :user="searchingUser" />
         </div>
       </div>
     </Cell>
@@ -31,9 +29,7 @@
       </div>
       <div class="padding-right-md grow">
         <div>
-          <b>
-            <UserName :user="chat.user" />
-          </b>
+          <UserName :user="chat.user" />
         </div>
         <div v-if="chat.messages.length" class="last-msg">
           <small>
