@@ -52,6 +52,9 @@ export default {
   },
   created() {
     this.$chatService.init(process.env.SERVER_URL);
+    this.$chatService.$on('logout', () => {
+      this.$router.push('/');
+    });
   },
   mounted() {
     this.openAuthPopup();

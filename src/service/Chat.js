@@ -73,9 +73,10 @@ const ChatService = {
       setTimeout(() => {
         this.user = User();
         this.$emit('logout');
-        this.$router.push('/');
-        location.reload();
-      }, 1000);
+        setTimeout(() => {
+          location.reload();
+        }, 100);
+      }, 900);
     },
     // find random user
     connectToRandomUser() {
