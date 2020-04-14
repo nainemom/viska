@@ -96,6 +96,7 @@ export default {
     logout() {
       // TODO use a better way
       this.$root.$refs.authPopup.openLogout();
+      this.$router.push('/');
     },
   },
   created() {
