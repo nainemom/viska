@@ -133,8 +133,8 @@ export default {
       }),
       className('chats', {
         height: '100%',
-        width: '340px',
-        minWidth: '320px',
+        width: '360px',
+        flexGrow: 1,
         backgroundColor: this.$root.theme.backgroundColor2,
         borderRight: `solid 1px ${this.$root.theme.borderColor}`,
         display: 'flex',
@@ -160,8 +160,8 @@ export default {
         }
       }),
       className('chat', {
-        flexGrow: 1,
-        width: '100%',
+        flexGrow: 2,
+        width: 'calc(100% - 360px)',
         overflow: 'hidden',
       }),
       mediaQuery({ maxWidth: '960px' }, [
@@ -175,6 +175,7 @@ export default {
           }
         }),
         className('chat', {
+          width: '100%',
           '&.hidden-on-mobile': {
             display: 'none',
           }
