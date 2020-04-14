@@ -132,7 +132,9 @@ export default {
       this.searchUserInput = '';
     },
     scrollToSearchResult() {
-      this.$refs.searchResult.$el.scrollIntoView();
+      this.$nextTick(() => {
+        this.$refs.searchResult && this.$refs.searchResult.$el.scrollIntoView();
+      });
     },
   },
   style({ className, mediaQuery }) {
