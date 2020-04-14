@@ -32,7 +32,7 @@
       </span>
     </div>
   </div>
-  <MessageForm :class="[$style.messageForm, calcTextDir(inputText)]" class="padding-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
+  <MessageForm ref="messageForm" :class="[$style.messageForm, calcTextDir(inputText)]" class="padding-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
 </div>
 </template>
 
@@ -63,7 +63,7 @@ export default {
       inputText: '',
       lastIsTypingFlagSent: 0,
       itIsTyping: false,
-      isTypingTimer: undefined,
+      isTypingTimer: undefined
     }
   },
   computed: {
@@ -128,6 +128,9 @@ export default {
       this.inputText = '';
       this.ItIsTyping = false;
       clearTimeout(this.isTypingTimer);
+    },
+    'chat.user.username'(username) {
+      if (username) this.$refs.messageForm.focusOnInput();
     },
     'messages.length'() {
       this.itIsTyping = false;

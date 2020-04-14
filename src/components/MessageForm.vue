@@ -28,9 +28,12 @@ export default {
   },
   methods: {
     submit() {
-      this.$refs.input.$el.focus();
+      this.focusOnInput();
       this.$emit('submit', this.value);
     },
+    focusOnInput() {
+      this.$refs.input.$el.focus();
+    }
   },
   style({ className }) {
     return [
