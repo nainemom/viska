@@ -29,7 +29,7 @@ export default {
     return {
       theme: {
         // shadeColor: '#353535',
-        fillColor: '#333',
+        fillColor: '#393939',
         backgroundColor: '#fff',
         backgroundColor2: '#f1f1f1',
         backgroundColor3: '#f2f2f2',
