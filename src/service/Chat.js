@@ -217,9 +217,9 @@ const ChatService = {
     // delete current user chats
     _clearChats() {
       this.chats = [];
-      if (this.user.type === 'persist') {
-        this.db.chats.remove(() => true);
-      }
+      // if (this.user.type === 'persist') {
+      //   this.db.chats.remove(() => true);
+      // }
     },
     _onConnectionStateChange(newState) {
       if (newState === true) {

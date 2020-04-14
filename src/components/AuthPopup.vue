@@ -11,7 +11,7 @@
         <h3> Logout. </h3>
       </div>
       <div class="padding-bottom-xl">
-        <p> Are you sure you want to exit from app? By doing this all of your messages and saved data will be lost. </p>
+        <p> Are you sure you want to exit from app? </p>
       </div>
       <Cell>
         <div class="padding-right-md grow">
