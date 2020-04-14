@@ -249,7 +249,10 @@ export default {
             background: this.$root.theme.shadowColor,
             color: "#111",
             borderTopRightRadius: "8px",
+            borderTopLeftRadius: "8px",
             borderBottomRightRadius: "8px",
+            marginLeft: "8px",
+            boxShadow: "0px 2px 1px rgba(0, 0, 0, 0.2)",
             "& > .info": {
               textAlign: "right"
             }
@@ -261,7 +264,10 @@ export default {
             background: this.$root.theme.primaryColor,
             color: "#fff",
             borderTopLeftRadius: "8px",
-            borderBottomLeftRadius: "8px"
+            borderBottomLeftRadius: "8px",
+            borderTopRightRadius: "8px",
+            marginRight: "8px",
+            boxShadow: "0px 2px 1px rgba(0, 0, 0, 0.2)"
           }
         }
       }),
