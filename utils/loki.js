@@ -5,7 +5,6 @@ module.exports = ({
   name,
   memory = false,
   browser = false,
-  syncToCloud = false,
   collections = [],
 }) => {
   return new Promise((resolve) => {
@@ -55,34 +54,8 @@ module.exports = ({
       resolve(ret);
     }
 
-    let saveToCloudTimeout = null;
-    let savingToCloud = false;
-    const saveToCloud = () => {
-      if (savingToCloud) {
-        return;
-      }
-      clearTimeout(saveToCloudTimeout);
-      saveToCloudTimeout = setTimeout(() => {
-        savingToCloud = true;
-        syncToCloud().then(() => {
-          savingToCloud = false;
-        }).catch(() => {
-          saveToCloud = false;
-        });
-      }, 10000);
-      return true;
-    }
-
-    const loadFromCloud = () => {
-      return new Promise((resolve, reject) => {
-        // LOAD FROM CLOUD TO path
-        resolve();
-      });
-    }
-
     const save = () => {
       db && !memory && db.save();
-      db && !memory && syncToCloud && saveToCloud();
     }
 
     const config = {};
@@ -96,11 +69,9 @@ module.exports = ({
       config.adapter = new LokiIndexedAdabter();
     }
 
-    loadFromCloud().then(() => {
-      db = new loki(name, config);
-      if (memory) {
-        onLoad();
-      }
-    });
+    db = new loki(name, config);
+    if (memory) {
+      onLoad();
+    }
   });
 };

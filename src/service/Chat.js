@@ -1,11 +1,5 @@
 import SocketIo from 'socket.io-client';
-import initDatabase from '../../utils/database.js';
-
-// const db = initDatabase({
-//   path: 'chats',
-//   regenerate: false,
-//   browser: true,
-// });
+import initLoki from '../../utils/loki.js';
 
 const User = (type, username) => {
   return {
@@ -47,7 +41,7 @@ const ChatService = {
             reject(err);
           } else {
             this.user = User(res.type, res.username);
-            initDatabase({
+            initLoki({
               name: `${JSON.stringify(this.user)}.db`,
               memory: false,
               browser: true,

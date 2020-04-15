@@ -1,13 +1,11 @@
 const auth = require('./utils/auth.js');
 
-const userFinderHandler = (type, xid) => (item) => item.type === type && item.xid === xid;
-
 module.exports = (io, db, memDb) => (socket) => {
   let user = null;
   console.log('========> new connection', socket.id);
 
   // DONE
-  socket.on('auth', ({ type, username, password }, callback) => {
+  socket.on('auth', async ({ type, username, password }, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
@@ -22,9 +20,9 @@ module.exports = (io, db, memDb) => (socket) => {
         
         const _username = username.toLowerCase();
         const _password = auth.generateKey(password, _username);
-        const theUser = db.users.find((_user) => _user.username === _username && _user.type === type)[0];
+        const theUser = await db.users.findOne({ username: _username, type });
         if (!theUser) {
-          db.users.insert({
+          await db.users.insert({
             username: _username,
             password: _password,
             type,
@@ -84,7 +82,7 @@ module.exports = (io, db, memDb) => (socket) => {
     }
   });
 
-  socket.on('askForPendingMessages', (callback) => {
+  socket.on('askForPendingMessages', async (callback) => {
     if (typeof callback !== 'function') {
       return;
     }
@@ -92,7 +90,11 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
-      const pendingMessages = db.pendingMessages.find((_item) => _item.to.type === user.type && _item.to.username === user.username);
+      const pendingMessagesSearchQuery = {
+        'to.type': user.type,
+        'to.username': user.username,
+      };
+      const pendingMessages = await db.pendingMessages.find(pendingMessagesSearchQuery);
 
 
       pendingMessages.forEach((messageObject) => {
@@ -101,8 +103,8 @@ module.exports = (io, db, memDb) => (socket) => {
           body: messageObject.body,
           date: messageObject.date,
         });
-        db.pendingMessages.remove(messageObject);
       });
+      db.pendingMessages.remove(pendingMessagesSearchQuery);
 
       return callback(false, true);
 
@@ -200,7 +202,7 @@ module.exports = (io, db, memDb) => (socket) => {
     }
   });
 
-  socket.on('sendMessage', (data, callback) => {
+  socket.on('sendMessage', async (data, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
@@ -219,7 +221,6 @@ module.exports = (io, db, memDb) => (socket) => {
           type,
         },
         body,
-        date: Date.now(),
       };
       const receiverUser = memDb.activeUsers.find((_user) => {
         return _user.type === type && _user.username === username;
@@ -228,9 +229,11 @@ module.exports = (io, db, memDb) => (socket) => {
       if (receiverUser) {
         io.sockets.connected[receiverUser.sid].emit('newMessage', messageObject);
       } else {
-        const realReceiverUser = db.users.find((_user) => {
-          return _user.type === type && _user.username === username;
-        })[0];
+        const realReceiverUser = await db.users.isExists({
+          type,
+          username,
+        });
+
         if (realReceiverUser) {
           db.pendingMessages.insert(messageObject);
         }
