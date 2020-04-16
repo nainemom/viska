@@ -28,7 +28,7 @@
     </div>
     <div :class="$style.isTyping" class="padding-sm">
       <span  v-if="itIsTyping">
-        {{ chat.user.name }} is typing...
+        <UserName :user="chat.user" /> is typing...
       </span>
     </div>
   </div>
