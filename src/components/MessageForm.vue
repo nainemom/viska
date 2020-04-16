@@ -82,6 +82,17 @@ export default {
         width: '290px',
         backgroundColor: this.$root.theme.backgroundColor2,
         border: `solid 2px ${this.$root.theme.borderColor}`,
+        textAlign: 'center',
+        '& img': {
+          cursor: 'pointer',
+          transition: 'transform 0.2s',
+          transform: 'none',
+          padding: '4px',
+          border: `solid 2px transparent`,
+          '&:hover' : {
+            border: `solid 2px ${this.$root.theme.borderColor}`,
+          }
+        }
       }),
       className('formContainer', {
         position: 'relative',
