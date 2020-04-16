@@ -17,15 +17,17 @@ const startApp = async () => {
   console.log('INITIALIZING MONGO DATABASE..');
   const db = await startDatabase();
 
-  console.log('INTIALIZING LOKI...');
+  console.log('INTIALIZING LOKI DATABASE...');
   const memDb = await startLoki();
 
-  console.log('SETUP REQUEST HANDLERS...');
-  const socketHandler = require('./socket-handler.js');
+  console.log('SETUP HTTP ROUTE HANDLERS...');
   app.get('/ping', (_req, res) => res.send('pong'));
   app.get('/active-users', (_req, res) => {
     res.send(memDb.activeUsers.find(() => true).map((_user) => `${_user.type === 'persist' ? '@' : '!'}${_user.username}`));
   });
+  
+  console.log('SETUP IO...');
+  const socketHandler = require('./socket-handler.js');
   io.on('connection', socketHandler(io, db, memDb));
   
   server.listen(PORT, () => console.log(`DONE! APP STARTED ON PORT ${PORT}!`));
