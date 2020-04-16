@@ -2,6 +2,7 @@ import SocketIo from 'socket.io-client';
 import initLoki from '../../utils/loki.js';
 import { translateToImg } from '../../utils/emoticons.js';
 
+global.translateToImg = translateToImg;
 const User = (type, username) => {
   return {
     type,

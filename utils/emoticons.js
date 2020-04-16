@@ -1,6 +1,8 @@
+import escapeHtml from 'escape-html';
+
 export const mapEmoticons = {
-  "x(": "angry-or-grumpy.gif",
   "~x(": "at-wits-end.gif",
+  "x(": "angry-or-grumpy.gif",
   ";;)": "batting-eyelashes.gif",
   ">:d<": "big-hug.gif",
   "=\">": "blushing.gif",
@@ -41,7 +43,6 @@ export const mapEmoticons = {
   "%-(": "not-listening.gif",
   ":-\"": "whistling.gif",
   ":(": "sad-or-frown-face.gif",
-  ":d": "big-grin.gif",
   "=))": "rolling-on-the-floor-laughing.gif",
   ":&": "sick.gif",
   ":-<": "sigh.gif",
@@ -52,26 +53,23 @@ export const mapEmoticons = {
   ":|": "straight-face.gif",
   ":o": "surprised.gif",
   ":-?": "thinking.gif",
+  ":d": "big-grin.gif",
 };
 
 const mapEmoticonsKeys = Object.keys(mapEmoticons);
 
-const cacheMap = new Map();
-export const translateToImg = (message) => {
-  if (cacheMap.has(message)) {
-    return cacheMap.get(message);
-  }
 
-  let ret = message;
+export const translateToImg = (message) => {
+  let ret = message || '';
   for (let i = 0; i < mapEmoticonsKeys.length; i++) {
     console.log('check!!!')
     const emoticonKey = mapEmoticonsKeys[i];
     const emoticon = mapEmoticons[emoticonKey];
+    const scapedEmoticonKey = escapeHtml(emoticonKey);
     const replaceBy = `<img src="/emoticons/${emoticon}" />`;
-    while(ret.includes(emoticonKey)) {
-      ret = ret.replace(emoticonKey, replaceBy);
+    while(ret.includes(scapedEmoticonKey)) {
+      ret = ret.replace(scapedEmoticonKey, replaceBy);
     }
   }
-  cacheMap.set(message, ret);
   return ret;
 }
