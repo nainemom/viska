@@ -15,7 +15,7 @@ module.exports = (io, db, memDb) => (socket) => {
         return callback('dublicate', false);
       }
       if (type === 'persist') {
-        if (!username || !password || !/^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$/.test(username) || username.length < 3) {
+        if (!username || !password || !/^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username)) {
           return callback('data-error', false);
         }
         
@@ -222,6 +222,7 @@ module.exports = (io, db, memDb) => (socket) => {
           type,
         },
         body: escapeHtml(body),
+        date: new Date(),
       };
       const receiverUser = memDb.activeUsers.find((_user) => {
         return _user.type === type && _user.username === username;
@@ -229,15 +230,16 @@ module.exports = (io, db, memDb) => (socket) => {
 
       if (receiverUser) {
         io.sockets.connected[receiverUser.sid].emit('newMessage', messageObject);
+        callback(false, messageObject);
       } else {
-        const realReceiverUser = await db.users.isExists({
+        db.users.isExists({
           type,
           username,
+        }).then((realReceiverUser) => {
+          if (realReceiverUser) {
+            db.pendingMessages.insert(messageObject);
+          }
         });
-
-        if (realReceiverUser) {
-          db.pendingMessages.insert(messageObject);
-        }
       }
       return callback(false, messageObject);
 
