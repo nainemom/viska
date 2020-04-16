@@ -212,6 +212,9 @@ module.exports = (io, db, memDb) => (socket) => {
         return callback(true, false);
       }
       const { user: { type, username }, body } = data;
+      if (body.length > 255) {
+        return callback(true, false);
+      }
       const messageObject = {
         from: {
           username: user.username,
