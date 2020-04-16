@@ -1,4 +1,5 @@
 const auth = require('./utils/auth.js');
+const escapeHtml = require('escape-html');
 
 module.exports = (io, db, memDb) => (socket) => {
   let user = null;
@@ -220,7 +221,7 @@ module.exports = (io, db, memDb) => (socket) => {
           username,
           type,
         },
-        body,
+        body: escapeHtml(body),
       };
       const receiverUser = memDb.activeUsers.find((_user) => {
         return _user.type === type && _user.username === username;
