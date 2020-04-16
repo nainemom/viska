@@ -32,9 +32,7 @@
           <UserName :user="chat.user" />
         </div>
         <div v-if="chat.messages.length" class="last-msg">
-          <small>
-            {{chat.messages[chat.messages.length - 1].body}}
-          </small>
+          <small v-html="chat.messages[chat.messages.length - 1].body" />
         </div>
       </div>
       <div class="padding-x-sm" v-if="chat.badge"><StatusIcon value="badge" /></div>

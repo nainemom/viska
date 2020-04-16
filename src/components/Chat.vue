@@ -22,7 +22,7 @@
   <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
     <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]">
       <div class="inside padding-top-md padding-x-md margin-y-xs text-md">
-        {{ message.body }}
+        <div v-html="message.body" />
         <div class="info padding-bottom-md padding-top-sm"> {{ message.date | datetime }} </div>
       </div>
     </div>
@@ -70,10 +70,6 @@ export default {
     messages() {
       // return [{"from":"me","message":"salam"},{"from":"its","message":"salam duste khubam"},{"from":"its","message":"chetori?"},{"from":"me","message":"mamnun"},{"from":"me","message":"bebin barname ro paye hasti?"}];
       return this.chat ? this.chat.messages : [];
-    },
-    pendingMessages() {
-      // return [{"from":"me","message":"salam"},{"from":"its","message":"salam duste khubam"},{"from":"its","message":"chetori?"},{"from":"me","message":"mamnun"},{"from":"me","message":"bebin barname ro paye hasti?"}];
-      return this.chat ? this.chat.pendingMessages : [];
     },
     its() {
       return this.chat ? this.chat.user : undefined;
@@ -132,11 +128,6 @@ export default {
     },
     'messages.length'() {
       this.itIsTyping = false;
-      this.$nextTick(() => {
-        this.scrollToEnd();
-      });
-    },
-    'pendingMessages.length'() {
       this.$nextTick(() => {
         this.scrollToEnd();
       });
@@ -214,9 +205,9 @@ export default {
             textAlign: 'left',
             display: 'block',
           },
-          '&:hover > .info': {
-            display: 'block'
-          }
+          '& img': {
+            verticalAlign: 'middle',
+          },
         },
         '&.its': {
           textAlign: 'left',

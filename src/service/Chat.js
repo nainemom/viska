@@ -1,5 +1,6 @@
 import SocketIo from 'socket.io-client';
 import initLoki from '../../utils/loki.js';
+import { translateToImg } from '../../utils/emoticons.js';
 
 const User = (type, username) => {
   return {
@@ -111,7 +112,7 @@ const ChatService = {
           }
           chat.messages.push({
             from: 'me',
-            body: messageObject.body,
+            body: translateToImg(messageObject.body),
             date: messageObject.date,
           });
           this._saveChats();
@@ -172,7 +173,7 @@ const ChatService = {
       chat.isOnline = true;
       chat.messages.push({
         from: 'its',
-        body,
+        body: translateToImg(body),
         date,
       });
       this._saveChats();
