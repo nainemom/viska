@@ -62,7 +62,6 @@ const mapEmoticonsKeys = Object.keys(mapEmoticons);
 export const translateToImg = (message) => {
   let ret = message || '';
   for (let i = 0; i < mapEmoticonsKeys.length; i++) {
-    console.log('check!!!')
     const emoticonKey = mapEmoticonsKeys[i];
     const emoticon = mapEmoticons[emoticonKey];
     const scapedEmoticonKey = escapeHtml(emoticonKey);
