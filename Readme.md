@@ -27,14 +27,7 @@ In one word, NO. But still, you have to be careful to be anonymous. So:
 - don't use your **Persist** account to send a dangerous message if you have shared it before.
 
 ## How Can I Contribute?
-First make sure you have `nodejs` >=11.0.0 and `npm` >=6.0.0 installed on your system, then clone this repo and do the following to run **Viska** locally:
-
-```bash
-npm i # to install dependencies
-
-npm run dev:server # to start server locally on :3002 port
-npm run dev:client # to start client locally on :8080 port
-```
+Thanks for your interest in contributing to Viska! There are many ways to contribute to this project. You can get started by reading our [contributing guideline](./CONTRIBUTING.md).
 
 ## Donation
 If you like this project and want to help, You can send me BTC to the following address:
