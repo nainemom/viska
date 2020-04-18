@@ -1,12 +1,13 @@
 const auth = require('./utils/auth.js');
 const escapeHtml = require('escape-html');
+const typeOf = require('../utils/typeOf.js');
 
 module.exports = (io, db, memDb) => (socket) => {
   let user = null;
   console.log('========> new connection', socket.id);
 
   // DONE
-  socket.on('auth', async ({ type, username, password }, callback) => {
+  socket.on('auth', async (data, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
@@ -14,11 +15,15 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user !== null) {
         return callback('dublicate', false);
       }
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
+      const { type, username, password } = data;
       if (type === 'persist') {
         if (!username || !password || !/^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username)) {
           return callback('data-error', false);
         }
-        
+
         const _username = username.toLowerCase();
         const _password = auth.generateKey(password, _username);
         const theUser = await db.users.findOne({ username: _username, type });
@@ -181,13 +186,20 @@ module.exports = (io, db, memDb) => (socket) => {
   });
 
 
-  socket.on('getUserStatus', ( { type, username }, callback) => {
+  socket.on('getUserStatus', ( data, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
     try {
       if (user === null) {
         return callback(true, false);
+      }
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
+      const { type, username } = data;
+      if (!username || !type) {
+        return callback('data-error', false);
       }
       const theUser = memDb.activeUsers.find((_user) => {
         return _user.type === type && _user.username === username;
@@ -211,7 +223,13 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
       const { user: { type, username }, body } = data;
+      if (!username || !type || !body) {
+        return callback('data-error', false);
+      }
       if (body.length > 255) {
         return callback(true, false);
       }
@@ -260,8 +278,13 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
-
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
       const { user: { type, username } } = data;
+      if (!username || !type) {
+        return callback('data-error', false);
+      }
 
       const receiverUser = memDb.activeUsers.find((_user) => {
         return _user.type === type && _user.username === username;
@@ -286,5 +309,5 @@ module.exports = (io, db, memDb) => (socket) => {
 
     console.log('========> lost connection', socket.id);
   });
-  
+
 }

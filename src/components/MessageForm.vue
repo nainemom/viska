@@ -4,7 +4,7 @@
     <img v-for="(emoticon, shortcut) in mapEmoticons" :key="emoticon" :src="'/emoticons/' + emoticon" @click="addEmoti(shortcut)"/>
   </div>
   <div :class="$style.inputContainer">
-    <Input ref="input" maxlength="255" :class="$style.input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
+    <Input ref="input" maxlength="255" :class="$style.input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled" />
     <div :class="$style.inputBtns">
       <Button :class="$style.emotIcon" type="button" @click.native="toggleEmoticonPanel" class="padding-x-md padding-left-lg size-md text-xl" color="transparent" :disabled="disabled"> <i class="fa fa-smile-wink" /> </Button>
       <Button :class="$style.sendBtn" type="submit" class="padding-x-md padding-right-lg size-md text-xl" color="transparent" :disabled="disabled || !value"> <i class="fa fa-paper-plane" /> </Button>
@@ -45,7 +45,7 @@ export default {
       this.emoticonPanel = false;
       this.$emit('submit', this.value);
     },
-    toggleEmoticonPanel(e) {
+    toggleEmoticonPanel(e, newVal = null) {
       e && e.preventDefault();
       this.focus();
       this.emoticonPanel = !this.emoticonPanel;

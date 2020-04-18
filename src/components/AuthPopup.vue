@@ -86,14 +86,12 @@
 </template>
 
 <script>
-import UserTitle from './UserTitle.vue';
 import Input from './Input.vue';
 import Button from './Button.vue';
 import Cell from './Cell.vue';
 
 export default {
   components: {
-    UserTitle,
     Input,
     Button,
     Cell,

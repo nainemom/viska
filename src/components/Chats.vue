@@ -12,7 +12,7 @@
         <Input class="size-md" placeholder="Search for Users" v-model="searchUserInput" required @input="scrollToSearchResult()"/>
       </form>
     </Cell>
-    
+
     <Cell v-if="searchingUser" ref="searchResult" class="padding-sm" :class="$style.chatItem" @click.native="addChat(searchingUser)">
       <div class="padding-right-md">
         <UserAvatar :user="searchingUser" :size="48" />
@@ -43,8 +43,6 @@
 </template>
 
 <script>
-import ChatListItem from './ChatListItem.vue';
-import UserTitle from './UserTitle.vue';
 import UserAvatar from './UserAvatar.vue';
 import UserName from './UserName.vue';
 import Cell from './Cell.vue';
@@ -54,8 +52,6 @@ import StatusIcon from './StatusIcon.vue';
 
 export default {
   components: {
-    ChatListItem,
-    UserTitle,
     Cell,
     Input,
     Button,

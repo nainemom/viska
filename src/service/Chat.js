@@ -1,8 +1,7 @@
 import SocketIo from 'socket.io-client';
-import initLoki from '../../utils/loki.js';
 import { translateToImg } from '../../utils/emoticons.js';
+import initIndexedDB from '../../utils/indexedDB.js';
 
-global.translateToImg = translateToImg;
 const User = (type, username) => {
   return {
     type,
@@ -43,16 +42,18 @@ const ChatService = {
             reject(err);
           } else {
             this.user = User(res.type, res.username);
-            initLoki({
-              name: `${JSON.stringify(this.user)}.db`,
-              memory: false,
-              browser: true,
-              collections: [
+            this.db = initIndexedDB({
+              name: 'viska',
+              version: 2,
+              prefix: this.user.type === 'temporary' ? '!anonymous' : `@${this.user.username}`,
+              dynamicCollections: [
                 'chats',
               ],
-            }).then((db) => {
-              this.db = db;
-              this._loadChats();
+              staticCollections: [
+                'settings',
+              ],
+            })
+            this._loadChats().then(() => {
               this.$emit('login', res.type, res.username);
               setTimeout(() => {
                 this.server.emit('askForPendingMessages', () => {});
@@ -65,14 +66,18 @@ const ChatService = {
     },
     // will disconnect from server
     logout() {
-      this._clearChats();
-      setTimeout(() => {
+      this._saveChats().then(() => {
+        // setTimeout(() => {
+        this.chats = [];
         this.user = User();
         this.$emit('logout');
         setTimeout(() => {
           location.reload();
         }, 100);
-      }, 900);
+        // }, 900);
+      });
+      // this._clearChats();
+
     },
     // find random user
     connectToRandomUser() {
@@ -81,9 +86,9 @@ const ChatService = {
           if (err || !user) {
             reject(err);
           } else {
-            const chat = this._upsertChat(user.type, user.username);
-            this._saveChats();
-            resolve(chat);
+            this.getChat(user.type, user.username).then((chat) => {
+              resolve(chat);
+            });
           }
         });
       });
@@ -97,9 +102,25 @@ const ChatService = {
     },
     // when new random user comes
     _onConnetedToRandomUser({ type, username }) {
-      const chat = this._upsertChat(type, username);
-      this._saveChats();
-      this.$emit('connetedToRandomUser', chat);
+      this.getChat(type, username).then((chat) => {
+        this.$emit('connetedToRandomUser', chat);
+      });
+    },
+    addMessageToChat(chat, messageObject) {
+      chat.messages.push(messageObject);
+      const chatIndex = this.chats.indexOf(chat);
+      this.chats = [
+        chat,
+        ...this.chats.slice(0, chatIndex),
+        ...this.chats.slice(chatIndex + 1),
+      ];
+      return this._saveChats();
+    },
+    editChat(chat, changes) {
+      Object.keys(changes).forEach((changeKey) => {
+        chat[changeKey] = changes[changeKey];
+      });
+      return this._saveChats();
     },
     // send a message
     sendMessage(chat, body) {
@@ -111,13 +132,28 @@ const ChatService = {
           if (err) {
             reject(err);
           }
-          chat.messages.push({
+          this.addMessageToChat(chat, {
             from: 'me',
             body: translateToImg(messageObject.body),
             date: messageObject.date,
+          }).then(resolve);
+        });
+      });
+    },
+    // receive new message from server
+    _onNewMessage({from: { type, username }, body, date}) {
+      this.getChat(type, username, false).then((chat) => {
+        chat.isOnline = true;
+        this.addMessageToChat(chat, {
+          from: 'its',
+          body: translateToImg(body),
+          date,
+        }).then(() => {
+          this.$emit('newMessage', {
+            user: User(type, username),
+            body,
+            date,
           });
-          this._saveChats();
-          resolve();
         });
       });
     },
@@ -142,14 +178,9 @@ const ChatService = {
     _onIsTypingFlag(chat) {
       this.$emit('isTypingFlag', chat);
     },
-    // get single chat
-    getChat({ type, username }) {
-      const chat = this._upsertChat(type, username);
-      return chat;
-    },
     deleteChat(chat) {
       this.chats.splice(this.chats.indexOf(chat), 1);
-      this.db.chats.remove((_chat) => _chat.user.type === chat.user.type && _chat.user.username === chat.user.username);
+      return this._saveChats();
     },
     // refresh chat status
     refreshChat(chat) {
@@ -169,48 +200,40 @@ const ChatService = {
         this.startRefreshChatsLoop();
       }, 10000);
     },
-    _onNewMessage({from: { type, username }, body, date}) {
-      const chat = this._upsertChat(type, username);
-      chat.isOnline = true;
-      chat.messages.push({
-        from: 'its',
-        body: translateToImg(body),
-        date,
-      });
-      this._saveChats();
-      this.$emit('newMessage', {
-        user: User(type, username),
-        body,
-        date,
-      });
-    },
     // save current chats in localStorage
     _saveChats() {
-      if (this.user.type === 'persist' && this.db) {
-        // this.db.chats.remove(() => true);
-        setTimeout(() => {
-          this.chats.forEach((chat) => {
-            try {
-              this.db.chats.update(chat);
-            } catch (e) {
-              this.db.chats.insert(chat);
-            }
+      return new Promise((resolve) => {
+        if (this.db) {
+          setTimeout(() => {
+            const chats = this.chats.map((chat) => this.user.type === 'temporary' ? {
+              ...chat,
+              messages: [],
+            } : chat);
+            this.db.chats.set(chats).then(resolve);
           });
-        });
-        // localStorage.setItem(`${this.user.type}:${this.user.username}:chats`, JSON.stringify(chats));
-      }
+        } else {
+          resolve();
+        }
+      });
     },
     // load current user chats from localStorage
     _loadChats() {
-      if (this.user.type === 'persist' && this.db) {
-        this.chats = this.db.chats.find(() => true).map((chat) => {
-          chat.isOnline = null;
-          return JSON.parse(JSON.stringify(chat));
-        });
-        this.startRefreshChatsLoop();
-      } else {
-        this.chats = [];
-      }
+      return new Promise((resolve) => {
+        if (this.db) {
+          this.db.chats.get().then((chats) => {
+            this.chats = (chats || []).map((chat) => {
+              chat.isOnline = null;
+              return chat;
+            });
+            resolve();
+            this.startRefreshChatsLoop();
+          });
+        } else {
+          this.chats = [];
+          resolve();
+        }
+      });
+
     },
     // delete current user chats
     _clearChats() {
@@ -228,19 +251,26 @@ const ChatService = {
         this.$emit('disconnect');
       }
     },
-    _upsertChat(type, username) {
-      let chat = this.chats.find((chat) => chat.user.type === type && chat.user.username === username);
-      if (!chat) {
-        chat = {
-          user: User(type, username),
-          isOnline: null,
-          messages: [],
-          pendingMessages: [],
-          badge: 0,
-        };
-        this.chats.unshift(chat);
-      }
-      return chat;
+    getChat(type, username, autoSave = true) {
+      return new Promise((resolve) => {
+        let chat = this.chats.find((chat) => chat.user.type === type && chat.user.username === username);
+        if (!chat) {
+          chat = {
+            user: User(type, username),
+            isOnline: null,
+            messages: [],
+            badge: 0,
+          };
+          this.chats.unshift(chat);
+        }
+        if (autoSave) {
+          this._saveChats().then(() => {
+            resolve(chat);
+          });
+        } else {
+          resolve(chat);
+        }
+      });
     },
   },
 }

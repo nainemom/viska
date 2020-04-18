@@ -59,7 +59,7 @@ export default {
   mounted() {
     this.openAuthPopup();
   },
-  
+
   style({ custom, className }) {
 
     const helperClasses = [];
