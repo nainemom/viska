@@ -216,6 +216,10 @@ export default {
           '& > .inside': {
             background: this.$root.theme.shadowColor,
             color: '#111',
+            borderTopRightRadius: '8px',
+            borderBottomRightRadius: '8px',
+            borderBottomLeftRadius: '8px',
+            marginLeft: "8px",
             '& > .info': {
               textAlign: 'right',
             }
@@ -226,6 +230,10 @@ export default {
           '& > .inside': {
             background: this.$root.theme.primaryColor,
             color: '#fff',
+            borderTopLeftRadius: '8px',
+            borderBottomLeftRadius: '8px',
+            borderTopRightRadius: "8px",
+            marginRight: "8px",
           }
         },
 
