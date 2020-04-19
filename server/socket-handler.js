@@ -26,24 +26,24 @@ module.exports = (io, db, memDb) => (socket) => {
 
         const _username = username.toLowerCase();
         const _password = auth.generateKey(password, _username);
-        const theUser = await db.users.findOne({ username: _username, type });
-        if (!theUser) {
-          await db.users.insert({
-            username: _username,
-            password: _password,
-            type,
-          });
-          // no way that he is already actived
-        } else {
-          if (theUser.password !== _password) {
-            return callback('wrong-password', false);
+        if (db.isReal) {
+          const theUser = await db.users.findOne({ username: _username, type });
+          if (!theUser) {
+            await db.users.insert({
+              username: _username,
+              password: _password,
+              type,
+            });
+            // no way that he is already actived
+          } else {
+            if (theUser.password !== _password) {
+              return callback('wrong-password', false);
+            }
+            const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === username).length > 0;
+            if (isDublicate) {
+              return callback('dublicate', false);
+            }
           }
-          const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === username).length > 0;
-          if (isDublicate) {
-            return callback('dublicate', false);
-          }
-
-          user = theUser;
         }
         user = memDb.activeUsers.insert({
           username: _username,
@@ -96,21 +96,22 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
-      const pendingMessagesSearchQuery = {
-        'to.type': user.type,
-        'to.username': user.username,
-      };
-      const pendingMessages = await db.pendingMessages.find(pendingMessagesSearchQuery);
+      if (db.isReal) {
+        const pendingMessagesSearchQuery = {
+          'to.type': user.type,
+          'to.username': user.username,
+        };
+        const pendingMessages = db.isReal ? await db.pendingMessages.find(pendingMessagesSearchQuery) : [];
 
-
-      pendingMessages.forEach((messageObject) => {
-        io.sockets.connected[user.sid].emit('newMessage', {
-          from: messageObject.from,
-          body: messageObject.body,
-          date: messageObject.date,
+        pendingMessages.forEach((messageObject) => {
+          io.sockets.connected[user.sid].emit('newMessage', {
+            from: messageObject.from,
+            body: messageObject.body,
+            date: messageObject.date,
+          });
         });
-      });
-      db.pendingMessages.remove(pendingMessagesSearchQuery);
+        db.pendingMessages.remove(pendingMessagesSearchQuery);
+      }
 
       return callback(false, true);
 
@@ -252,7 +253,7 @@ module.exports = (io, db, memDb) => (socket) => {
       if (receiverUser) {
         io.sockets.connected[receiverUser.sid].emit('newMessage', messageObject);
         callback(false, messageObject);
-      } else {
+      } else if (db.isReal) {
         db.users.isExists({
           type,
           username,
