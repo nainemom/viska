@@ -56,7 +56,9 @@ module.exports.createConnection = ({
     };
 
     connect().then((isReal) => {
-      console.warn('== MONGO CONNECTION IS SKIPPED!');
+      if (!isReal) {
+        console.warn('== MONGO CONNECTION IS SKIPPED!');
+      }
       const models = {};
       Object.keys(collections).forEach((collectionName) => {
         models[collectionName] = collection(collectionName, collections[collectionName]);
