@@ -1,6 +1,6 @@
-import Home from './pages/Home.vue';
+import App from './pages/App.vue';
+
 export default [
-  { path: '/', component: Home },
-  { path: '/:user', component: Home },
-  { path: '/*', component: Home },
+  { path: '/', component: App },
+  { path: '/:user', component: App },
 ];

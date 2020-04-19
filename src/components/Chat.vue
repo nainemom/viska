@@ -20,9 +20,9 @@
     </Button>
   </Cell>
   <div :class="$style.conversation" class="padding-top-lg" ref="conversation">
-    <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]">
+    <div v-for="(message, index) in messages" :key="'m' + index" :class="[$style.messageItem, message.from, calcTextDir(message.body)]" class="padding-x-lg">
       <div class="inside padding-top-md padding-x-md margin-y-xs text-md">
-        <div v-html="message.body" />
+        <div class="body" v-html="message.body" />
         <div class="info padding-bottom-md padding-top-sm"> {{ message.date | datetime }} </div>
       </div>
     </div>
@@ -32,7 +32,14 @@
       </span>
     </div>
   </div>
-  <MessageForm ref="messageForm" :class="[$style.messageForm, calcTextDir(inputText)]" class="padding-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat" />
+  <MessageForm
+    ref="messageForm"
+    :class="[$style.messageForm, calcTextDir(inputText)]"
+    class="padding-lg"
+    @submit="sendMessage"
+    :value="inputText"
+    @input="onInput"
+    :disabled="isInputDisabled" />
 </div>
 </template>
 
@@ -73,6 +80,9 @@ export default {
     },
     its() {
       return this.chat ? this.chat.user : undefined;
+    },
+    isInputDisabled() {
+      return !this.chat || (this.chat.user.type === 'temporary' && !this.chat.isOnline) || (this.chat.user.username === this.$chatService.user.username && this.chat.user.type === this.$chatService.user.type)
     }
   },
   methods: {
@@ -118,8 +128,9 @@ export default {
     chat() {
       if (this.chat) {
         this.$chatService.refreshChat(this.chat);
-        this.chat.badge = 0;
-        this.$chatService._saveChats();
+        this.$chatService.editChat(this.chat, {
+          badge: 0,
+        });
         this.$refs.messageForm.focus();
       }
       this.inputText = '';
@@ -186,19 +197,20 @@ export default {
       }),
       className('messageItem', {
         userSelect: 'none',
-        // fontWeight: 'bold',
         width: '100%',
         '&.rtl': {
           direction: 'rtl',
         },
         '& > .inside': {
-          // fontSize: '22px',
-          // padding: '15px',
+          minWidth: '150px',
           maxWidth: '70%',
           display: 'inline-block',
           overflow: 'hidden',
-          userSelect: 'text',
-          minWidth: '100px',
+          border: `solid 1px ${this.$root.theme.borderColor}`,
+
+          '& .body': {
+            userSelect: 'text',
+          },
           '& > .info': {
             opacity: 0.5,
             fontSize: '10px',
@@ -216,6 +228,8 @@ export default {
             color: '#111',
             borderTopRightRadius: '8px',
             borderBottomRightRadius: '8px',
+            borderBottomLeftRadius: '8px',
+            marginLeft: "8px",
             '& > .info': {
               textAlign: 'right',
             }
@@ -228,6 +242,8 @@ export default {
             color: '#fff',
             borderTopLeftRadius: '8px',
             borderBottomLeftRadius: '8px',
+            borderTopRightRadius: "8px",
+            marginRight: "8px",
           }
         },
 

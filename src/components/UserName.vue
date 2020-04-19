@@ -2,8 +2,7 @@
   <div :class="[$style.userName, user.type]" v-if="user" :title="user.type">
     <span class="type">
       <i v-if="user.type === 'persist'" class="fa fa-user" />
-      <i v-else class="fa fa-user-secret" />
-      <!-- {{ user.type === 'persist' ? '@' : '' }}{{ user.type === 'temporary' ? '!' : '' }} -->
+      <i v-else-if="user.type === 'temporary'" class="fa fa-robot" />
     </span>
     <span class="username">{{ username }}</span>
   </div>
@@ -34,8 +33,7 @@ export default {
           opacity: 0.9,
         },
         '& .type': {
-          marginRight: '5px',
-          width: '15px',
+          marginRight: '8px',
           display: 'inline-block',
         }
       }),

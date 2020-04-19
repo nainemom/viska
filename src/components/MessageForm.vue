@@ -1,10 +1,10 @@
 <template>
 <form @submit.prevent="submit" :class="$style.formContainer">
-  <div :class="$style.emoticonsContainer" v-show="emoticonPanel">
+  <div ref="emoticonPanel" :class="$style.emoticonsContainer" v-show="emoticonPanel" tabindex="0" @blur="closeEmoticonPanelOnBlur">
     <img v-for="(emoticon, shortcut) in mapEmoticons" :key="emoticon" :src="'/emoticons/' + emoticon" @click="addEmoti(shortcut)"/>
   </div>
   <div :class="$style.inputContainer">
-    <Input ref="input" maxlength="255" :class="$style.input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled"/>
+    <Input ref="input" maxlength="255" :class="$style.input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled" @blur.native="closeEmoticonPanelOnBlur"/>
     <div :class="$style.inputBtns">
       <Button :class="$style.emotIcon" type="button" @click.native="toggleEmoticonPanel" class="padding-x-md padding-left-lg size-md text-xl" color="transparent" :disabled="disabled"> <i class="fa fa-smile-wink" /> </Button>
       <Button :class="$style.sendBtn" type="submit" class="padding-x-md padding-right-lg size-md text-xl" color="transparent" :disabled="disabled || !value"> <i class="fa fa-paper-plane" /> </Button>
@@ -37,6 +37,7 @@ export default {
     return {
       emoticonPanel: false,
       mapEmoticons,
+      closingEmoticonPanelOnBlur: null,
     }
   },
   methods: {
@@ -45,10 +46,18 @@ export default {
       this.emoticonPanel = false;
       this.$emit('submit', this.value);
     },
-    toggleEmoticonPanel(e) {
+    toggleEmoticonPanel(e, newVal = null) {
+      // clearTimeout(this.closingEmoticonPanelOnBlur);
       e && e.preventDefault();
       this.focus();
       this.emoticonPanel = !this.emoticonPanel;
+    },
+    closeEmoticonPanelOnBlur() {
+      setTimeout(() => {
+        if (![this.$refs.emoticonPanel, this.$refs.input.$el].includes(document.activeElement)) {
+          this.emoticonPanel = false;
+        }
+      });
     },
     addEmoti(key) {
       const el = this.$refs.input.$el;
@@ -65,6 +74,7 @@ export default {
       this.focus();
     },
     focus() {
+      // clearTimeout(this.closingEmoticonPanelOnBlur);
       this.$nextTick(() => {
         this.$refs.input.$el.focus();
       });
@@ -83,6 +93,9 @@ export default {
         backgroundColor: this.$root.theme.backgroundColor2,
         border: `solid 2px ${this.$root.theme.borderColor}`,
         textAlign: 'center',
+        '&:focus': {
+          outline: 'none',
+        },
         '& img': {
           cursor: 'pointer',
           transition: 'transform 0.2s',

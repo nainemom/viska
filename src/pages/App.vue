@@ -16,8 +16,12 @@
             <b> <i class="fa fa-share" />  {{ copyToClipboardText }} </b>
           </Button>
           <span class="padding-left-sm" />
-          <Button class="size-sm padding-left-lg padding-right-lg" color="light" v-if="$chatService.user.type" @click.native="logout">
-            <b> <i class="fa fa-sign-out-alt" />  Exit </b>
+          <Button class="size-sm padding-left-lg padding-right-lg" color="light" disabled title="Will be available soon!">
+            <b> <i class="fa fa-cog" /> </b>
+          </Button>
+          <span class="padding-left-sm" />
+          <Button class="size-sm padding-left-lg padding-right-lg" color="light" :disabled="!$chatService.user.type" @click.native="logout">
+            <b> <i class="fa fa-sign-out-alt" /> </b>
           </Button>
         </Cell>
       </div>
@@ -54,20 +58,10 @@ export default {
   data() {
     return {
       copyToClipboardText: 'Share My Direct Link!',
+      activeChat: undefined,
     }
   },
   computed: {
-    activeChat() {
-      if (this.$route.params.user) {
-        const type = this.$route.params.user.substr(0, 1) === '@' ? 'persist' : 'temporary';
-        const username = this.$route.params.user.substr(1);
-        return this.$chatService.getChat({
-          type,
-          username,
-        });
-      }
-      return undefined;
-    },
     packageVersion() {
       return process.env.PKG_VER;
     }
@@ -97,8 +91,25 @@ export default {
       // TODO use a better way
       this.$root.$refs.authPopup.openLogout();
     },
+    applyActiveChat() {
+      if (this.$route.params.user) {
+        const type = this.$route.params.user.substr(0, 1) === '@' ? 'persist' : 'temporary';
+        const username = this.$route.params.user.substr(1);
+        this.$chatService.getChat(
+          type,
+          username,
+        ).then((activeChat) => {
+          this.activeChat = activeChat;
+        });
+      } else {
+        this.activeChat = undefined;
+      }
+    }
   },
   created() {
+    this.$chatService.$on('login', () => {
+      this.applyActiveChat();
+    })
     this.$chatService.$on('newMessage', ({user, body}) => {
       const hasFocus = document.hasFocus();
       const isOnChatPage = this.activeChat && this.activeChat.user.type === user.type && this.activeChat.user.username === user.username;
@@ -110,14 +121,22 @@ export default {
         });
       }
       if (!isOnChatPage) {
-        const theChat = this.$chatService.getChat({
-          type: user.type,
-          username: user.username,
+        this.$chatService.getChat(
+          user.type,
+          user.username,
+          false,
+        ).then((theChat) => {
+          this.$chatService.editChat(theChat, {
+            badge: theChat.badge + 1,
+          });
         });
-        theChat.badge++;
-        this.$chatService._saveChats();
       }
     });
+  },
+  watch: {
+    '$route.path'() {
+      this.applyActiveChat();
+    }
   },
   style({ className, mediaQuery }) {
     return [

@@ -43,21 +43,28 @@ module.exports.createConnection = ({
 
     const connect = () => {
       return new Promise((resolve_, reject_) => {
+        if (!uri) {
+          return resolve_(false);
+        }
         mongoose.connect(uri, {
           useNewUrlParser: true,
           useUnifiedTopology: true,
         })
         mongoose.connection.once('error', reject_);
-        mongoose.connection.once('open', resolve_);
+        mongoose.connection.once('open', () => resolve_(true));
       });
     };
 
-    connect().then(() => {
+    connect().then((isReal) => {
+      if (!isReal) {
+        console.warn('== MONGO CONNECTION IS SKIPPED!');
+      }
       const models = {};
       Object.keys(collections).forEach((collectionName) => {
         models[collectionName] = collection(collectionName, collections[collectionName]);
       });
       resolve({
+        isReal,
         ...models,
       });
     }).catch(reject);

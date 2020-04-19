@@ -1,12 +1,13 @@
 const auth = require('./utils/auth.js');
 const escapeHtml = require('escape-html');
+const typeOf = require('../utils/typeOf.js');
 
 module.exports = (io, db, memDb) => (socket) => {
   let user = null;
   console.log('========> new connection', socket.id);
 
   // DONE
-  socket.on('auth', async ({ type, username, password }, callback) => {
+  socket.on('auth', async (data, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
@@ -14,31 +15,35 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user !== null) {
         return callback('dublicate', false);
       }
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
+      const { type, username, password } = data;
       if (type === 'persist') {
         if (!username || !password || !/^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username)) {
           return callback('data-error', false);
         }
-        
+
         const _username = username.toLowerCase();
         const _password = auth.generateKey(password, _username);
-        const theUser = await db.users.findOne({ username: _username, type });
-        if (!theUser) {
-          await db.users.insert({
-            username: _username,
-            password: _password,
-            type,
-          });
-          // no way that he is already actived
-        } else {
-          if (theUser.password !== _password) {
-            return callback('wrong-password', false);
+        if (db.isReal) {
+          const theUser = await db.users.findOne({ username: _username, type });
+          if (!theUser) {
+            await db.users.insert({
+              username: _username,
+              password: _password,
+              type,
+            });
+            // no way that he is already actived
+          } else {
+            if (theUser.password !== _password) {
+              return callback('wrong-password', false);
+            }
+            const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === username).length > 0;
+            if (isDublicate) {
+              return callback('dublicate', false);
+            }
           }
-          const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === username).length > 0;
-          if (isDublicate) {
-            return callback('dublicate', false);
-          }
-
-          user = theUser;
         }
         user = memDb.activeUsers.insert({
           username: _username,
@@ -91,21 +96,22 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
-      const pendingMessagesSearchQuery = {
-        'to.type': user.type,
-        'to.username': user.username,
-      };
-      const pendingMessages = await db.pendingMessages.find(pendingMessagesSearchQuery);
+      if (db.isReal) {
+        const pendingMessagesSearchQuery = {
+          'to.type': user.type,
+          'to.username': user.username,
+        };
+        const pendingMessages = db.isReal ? await db.pendingMessages.find(pendingMessagesSearchQuery) : [];
 
-
-      pendingMessages.forEach((messageObject) => {
-        io.sockets.connected[user.sid].emit('newMessage', {
-          from: messageObject.from,
-          body: messageObject.body,
-          date: messageObject.date,
+        pendingMessages.forEach((messageObject) => {
+          io.sockets.connected[user.sid].emit('newMessage', {
+            from: messageObject.from,
+            body: messageObject.body,
+            date: messageObject.date,
+          });
         });
-      });
-      db.pendingMessages.remove(pendingMessagesSearchQuery);
+        db.pendingMessages.remove(pendingMessagesSearchQuery);
+      }
 
       return callback(false, true);
 
@@ -181,13 +187,20 @@ module.exports = (io, db, memDb) => (socket) => {
   });
 
 
-  socket.on('getUserStatus', ( { type, username }, callback) => {
+  socket.on('getUserStatus', ( data, callback) => {
     if (typeof callback !== 'function') {
       return;
     }
     try {
       if (user === null) {
         return callback(true, false);
+      }
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
+      const { type, username } = data;
+      if (!username || !type) {
+        return callback('data-error', false);
       }
       const theUser = memDb.activeUsers.find((_user) => {
         return _user.type === type && _user.username === username;
@@ -211,7 +224,13 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
       const { user: { type, username }, body } = data;
+      if (!username || !type || !body) {
+        return callback('data-error', false);
+      }
       if (body.length > 255) {
         return callback(true, false);
       }
@@ -234,7 +253,7 @@ module.exports = (io, db, memDb) => (socket) => {
       if (receiverUser) {
         io.sockets.connected[receiverUser.sid].emit('newMessage', messageObject);
         callback(false, messageObject);
-      } else {
+      } else if (db.isReal) {
         db.users.isExists({
           type,
           username,
@@ -260,8 +279,13 @@ module.exports = (io, db, memDb) => (socket) => {
       if (user === null) {
         return callback(true, false);
       }
-
+      if (typeOf(data) !== 'object') {
+        return callback('data-error', false);
+      }
       const { user: { type, username } } = data;
+      if (!username || !type) {
+        return callback('data-error', false);
+      }
 
       const receiverUser = memDb.activeUsers.find((_user) => {
         return _user.type === type && _user.username === username;
@@ -286,5 +310,5 @@ module.exports = (io, db, memDb) => (socket) => {
 
     console.log('========> lost connection', socket.id);
   });
-  
+
 }
