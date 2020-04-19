@@ -32,7 +32,14 @@
       </span>
     </div>
   </div>
-  <MessageForm ref="messageForm" :class="[$style.messageForm, calcTextDir(inputText)]" class="padding-lg" @submit="sendMessage" :value="inputText" @input="onInput" :disabled="!chat || (chat.user.type === 'temporary' && !chat.isOnline)" />
+  <MessageForm
+    ref="messageForm"
+    :class="[$style.messageForm, calcTextDir(inputText)]"
+    class="padding-lg"
+    @submit="sendMessage"
+    :value="inputText"
+    @input="onInput"
+    :disabled="isInputDisabled" />
 </div>
 </template>
 
@@ -73,6 +80,9 @@ export default {
     },
     its() {
       return this.chat ? this.chat.user : undefined;
+    },
+    isInputDisabled() {
+      return !this.chat || (this.chat.user.type === 'temporary' && !this.chat.isOnline) || (this.chat.user.username === this.$chatService.user.username && this.chat.user.type === this.$chatService.user.type)
     }
   },
   methods: {
