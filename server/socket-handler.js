@@ -39,11 +39,18 @@ module.exports = (io, db, memDb) => (socket) => {
             if (theUser.password !== _password) {
               return callback('wrong-password', false);
             }
-            const dublicateAccount = memDb.activeUsers.find((_user) => _user.type === type && _user.username === _username);
+            const findDubHandler = (_user) => _user.type === type && _user.username === _username;
+            const dublicateAccount = memDb.activeUsers.find(findDubHandler);
             if (dublicateAccount.length) {
               if (disconnectOtherSessions) {
-                io.sockets.connected[dublicateAccount[0].sid].disconnect();
-                console.log(dublicateAccount[0]);
+                dublicateAccount.forEach((_u) => {
+                  try {
+                    io.sockets.connected[_u.sid].disconnect();
+                  } catch (e) {
+                    // who cares?!
+                  }
+                });
+                memDb.activeUsers.remove(findDubHandler);
               } else {
                 return callback('dublicate', false);
               }
