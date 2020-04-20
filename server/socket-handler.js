@@ -18,7 +18,7 @@ module.exports = (io, db, memDb) => (socket) => {
       if (typeOf(data) !== 'object') {
         return callback('data-error', false);
       }
-      const { type, username, password } = data;
+      const { type, username, password, disconnectOtherSessions = false } = data;
       if (type === 'persist') {
         if (!username || !password || !/^(?=.{3,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/.test(username)) {
           return callback('data-error', false);
@@ -39,9 +39,14 @@ module.exports = (io, db, memDb) => (socket) => {
             if (theUser.password !== _password) {
               return callback('wrong-password', false);
             }
-            const isDublicate = memDb.activeUsers.find((_user) => _user.type === type && _user.username === username).length > 0;
-            if (isDublicate) {
-              return callback('dublicate', false);
+            const dublicateAccount = memDb.activeUsers.find((_user) => _user.type === type && _user.username === _username);
+            if (dublicateAccount.length) {
+              if (disconnectOtherSessions) {
+                io.sockets.connected[dublicateAccount[0].sid].disconnect();
+                console.log(dublicateAccount[0]);
+              } else {
+                return callback('dublicate', false);
+              }
             }
           }
         }

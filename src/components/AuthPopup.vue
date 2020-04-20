@@ -1,10 +1,27 @@
 <template>
   <div :class="$style.container" v-if="visible">
     <div v-if="currentPage === 'duplicate'" :class="$style.sessionError">
-      <h2 class="padding-bottom-lg"><i class="fa fa-info-circle"> Close the Other Sessions First. </i></h2>
-      <h3 role="button" @click="currentPage = 'choose'">
-        <b> <i class="fa fa-chevron-right" /> Or Let Me Try with Another Credentials </b>
+      <h2 class="header padding-bottom-lg"><i class="fa fa-info-circle"> Multiple Session Error for @{{form.username}} </i></h2>
+      <!-- <h3 role="button" @click="currentPage = 'choose'">
+        <b> <i class="fa fa-chevron-right" /> Let Me Try with Another Credentials </b>
       </h3>
+      <h3 role="button" @click="currentPage = 'choose'">
+        <b> <i class="fa fa-sign-in-alt" /> Kill Other Sessions and Login </b>
+      </h3> -->
+      <Cell>
+        <div class="padding-right-md grow">
+          <Button class="size-md" color="default" fullWidth @click.native="currentPage = 'choose'">
+            <i class="fa fa-chevron-left" /> Go Back
+          </Button>
+        </div>
+        <div class="grow">
+          <Button class="size-md padding-x-lg" color="danger" fullWidth @click.native="auth('persist', true)" :loading="loading">
+            <i class="fa fa-sign-in-alt" /> Force Login
+          </Button>
+        </div>
+      </Cell>
+
+
     </div>
     <div :class="$style.box" class="padding-lg" v-else-if="currentPage === 'logout'">
       <div class="padding-bottom-lg">
@@ -127,11 +144,12 @@ export default {
       this.visible = true;
       this.currentPage = 'logout';
     },
-    auth(type) {
+    auth(type, disconnectOtherSessions = false) {
       this.loading = true;
       const sendRequest = (data = {}) => {
         this.$chatService.login({
           type,
+          disconnectOtherSessions,
           ...data
         }).then(() => {
           if (type === 'persist' && this.form.remember) {
@@ -187,12 +205,10 @@ export default {
         boxShadow: `0 12px 12px ${this.$root.theme.shadowColor}`,
       }),
       className('sessionError', {
-        color: '#fff',
         textAlign: 'center',
-        '& > h3': {
-          textDecoration: 'underline',
-          cursor: 'pointer',
-        }
+        '& .header': {
+          color: '#fff',
+        },
       }),
       className('dangerText', {
         color: '#e00000',
