@@ -74,7 +74,7 @@ export default ({
           loadLokiData(prefix.substr(1), true).then((oldChats) => {
             dbPromise.then((db) => db.get(collection, isDynamic(collection) ? prefix : 'root')).then((newChats) => {
               const parsedDt = [
-                ...newChats,
+                ...(newChats || []),
                 ...oldChats,
               ].filter((_chat, i, h) => h.findIndex((__chat) => __chat.user.username === _chat.user.username) === i)
               set(parsedDt).then(() => {
