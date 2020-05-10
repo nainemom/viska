@@ -4,7 +4,7 @@
     <img v-for="(emoticon, shortcut) in mapEmoticons" :key="emoticon" :src="'/emoticons/' + emoticon" @click="addEmoti(shortcut)"/>
   </div>
   <div :class="$style.inputContainer">
-    <Input ref="input" maxlength="255" :class="$style.input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" required :disabled="disabled" @blur.native="closeEmoticonPanelOnBlur"/>
+    <Input ref="input" maxlength="255" :class="$style.input" class="size-md" placeholder="Enter Your Message..." :value="value" @input="$emit('input', $event)" @keydown.enter="keydown" required :disabled="disabled" @blur.native="closeEmoticonPanelOnBlur"/>
     <div :class="$style.inputBtns">
       <Button :class="$style.emotIcon" type="button" @click.native="toggleEmoticonPanel" class="padding-x-md padding-left-lg size-md text-xl" color="transparent" :disabled="disabled"> <i class="fa fa-smile-wink" /> </Button>
       <Button :class="$style.sendBtn" type="submit" class="padding-x-md padding-right-lg size-md text-xl" color="transparent" :disabled="disabled || !value"> <i class="fa fa-paper-plane" /> </Button>
@@ -15,7 +15,7 @@
 
 <script>
 import Cell from './Cell.vue';
-import Input from './Input.vue';
+import Input from './AutoHeightInput.vue';
 import Button from './Button.vue';
 import { mapEmoticons } from '../../utils/emoticons.js';
 
@@ -78,6 +78,14 @@ export default {
       this.$nextTick(() => {
         this.$refs.input.$el.focus();
       });
+    },
+    keydown(event){
+      if(!event.shiftKey){
+        event.preventDefault();
+        if(this.value && this.value.trim()){
+          this.submit()
+        }
+      }
     }
   },
   style({ className }) {
@@ -115,7 +123,7 @@ export default {
       }),
       className('inputBtns', {
         position: 'absolute',
-        top: 0,
+        bottom: 0,
         right: 0,
       }),
       className('sendBtn', {
