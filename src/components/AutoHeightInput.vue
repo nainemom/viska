@@ -21,15 +21,15 @@ export default {
   },
   watch: {
     value(newValue) {
-      if (!newValue || !newValue.trim()) {
+      if(this.$el.innerText !== newValue){
+        if(this.$el.innerText.trim()){
+          this.saveRangePosition();
+        }
         this.$el.innerText = newValue;
-        // Move cursor to the last line
-        var range = document.createRange();
-        var sel = window.getSelection();
-        range.setStart(this.$el.childNodes[this.$el.childNodes.length - 1], 0);
-        range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
+        this.$el.focus();
+        if(newValue.trim()){
+          this.restoreRangePosition()
+        }
       }
     }
   },
@@ -39,7 +39,28 @@ export default {
       var text = e.clipboardData.getData("text/plain");
       document.execCommand("insertHTML", false, text);
       this.$emit("input", text);
-    }
+    },
+    saveRangePosition(){
+      var range=window.getSelection().getRangeAt(0);
+      var startContainer=range.startContainer,endContanier=range.endContainer;
+      const starts=[];while(startContainer!==this.$el){starts.push(this.getNodeIndex(startContainer));startContainer=startContainer.parentNode}
+      const  ends=[];while(endContanier!==this.$el){ends.push(this.getNodeIndex(endContanier));endContanier=endContanier.parentNode}
+      this.rangePosition ={"startContainer":starts,"startOffset":range.startOffset,"endContanier":ends,"endOffset":range.endOffset};
+    },
+    restoreRangePosition() {
+      this.$el.focus();
+      const selection=window.getSelection(),range=selection.getRangeAt(0);
+      var x,C,startContainer=this.$el,endContanier=this.$el;
+
+      C=this.rangePosition.startContainer;x=C.length;while(x--)startContainer=startContainer.childNodes[C[x]];
+      C=this.rangePosition.endContanier;x=C.length;while(x--)endContanier=endContanier.childNodes[C[x]];
+
+      range.setStart(startContainer,this.rangePosition.startOffset);
+      range.setEnd(endContanier,this.rangePosition.endOffset);
+      selection.removeAllRanges();
+      selection.addRange(range)
+    },
+    getNodeIndex(n){let i=0;while(n=n.previousSibling)i++;return i}
   },
   style({ className, mediaQuery }) {
     return [

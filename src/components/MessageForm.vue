@@ -61,17 +61,12 @@ export default {
     },
     addEmoti(key) {
       const el = this.$refs.input.$el;
-      if (el.selectionStart || el.selectionStart == '0') {
-        var startPos = el.selectionStart;
-        var endPos = el.selectionEnd;
-        this.$emit('input', el.value.substring(0, startPos)
-            + key
-            + el.value.substring(endPos, el.value.length));
-      } else {
-          this.$emit('input', (el.value + key));
-      }
-
+      const value = el.value || el.innerText;
       this.focus();
+      let range = document.getSelection().getRangeAt(0);
+        this.$emit('input', value.substring(0, range.startOffset)
+            + key
+            + value.substring(range.endOffset, value.length));
     },
     focus() {
       // clearTimeout(this.closingEmoticonPanelOnBlur);
