@@ -1,10 +1,11 @@
 <template>
   <div
     :class="$style.input"
-    contenteditable
+    :contenteditable="!disabled"
+    :disabled="disabled"
+    :data-placeholder="!value && placeholder"
     @input="$emit('input', $event.target.innerText)"
     @keydown="$emit('keydown', $event)"
-    :data-placeholder="!value && placeholder"
     @paste="paste"
   />
 </template>
@@ -17,6 +18,9 @@ export default {
     },
     placeholder: {
       type: String
+    },
+    disabled: {
+      type: Boolean
     }
   },
   watch: {
