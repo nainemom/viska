@@ -42,7 +42,6 @@ export default {
       e.preventDefault();
       var text = e.clipboardData.getData("text/plain");
       document.execCommand("insertHTML", false, text);
-      this.$emit("input", text);
     },
     saveRangePosition(){
       var range=window.getSelection().getRangeAt(0);
