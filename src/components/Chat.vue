@@ -210,6 +210,7 @@ export default {
 
           '& .body': {
             userSelect: 'text',
+            whiteSpace: 'pre-wrap'
           },
           '& > .info': {
             opacity: 0.5,
