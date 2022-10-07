@@ -1,11 +1,10 @@
 import http from 'http';
 import express from 'express';
 import socketIo from 'socket.io';
-import db from 'mongoose';
-import socketHandler from './socket-handler';
-import httpHandler from './http-handler';
+import socketHandler from './socket-handler.js';
+import httpHandler from './http-handler.js';
 
-const PORT = parseInt(process.env.PORT || 3002, 10);
+const PORT = parseInt(process.env.VISKA_SERVER_PORT || 3002, 10);
 const expressApp = express();
 const server = http.createServer(expressApp);
 const io = socketIo({
@@ -17,7 +16,6 @@ io.attach(server, {
   cookie: false,
 });
 const users = new Map();
-db.Promise = Promise;
 
 const main = async () => {
   console.log('SETUPING HTTP...');

@@ -1,11 +1,11 @@
 import {
   sendMessage,
-} from './controllers/message';
+} from './controllers/message.js';
 import {
   connect,
   disconnect,
   getUser,
-} from './controllers/user';
+} from './controllers/connection.js';
 
 export default (io, users) => {
   io.on('connection', (socket) => {

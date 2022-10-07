@@ -1,65 +1,57 @@
-import { typeOf, findFromMap } from '../utils/handy';
-import {
-  userId as userIdCheck,
-  userType as userTypeCheck,
-  userSalt as userSaltCheck,
-  userPassphrase as userPassphraseCheck,
-} from '../validators';
-import { generateKey } from '../utils/hash';
-import { createUser } from '../utils/user';
+import typeOf from '../utils/typeOf.js';
+import { IDENTITY_TYPES, SERVER_ENTER_KEY } from '../constants/index.js';
+import { pbkdf2Sync } from 'crypto';
 
-export const connect = (socket, users) => () => {
-  console.log('connect');
+export const connect = ({ socket, users }) => () => {
+  console.log('connection request');
   try {
-    const reject = () => console.log('reject connection') && socket.close();
-    const { type = '!', username, password } = socket.handshake.auth || {};
-    if (!userTypeCheck(type)) {
-      reject();
-    } else {
-      let id = null;
-      const hashedPassword = generateKey(password);
-
-      if (type === '@') {
-        if (!userSaltCheck(salt) || !userPassphraseCheck(passphrase)) {
-          reject();
-        }
-        id = `@${generateKey(passphrase, salt)}`;
-      } else {
-        id = `!${generateKey(`${Date.now()}`, `${Math.random() * 1000}`)}`;
-      }
-      const user = createUser(id, socket);
-      socket.userId = id;
-      users.set(id, user);
-      socket.emit('update', user.export());
+    const reject = () => {
+      console.log('reject connection');
+      socket.close();
     }
+    const data = socket.handshake.auth || {};
+    if (typeOf(data) !== 'object') {
+      return reject();
+    }
+    const { enterKey = '', passphrase = '', identityType = 'temporary' } = socket.handshake.auth || {};
+    if (
+      typeOf(passphrase) !== 'string' || passphrase.length < 8,
+      Object.hasOwnProperty.call(IDENTITY_TYPES, identityType),
+      enterKey !== SERVER_ENTER_KEY
+    ) {
+      return reject();
+    }
+
+    const identity = `${IDENTITY_TYPES[identityType]}:${pbkdf2Sync(passphrase, SERVER_ENTER_KEY, 10000, 32, 'sha512').toString('hex')}`;
+    socket.identity = identity;
+    users.set(identity, socket);
+    socket.emit('connect', identity);
+    console.log('connection approved');
   } catch (e) {
     console.error(e);
   }
 };
 
 export const disconnect = (socket, users) => () => {
-  console.log('disconnect');
-  users.delete(socket.userId);
+  users.delete(socket.identity);
+  console.log('connection disconnected');
 };
 
-export const getUser = (users) => async (data, callback) => {
+export const pingUser = ({ users }) => async (data, callback) => {
   if (typeOf(callback) !== 'function') {
     return false;
   }
   try {
     if (typeOf(data) !== 'object') {
-      return callback(400, '"data" should be object.');
+      return callback(400);
     }
-    const { id } = data;
-    if (!userIdCheck(id)) {
-      return callback(400, '"data.id" is not valid.');
+    const { to } = data;
+    if (users.has(to)) {
+      return callback(200);
     }
-    if (!users.has(id)) {
-      return callback(404, 'user not found');
-    }
-    return callback(200, users.get(id).export());
+    return callback(404);
   } catch (e) {
     console.error(e);
-    return callback(500, e);
+    return callback(500);
   }
 };
