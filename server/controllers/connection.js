@@ -1,5 +1,4 @@
 import { typeOf, findFromMap } from '../utils/handy';
-import User from '../models/user';
 import {
   userId as userIdCheck,
   userType as userTypeCheck,
@@ -29,7 +28,6 @@ export const connect = (socket, users) => () => {
         id = `!${generateKey(`${Date.now()}`, `${Math.random() * 1000}`)}`;
       }
       const user = createUser(id, socket);
-      // eslint-disable-next-line no-param-reassign
       socket.userId = id;
       users.set(id, user);
       socket.emit('update', user.export());
@@ -60,42 +58,6 @@ export const getUser = (users) => async (data, callback) => {
       return callback(404, 'user not found');
     }
     return callback(200, users.get(id).export());
-  } catch (e) {
-    console.error(e);
-    return callback(500, e);
-  }
-};
-
-export const randomUser = (socket, users) => async (_data, callback) => {
-  if (typeOf(callback) !== 'function') {
-    return false;
-  }
-  try {
-    const user = users.get(socket.userId);
-
-    user.lookingForRandomUser = !user.lookingForRandomUser;
-    socket.emit('update', user.export());
-
-    if (user.lookingForRandomUser) {
-      const connectedUser = findFromMap(users, (item) => item.id !== user.id && item.lookingForRandomUser);
-      if (connectedUser) {
-        user.lookingForRandomUser = false;
-        connectedUser.lookingForRandomUser = false;
-
-        const userExport = user.export();
-        const connectedUserExport = connectedUser.export();
-
-        setTimeout(() => {
-          connectedUser.socket.emit('update', connectedUserExport);
-          socket.emit('update', userExport);
-          connectedUser.socket.emit('randomUser', userExport);
-          socket.emit('randomUser', connectedUserExport);
-        }, 2000);
-      } else {
-        user.lookingForRandomUser = true;
-      }
-    }
-    return callback(200);
   } catch (e) {
     console.error(e);
     return callback(500, e);

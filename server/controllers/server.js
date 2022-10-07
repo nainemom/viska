@@ -1,18 +1,9 @@
-import Message from '../models/message';
+import { version } from '../../package.json';
 
-export const getStatus = async (_req, res, users) => {
-  const pendingMessages = await Message.estimatedDocumentCount();
+export const getStatus = async ({ res, users }) => {
   const response = {
     activeConnections: users.size,
-    pendingMessages,
+    version,
   };
   res.json(response);
-};
-
-export const cleanPendingMessages = async () => {
-  await Message.deleteMany({
-    sentAt: {
-      $lt: new Date(Date.now() - 604800000 /* one week */),
-    },
-  });
 };

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import http from 'http';
 import express from 'express';
 import socketIo from 'socket.io';
@@ -21,13 +20,10 @@ const users = new Map();
 db.Promise = Promise;
 
 const main = async () => {
-  console.log('STARTING DATABASE...');
-  // await db.connect('mongodb://localhost:27017/default');
   console.log('SETUPING HTTP...');
   httpHandler(expressApp, users);
   console.log('SETUPING IO...');
   socketHandler(io, users);
-  // io.on('connection', socketHandler(io));
   console.log('RUNNING SERVER...');
   server.listen(PORT, () => console.log(`DONE! APP STARTED ON PORT ${PORT}!`));
 };
