@@ -1,52 +1,19 @@
 {
   "name": "viska",
   "version": "2.3.1",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "clean": "rimraf ./docs",
-    "dev:server": "cross-env NODE_ENV=development nodemon server/index.js --ignore 'src/*'",
-    "dev:client": "cross-env NODE_ENV=development SERVER_URL=':3002' node build --watch",
-    "build:client": "npm run clean && cross-env NODE_ENV=production SERVER_URL='https://viska.herokuapp.com' node build --production",
-    "build": "echo \"Server code does'nt need to build. To building client use build:client command.\"",
-    "start": "cross-env NODE_ENV=production node server/index.js"
-  },
-  "engines": {
-    "node": ">=11.0.0",
-    "npm": ">=6.0.0"
-  },
-  "dependencies": {
-    "backblaze-b2": "^1.5.0",
-    "escape-html": "^1.0.3",
-    "express": "^4.17.1",
-    "fingerprintjs2": "^2.1.0",
-    "idb": "^5.0.2",
-    "lokijs": "^1.5.8",
-    "mongoose": "^5.9.9",
-    "offline-plugin": "^5.0.7",
-    "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0",
-    "vue": "^2.6.11",
-    "vue-component-style": "^1.0.2",
-    "vue-router": "^3.1.6"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0",
-    "@babel/plugin-transform-runtime": "^7.9.0",
-    "@babel/preset-env": "^7.9.0",
-    "babel-loader": "^8.1.0",
-    "copy-webpack-plugin": "^5.1.1",
-    "cross-env": "^7.0.2",
-    "file-loader": "^6.0.0",
-    "html-loader": "^1.0.0",
-    "html-webpack-plugin": "^4.0.2",
-    "nodemon": "^2.0.2",
-    "raw-loader": "^4.0.0",
-    "rimraf": "^3.0.2",
-    "vue-loader": "^15.9.1",
-    "vue-template-compiler": "^2.6.11",
-    "webpack": "^4.42.1",
-    "webpack-dev-server": "^3.10.3",
-    "webpack-pwa-manifest": "^4.2.0"
+    "@preact/preset-vite": "^2.4.0",
+    "autoprefixer": "^10.4.12",
+    "postcss": "^8.4.17",
+    "tailwindcss": "^3.1.8",
+    "vite": "^3.1.6"
+  },
+  "dependencies": {
+    "preact": "^10.11.1"
   }
 }
