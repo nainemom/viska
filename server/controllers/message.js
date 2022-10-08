@@ -1,4 +1,4 @@
-import typeOf from '../utils/typeOf.js';
+import { typeOf } from '../../utils/types.js';
 import escapeHtml from 'escape-html';
 
 export const sendMessage = ({ socket, users }) => async (data, callback) => {
@@ -7,12 +7,12 @@ export const sendMessage = ({ socket, users }) => async (data, callback) => {
   }
   try {
     if (typeOf(data) !== 'object') {
-      return callback(400);
+      return callback(false);
     }
     const { identity, body } = data;
 
     if (typeOf(body) !== 'string' || !users.has(identity)) {
-      return callback(400);
+      return callback(false);
     }
 
     const messageObject = {
@@ -22,9 +22,9 @@ export const sendMessage = ({ socket, users }) => async (data, callback) => {
     };
 
     users.get(identity).emit('message', messageObject);
-    return callback(200, messageObject);
+    return callback(true, messageObject);
   } catch (e) {
     console.error(e);
-    return callback(500);
+    return callback(false);
   }
 };

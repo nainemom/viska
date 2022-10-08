@@ -1,14 +1,20 @@
 import http from 'http';
 import { default as Express } from 'express';
 import { Server as SocketIo } from 'socket.io';
+import cors from 'cors';
 import socketHandler from './socket-handler.js';
 import httpHandler from './http-handler.js';
-import { SERVER_PORT } from './constants/index.js';
+import { SERVER_PORT, SERVER_ALLOWED_CLIENTS } from '../constants/index.server.js';
 
+const corsConfig = {
+  origin: SERVER_ALLOWED_CLIENTS,
+};
 const expressApp = new Express();
+expressApp.use(cors(corsConfig))
 const server = http.createServer(expressApp);
 const io = new SocketIo({
   serveClient: false,
+  cors: corsConfig,
 });
 io.attach(server, {
   pingInterval: 10000,

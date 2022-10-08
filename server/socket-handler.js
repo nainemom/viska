@@ -1,4 +1,5 @@
 import {
+  beforeConnect,
   connect,
   disconnect,
   pingUser,
@@ -8,6 +9,8 @@ import {
 } from './controllers/message.js';
 
 export default (io, users) => {
+  io.use(beforeConnect);
+
   io.on('connection', (socket) => {
     connect({ socket, users })();
     socket.on('disconnect', disconnect({ socket, users }));

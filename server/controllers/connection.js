@@ -1,32 +1,29 @@
-import typeOf from '../utils/typeOf.js';
-import { IDENTITY_TYPES, SERVER_ENTER_KEY } from '../constants/index.js';
+import { typeOf } from '../../utils/types.js';
+import { SERVER_ACCESS_KEY } from '../../constants/index.server.js';
 import { pbkdf2Sync } from 'crypto';
 
-export const connect = ({ socket, users }) => () => {
+export const beforeConnect = (socket, next) => {
   console.log('connection request');
-  try {
-    const reject = () => {
-      console.log('reject connection');
-      socket.close();
-    }
-    const data = socket.handshake.auth || {};
-    if (typeOf(data) !== 'object') {
-      return reject();
-    }
-    const { enterKey = '', passphrase = '', identityType = 'temporary' } = socket.handshake.auth || {};
-    if (
-      typeOf(passphrase) !== 'string' || passphrase.length < 8,
-      Object.hasOwnProperty.call(IDENTITY_TYPES, identityType),
-      enterKey !== SERVER_ENTER_KEY
-    ) {
-      return reject();
-    }
+  const { accessKey = '', passphrase = '' } = socket.handshake.auth || {};
+  if (
+    typeOf(passphrase) !== 'string' || passphrase.length < 1,
+    accessKey !== SERVER_ACCESS_KEY
+  ) {
+    console.log('connection rejected');
+    return next(new Error("thou shall not pass"));
+  }
+  return next();
+};
 
-    const identity = `${IDENTITY_TYPES[identityType]}:${pbkdf2Sync(passphrase, SERVER_ENTER_KEY, 10000, 32, 'sha512').toString('hex')}`;
+export const connect = ({ socket, users }) => () => {
+  try {
+    const { passphrase = '' } = socket.handshake.auth || {};
+    const identity = pbkdf2Sync(passphrase, SERVER_ACCESS_KEY, 10000, 32, 'sha512').toString('hex');
     socket.identity = identity;
     users.set(identity, socket);
-    socket.emit('connect', identity);
-    console.log('connection approved');
+    socket.emit('identity', identity);
+    console.log('connection approved.');
+
   } catch (e) {
     console.error(e);
   }
@@ -43,15 +40,15 @@ export const pingUser = ({ users }) => async (data, callback) => {
   }
   try {
     if (typeOf(data) !== 'object') {
-      return callback(400);
+      return callback(false);
     }
     const { to } = data;
     if (users.has(to)) {
-      return callback(200);
+      return callback(true);
     }
-    return callback(404);
+    return callback(false);
   } catch (e) {
     console.error(e);
-    return callback(500);
+    return callback(false);
   }
 };
