@@ -5,7 +5,7 @@
     "dev:client": "vite",
     "build:client": "vite build",
     "start:client": "vite preview",
-    "dev:server": "node -r esm server/index.js --watch server",
+    "dev:server": "nodemon -r esm server/index.js --watch server",
     "start:server": "node -r esm server/index.js",
     "build:server": "echo 'No need to build server!'",
     "test": "echo 'Test passed!'"
@@ -13,6 +13,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.4.0",
     "autoprefixer": "^10.4.12",
+    "nodemon": "^2.0.20",
     "postcss": "^8.4.17",
     "tailwindcss": "^3.1.8",
     "vite": "^3.1.6"
@@ -25,6 +26,7 @@
     "preact": "^10.11.1",
     "socket.io": "^4.5.2",
     "socket.io-client": "^4.5.2",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "ws": "^8.9.0"
   }
 }

@@ -1,30 +1,26 @@
 import { typeOf } from '../../utils/types.js';
 import escapeHtml from 'escape-html';
+import activeUsers from '../services/activeUsers.js';
+import { createWsMessage } from '../../utils/wsMessage.js';
 
-export const sendMessage = ({ socket, users }) => async (data, callback) => {
-  if (typeOf(callback) !== 'function') {
-    return false;
-  }
+export const sendMessage = ({ socket, id }, data) => {
   try {
     if (typeOf(data) !== 'object') {
-      return callback(false);
+      return;
     }
-    const { identity, body } = data;
+    const { to, body } = data;
 
-    if (typeOf(body) !== 'string' || !users.has(identity)) {
-      return callback(false);
+    if (typeOf(body) !== 'string' || !activeUsers.has(to)) {
+      return;
     }
 
-    const messageObject = {
-      from: socket.identity,
-      to: identity,
+    const wsMessage = createWsMessage('message', {
+      from: id,
+      to,
       body: escapeHtml(body.trim()),
-    };
+    });
 
-    users.get(identity).emit('message', messageObject);
-    return callback(true, messageObject);
-  } catch (e) {
-    console.error(e);
-    return callback(false);
-  }
+    activeUsers.get(to).send(wsMessage);
+    socket.send(wsMessage);
+  } catch (_e) {}
 };

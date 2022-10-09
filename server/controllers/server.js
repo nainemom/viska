@@ -1,9 +1,9 @@
-import { SERVER_ACCESS_KEY } from '../../constants/index.server.js';
+import activeUsers from '../services/activeUsers.js';
 
-export const getStatus = async ({ res, users }) => {
-  res.json({
-    connections: users.size,
+export const getStatus = async (_req, res) => {
+  res.writeHead(200);
+  res.send(JSON.stringify({
+    activeUsers: activeUsers.length,
     version: process.env.npm_package_version,
-    public: SERVER_ACCESS_KEY.length === 0,
-  });
+  }));
 };

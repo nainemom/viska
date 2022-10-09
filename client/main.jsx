@@ -1,5 +1,6 @@
-import { render } from 'preact'
-import { App } from './app'
-import './index.css'
+import { render } from 'preact';
+import { App } from './app';
+import './index.css';
+import { ServerProvider } from './services/server.jsx';
 
-render(<App />, document.getElementById('app'))
+render(<ServerProvider><App /></ServerProvider>, document.getElementById('app'));
