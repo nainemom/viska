@@ -1,0 +1,5 @@
+export const ENCRYPTION_ALGORITHM_NAME = 'RSA-OAEP';
+export const ENCRYPTION_MODULES_LENGTH = 2048;
+export const ENCRYPTION_HASH_TYPE = 'SHA-256';
+export const ENCRYPTION_PUBLIC_KEY_TYPE = 'spki';
+export const ENCRYPTION_PRIVATE_KEY_TYPE = 'pkcs8';
