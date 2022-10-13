@@ -8,7 +8,7 @@ html {
 }
 
 html, body, #app {
-  @apply h-full min-h-full overflow-auto;
+  @apply h-full min-h-full overflow-auto overflow-x-hidden;
 }
 html {
   @apply bg-gray-100;
