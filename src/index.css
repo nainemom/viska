@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+html {
+  @apply sm:py-8;
+}
+
+html, body, #app {
+  @apply h-full min-h-full overflow-auto;
+}
+html {
+  @apply bg-gray-100;
+}
+
+body {
+  @apply w-full max-w-screen-sm bg-white m-auto shadow-lg rounded-none sm:rounded-lg;
+}
