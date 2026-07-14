@@ -1,0 +1,69 @@
+# Simple dev-oriented stack — no Dockerfiles. Each service runs an inline
+# command on the official node image with the repo bind-mounted.
+#
+# Prerequisite (once):   npm install
+# Run:                   podman compose up
+#
+#   Client   -> http://localhost:5173     (Vite dev server)
+#   Server   -> ws://localhost:5280/ws     (the browser connects here directly)
+#
+# Postgres lives only on the internal network. Peek with:
+#   podman compose exec postgres psql -U viska
+#
+# NOTE: the schema changed in v3 — if you have an old `viska-db` volume, reset
+# it once with `podman compose down -v` before `podman compose up`.
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    environment:
+      POSTGRES_USER: viska
+      POSTGRES_PASSWORD: viska
+      POSTGRES_DB: viska
+    volumes:
+      - viska-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U viska -d viska"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    image: docker.io/library/node:20
+    working_dir: /app
+    command: npm run dev --workspace @viska/back
+    environment:
+      DATABASE_URL: postgres://viska:viska@postgres:5432/viska
+      PORT: "5280"
+      # Web Push. A dev keypair is baked in (see shared/constants.ts +
+      # src/push.ts); for production set your own from
+      # `npx web-push generate-vapid-keys` — the public half must also be
+      # copied into shared/constants.ts (VAPID_PUBLIC_KEY).
+      # VAPID_PRIVATE_KEY: "..."
+      # VAPID_SUBJECT: "mailto:you@example.com"
+    volumes:
+      - .:/app
+    # Let the container read the bind-mounted repo on SELinux hosts (Fedora etc.).
+    security_opt:
+      - label=disable
+    ports:
+      - "5280:5280"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  client:
+    image: docker.io/library/node:20
+    working_dir: /app
+    command: npm run dev --workspace @viska/front
+    volumes:
+      - .:/app
+    security_opt:
+      - label=disable
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+
+volumes:
+  viska-db:
